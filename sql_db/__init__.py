@@ -17,7 +17,7 @@ from sql_db.users import create_user_table, add_user, get_all_users, get_user_by
 from sql_db.rankings import create_rankings_table, add_ranking, get_all_rankings, RankingData
 from utils import logger
 
-logger.debug(f"Downloading Data from {REPO_NAME}")
+logger.debug(f"Downloading Data from repo")
 
 REPO_PATH = "data"
 if not os.path.exists(REPO_PATH):
