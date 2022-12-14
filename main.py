@@ -41,6 +41,7 @@ logger.debug("Finished importing DB")
 async def homepage(request: Request):
     user = request.session.get('user')
     if user:
+        add_user(user["email"], user["name"])
         return RedirectResponse("/legal")
     return templates.TemplateResponse("home.html", {"request": request})
 
@@ -50,6 +51,7 @@ async def legal(request: Request):
     user = request.session.get('user')
     logger.debug(f"{user}")
     if user:
+        add_user(user["email"], user["name"])
         return templates.TemplateResponse("legal.html", {"request": request})
     return RedirectResponse("/")
 
