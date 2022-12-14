@@ -4,7 +4,7 @@ import shutil
 import sqlite3
 from datetime import datetime
 from glob import glob
-
+from git import Repo
 import boto3
 from apscheduler.schedulers.background import BackgroundScheduler
 import huggingface_hub
@@ -17,14 +17,16 @@ from sql_db.users import create_user_table, add_user, get_all_users, get_user_by
 from sql_db.rankings import create_rankings_table, add_ranking, get_all_rankings, RankingData
 from utils import logger
 
-logger.debug("Downloading Data")
-repo = huggingface_hub.Repository(
-    local_dir="data",
-    repo_type="dataset",
-    clone_from=REPO_NAME,
-    use_auth_token=TOKEN
-)
-repo.git_pull()
+logger.debug(f"Downloading Data from {REPO_NAME}")
+
+REPO_PATH = "data"
+if not os.path.exists(REPO_PATH):
+    Repo.clone_from(REPO_NAME, REPO_PATH)
+    repo = Repo('data')
+else:
+    repo = Repo('data')
+    repo.remotes.origin.pull()
+
 logger.debug("Finished git pull")
 
 
@@ -38,17 +40,18 @@ def table2csv(table_name):
     reviews = db.execute(f"SELECT * FROM {table_name}").fetchall()
     csv_path = f"{HF_DB_DIR}/{table_name}.csv"
     pd.DataFrame(reviews).to_csv(csv_path, index=False)
-    repo.git_add(os.path.realpath(csv_path), auto_lfs_track=True)
+    repo.index.add(os.path.realpath(csv_path))
 
 
 def backup_db():
     logger.info(f"Starting updating db - {datetime.now()}")
     shutil.copyfile(DB_FILE, HF_DB_PATH)
-    repo.git_add(os.path.realpath(HF_DB_PATH), auto_lfs_track=True)
+    repo.index.add(os.path.realpath(HF_DB_PATH))
     table2csv("users")
     table2csv("images")
     table2csv("rankings")
-    repo.push_to_hub(blocking=True, commit_message=f"Updating data at {datetime.now()}")
+    repo.index.commit(f"Updating data at {datetime.now()}")
+    repo.git.push()
     logger.info(f"Finished updating db - {datetime.now()}")
 
 
