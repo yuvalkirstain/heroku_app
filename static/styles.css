@@ -1,0 +1,78 @@
+body, h1 {
+            font-family: "Raleway", sans-serif
+}
+
+body, html {
+    height: 100%
+}
+
+.bgimg1 {
+    background-image: linear-gradient(
+            rgba(0, 0, 0, 0.7),
+            rgba(0, 0, 0, 0.7)
+    ),
+    url('https://cdn.vox-cdn.com/thumbor/2r45ZB9RdOaTyUNvEb6CM6jCWfs=/0x0:1366x796/1400x1050/filters:focal(683x398:684x399)/cdn.vox-cdn.com/uploads/chorus_asset/file/24021977/Screenshot_2022_09_14_at_14.39.17.png');
+    min-height: 100%;
+    background-position: center;
+    background-size: cover;
+}
+
+.bgimg2 {
+    background-image: linear-gradient(
+            rgba(0, 0, 0, 0.7),
+            rgba(0, 0, 0, 0.7)
+    ),
+    url('https://techcrunch.com/wp-content/uploads/2022/08/53118410-9cce-468a-8bf6-1b8ce4dd1390_1600x925.webp');
+    min-height: 100%;
+    background-position: center;
+    background-size: cover;
+}
+
+.bgimg3 {
+    background-image: linear-gradient(
+            rgba(0, 0, 0, 0.7),
+            rgba(0, 0, 0, 0.7)
+    ),
+    url('https://waxy.org/wp-content/uploads/2022/09/image-1-1024x492.png');
+    min-height: 100%;
+    background-position: center;
+    background-size: cover;
+}
+
+h1.with-eight {
+    font-size: 4vw;
+    text-shadow: 0.05em 0 black,
+    0 0.05em black,
+    -0.05em 0 black,
+    0 -0.05em black,
+    -0.05em -0.05em black,
+    -0.05em 0.05em black,
+    0.05em -0.05em black,
+    0.05em 0.05em black;
+}
+
+p.with-eight {
+    text-decoration: none;
+    font-size: 2vw;
+    text-shadow: 0.05em 0 black,
+    0 0.05em black,
+    -0.05em 0 black,
+    0 -0.05em black,
+    -0.05em -0.05em black,
+    -0.05em 0.05em black,
+    0.05em -0.05em black,
+    0.05em 0.05em black;
+}
+
+li.with-eight {
+    text-decoration: none;
+    font-size: 2vw;
+    text-shadow: 0.05em 0 black,
+    0 0.05em black,
+    -0.05em 0 black,
+    0 -0.05em black,
+    -0.05em -0.05em black,
+    -0.05em 0.05em black,
+    0.05em -0.05em black,
+    0.05em 0.05em black;
+}
