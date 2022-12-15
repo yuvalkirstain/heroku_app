@@ -63,7 +63,8 @@ def get_stable_images(prompt, negative_prompt, num_samples, user_id):
     return pil_images, image_data
 
 
-def run_model(prompt, negative_prompt, state, request: gr.Request):
+def run_model(prompt, state, request: gr.Request):
+    negative_prompt = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
     user_mail = state["user_mail"]
     best_image_update = gr.update(visible=True, interactive=True, value=None)
     user_id = get_user_by_email(user_mail).user_id
@@ -95,16 +96,18 @@ def make_demo_visible(state, request: gr.Request):
         prompt = gr.update(visible=True, interactive=True)
         clear_btn = gr.update(visible=True)
         submit_btn = gr.update(visible=True)
-        negative_prompt = gr.update(visible=True, interactive=True)
+        # negative_prompt = gr.update(visible=False, interactive=True)  # TODO do we want to make it visible?
         start_btn = gr.update(visible=False)
         state["user_mail"] = request.request.session.get('user')['email']
     else:
         prompt = gr.update(visible=False, interactive=True)
         clear_btn = gr.update(visible=False)
         submit_btn = gr.update(visible=False)
-        negative_prompt = gr.update(visible=False, interactive=True)
+        # negative_prompt = gr.update(visible=False, interactive=True)
         start_btn = gr.update(visible=False)
-    return prompt, clear_btn, submit_btn, negative_prompt, start_btn, state
+    # return prompt, clear_btn, submit_btn, negative_prompt, start_btn, state
+    return prompt, clear_btn, submit_btn, start_btn, state
+
 
 
 def best_image_click(best_image, state):
@@ -142,15 +145,15 @@ def clear_all(state):
     prompt = gr.update(visible=True, interactive=True, value="")
     gallery = gr.update(visible=False, value=[])
     best_image = gr.update(visible=False, value=None)
-    run = gr.update(visible=False)
+    run = gr.update(value="Submit prompt")
     return prompt, gallery, best_image, run, state
 
 
 def submit_prompt():
     prompt = gr.update(visible=True, interactive=False)
-    run = gr.update(visible=True)
     gallery = gr.update(visible=True)
-    return prompt, run, gallery
+    run_btn = gr.update(value="Generate more images", visible=False)
+    return prompt, gallery, run_btn
 
 
 logger.debug("Starting to create demo")
@@ -206,19 +209,27 @@ h1.with-eight {
                 visible=False
             )
 
-            submit_btn = gr.Button(
+            run_btn = gr.Button(
                 "Submit Prompt",
                 visible=False,
                 variant="primary"
             )
 
-        negative_prompt = gr.Textbox(
-            label="Negative Model Prompt",
-            interactive=True,
-            value="ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy",
-            placeholder="Write here a negative prompt.",
-            visible=False,
-            lines=2
+        # negative_prompt = gr.Textbox(
+        #     label="Negative Model Prompt",
+        #     interactive=True,
+        #     value="ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy",
+        #     placeholder="Write here a negative prompt.",
+        #     visible=False,
+        #     lines=2
+        # )
+
+    with gr.Column():
+        best_image = gr.Radio(
+            [f"Image {i}" for i in range(4)],
+            label="Which image is the best?",
+            elem_id="best-image",
+            visible=False
         )
 
         gallery = gr.Gallery(
@@ -229,38 +240,33 @@ h1.with-eight {
             value=None  # [DUMMY_IMG_URL] * 4
         ).style(grid=[2], height="auto")
 
-        best_image = gr.Radio(
-            [f"Image {i}" for i in range(4)],
-            label="Which image is the best?",
-            elem_id="best-image",
-            visible=False
-        )
-        run = gr.Button("Run", visible=False)
 
     start_btn.click(
         make_demo_visible,
         queue=False,
         inputs=[state],
-        outputs=[prompt, clear_btn, submit_btn, negative_prompt, start_btn, state]
+        # outputs=[prompt, clear_btn, run_btn, negative_prompt, start_btn, state]
+        outputs=[prompt, clear_btn, run_btn, start_btn, state]
     )
 
     # After the user submits the prompt, we allow them to run the model.
     prompt.submit(
         submit_prompt,
         queue=False,
-        outputs=[prompt, run, gallery]
+        outputs=[prompt, gallery, run_btn]
     )
-    submit_btn.click(
+    run_btn.click(
         submit_prompt,
         queue=False,
-        outputs=[prompt, run, gallery]
+        outputs=[prompt, gallery, run_btn]
     )
 
     # When the user runs the model, we show the generated images and best image radio.
-    run.click(
+    run_btn.click(
         run_model,
-        inputs=[prompt, negative_prompt, state],
-        outputs=[best_image, gallery, run, state]
+        inputs=[prompt, state],
+        # inputs=[prompt, negative_prompt, state],
+        outputs=[best_image, gallery, run_btn, state]
     )
 
     # After the user chooses the best image they can run the model again.
@@ -268,7 +274,7 @@ h1.with-eight {
         best_image_click,
         queue=False,
         inputs=[best_image, state],
-        outputs=[best_image, run, state, gallery]
+        outputs=[best_image, run_btn, state, gallery]
     )
 
     # If the user wants to change prompt, we clear everything
@@ -276,7 +282,7 @@ h1.with-eight {
         clear_all,
         queue=False,
         inputs=[state],
-        outputs=[prompt, gallery, best_image, run, state]
+        outputs=[prompt, gallery, best_image, run_btn, state]
     )
 
 logger.debug("Finished importing demo")
