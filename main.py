@@ -14,7 +14,7 @@ from starlette.templating import Jinja2Templates
 logger.debug("importing demo")
 from gr_app import demo
 logger.debug("importing DB")
-from sql_db import add_user, create_user_table, create_image_table, create_rankings_table, download_db, get_all_users, get_all_images, get_all_rankings
+from sql_db import add_user, create_user_table, create_image_table, create_rankings_table, get_all_users, get_all_images, get_all_rankings # download_db
 
 logger.debug("finished importing DB")
 app = FastAPI()
@@ -90,7 +90,7 @@ async def logout(request: Request):
 @app.on_event("startup")
 async def create_db():
     logger.debug("Init DB")
-    download_db()
+    # download_db()
     create_user_table()
     create_image_table()
     create_rankings_table()

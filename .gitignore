@@ -50,3 +50,6 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# jupyter 
+.ipynb_checkpoints/
+
