@@ -182,7 +182,7 @@ h1.with-eight {
 }
 """) as demo:
     gr.HTML(
-        """<h1 class="with-eight" align="center" style="font-size:30px; font-weight:bold; color:white"> NATALI: Natural Text-to-Image Alignment</h1>""")
+        """<h1 class="with-eight" align="center" style="font-size:30px; font-weight:bold; color:white"> Pick a Pic</h1>""")
     start_btn = gr.Button("Press here to start!")
 
     state = gr.State(
