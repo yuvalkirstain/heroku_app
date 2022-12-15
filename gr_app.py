@@ -82,7 +82,7 @@ def run_model(prompt, state, request: gr.Request):
 
     state[IMAGES_DATA_NAME] = [asdict(image_data) for image_data in images_data]
     state[IMAGES_NAME] = images
-    image_captions = [(image, f"Generated image {i}") for i, image in enumerate(images)]
+    image_captions = [(image, f"Generated image {i + 1}") for i, image in enumerate(images)]
     gallery_update = gr.update(visible=True, value=image_captions)
     run = gr.update(visible=False)
     return best_image_update, gallery_update, run, state
@@ -116,7 +116,7 @@ def best_image_click(best_image, state):
         run = gr.update(visible=False)
         gallery = gr.update()
     else:
-        best_image_idx = int(best_image.split(" ")[-1])
+        best_image_idx = int(best_image.split(" ")[-1]) - 1
         # TODO we want to upload the ranking
         images_data = state[IMAGES_DATA_NAME]
         image_hashes = [hash(ImageData(**image_data)) for image_data in images_data]
@@ -131,7 +131,7 @@ def best_image_click(best_image, state):
         images = state[IMAGES_NAME]
         black = Image.new("RGB", images[0].size, color=0)
         images = [Image.blend(image, black, 0.7) if i != best_image_idx else image for i, image in enumerate(images)]
-        image_captions = [(image, f"Generated image {i}") for i, image in enumerate(images)]
+        image_captions = [(image, f"Generated image {i + 1}") for i, image in enumerate(images)]
         gallery = gr.update(visible=True, value=image_captions)
     return best_image, run, state, gallery
 
@@ -145,7 +145,7 @@ def clear_all(state):
     prompt = gr.update(visible=True, interactive=True, value="")
     gallery = gr.update(visible=False, value=[])
     best_image = gr.update(visible=False, value=None)
-    run = gr.update(value="Submit prompt")
+    run = gr.update(value="Submit prompt", visible=True)
     return prompt, gallery, best_image, run, state
 
 
@@ -198,7 +198,7 @@ h1.with-eight {
     with gr.Column():
         prompt = gr.Textbox(
             label="Model Prompt",
-            placeholder="Write here a description of an image (prompt/caption) and press enter.",
+            placeholder="Write here a description of an image (prompt/caption) and press Submit Prompt.",
             visible=False,
             lines=2
         )
