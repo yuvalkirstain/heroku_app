@@ -2,6 +2,7 @@ import logging
 import os
 import shutil
 import sqlite3
+import time
 from datetime import datetime
 from glob import glob
 from git import Repo
@@ -26,6 +27,12 @@ def upload_images():
         aws_secret_access_key=AWS_SECRET_KEY,
     )
     for path in glob(f"{IMAGE_DIR}/*"):
+        # we want to keep the file for one minute
+        creation_time = os.path.getctime(path)
+        current_time = time.time()
+        time_difference = current_time - creation_time
+        if time_difference < 60:
+            continue
         s3_client.upload_file(path,
                               BUCKET_NAME,
                               path,
