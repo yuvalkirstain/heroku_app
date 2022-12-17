@@ -10,7 +10,7 @@ from PIL import Image
 from io import BytesIO
 
 logger.debug("Importing db")
-from sql_db import IMAGE_DIR, ImageData, add_image, RankingData, add_ranking, get_user_by_email
+from sql_db import IMAGE_DIR, ImageData, RankingData, add_ranking, get_user_by_email
 
 logger.debug("Finished importing db")
 BACKEND_URL = os.environ["BACKEND_URL"]
@@ -78,14 +78,14 @@ def run_model(prompt, state, request: gr.Request):
     for image, image_data in zip(images, images_data):
         image_hash = hash(image_data)
         image.save(f"{IMAGE_DIR}/{image_hash}.png")
-        add_image(image_data)
 
     state[IMAGES_DATA_NAME] = [asdict(image_data) for image_data in images_data]
     state[IMAGES_NAME] = images
     image_captions = [(image, f"Generated image {i + 1}") for i, image in enumerate(images)]
     gallery_update = gr.update(visible=True, value=image_captions)
     run = gr.update(visible=False)
-    return best_image_update, gallery_update, run, state
+    download = gr.update(visible=False)
+    return best_image_update, gallery_update, run, state, download
 
 
 def make_demo_visible(state, request: gr.Request):
@@ -115,6 +115,7 @@ def best_image_click(best_image, state):
         best_image = gr.update(interactive=True)
         run = gr.update(visible=False)
         gallery = gr.update()
+        download = gr.update(visible=False)
     else:
         best_image_idx = int(best_image.split(" ")[-1]) - 1
         # TODO we want to upload the ranking
@@ -126,14 +127,15 @@ def best_image_click(best_image, state):
         ranking = RankingData(**data)
         add_ranking(ranking)
         state[BEST_IMAGE_IDX_NAME] = best_image_idx
-        best_image = gr.update(interactive=False)
+        best_image = gr.update(visible=False)
         run = gr.update(visible=True)
         images = state[IMAGES_NAME]
         black = Image.new("RGB", images[0].size, color=0)
         images = [Image.blend(image, black, 0.7) if i != best_image_idx else image for i, image in enumerate(images)]
         image_captions = [(image, f"Generated image {i + 1}") for i, image in enumerate(images)]
         gallery = gr.update(visible=True, value=image_captions)
-    return best_image, run, state, gallery
+        download = prepare_img(state)
+    return best_image, run, state, gallery, download
 
 
 def clear_all(state):
@@ -146,7 +148,8 @@ def clear_all(state):
     gallery = gr.update(visible=False, value=[])
     best_image = gr.update(visible=False, value=None)
     run = gr.update(value="Submit prompt", visible=True)
-    return prompt, gallery, best_image, run, state
+    download =  gr.update(visible=False)
+    return prompt, gallery, best_image, run, state, download
 
 
 def submit_prompt():
@@ -154,6 +157,12 @@ def submit_prompt():
     gallery = gr.update(visible=True)
     run_btn = gr.update(value="Generate more images", visible=False)
     return prompt, gallery, run_btn
+
+def prepare_img(state):
+    image_data = state[IMAGES_DATA_NAME][state[BEST_IMAGE_IDX_NAME]]
+    image_hash = hash(ImageData(**image_data))
+    download = gr.update(value=f"{IMAGE_DIR}/{image_hash}.png", visible=True)
+    return download
 
 
 logger.debug("Starting to create demo")
@@ -188,9 +197,9 @@ h1.with-eight {
     state = gr.State(
         value={
             "prompt": None,
-            "best_image_idx": None,
-            "images_data": None,
-            "images": None,
+            BEST_IMAGE_IDX_NAME: None,
+            IMAGES_DATA_NAME: None,
+            IMAGES_NAME: None,
             "user_mail": None,
         }
     )
@@ -232,6 +241,7 @@ h1.with-eight {
             visible=False
         )
 
+        download = gr.File(label="Download Image", visible=False)
         gallery = gr.Gallery(
             label="Generated images",
             show_label=False,
@@ -266,7 +276,7 @@ h1.with-eight {
         run_model,
         inputs=[prompt, state],
         # inputs=[prompt, negative_prompt, state],
-        outputs=[best_image, gallery, run_btn, state]
+        outputs=[best_image, gallery, run_btn, state, download]
     )
 
     # After the user chooses the best image they can run the model again.
@@ -274,7 +284,7 @@ h1.with-eight {
         best_image_click,
         queue=False,
         inputs=[best_image, state],
-        outputs=[best_image, run_btn, state, gallery]
+        outputs=[best_image, run_btn, state, gallery, download],
     )
 
     # If the user wants to change prompt, we clear everything
@@ -282,7 +292,7 @@ h1.with-eight {
         clear_all,
         queue=False,
         inputs=[state],
-        outputs=[prompt, gallery, best_image, run_btn, state]
+        outputs=[prompt, gallery, best_image, run_btn, state, download]
     )
 
 logger.debug("Finished importing demo")
