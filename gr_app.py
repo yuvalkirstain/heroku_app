@@ -226,7 +226,7 @@ h1.with-eight {
 
     with gr.Column():
         best_image = gr.Radio(
-            [f"Image {i}" for i in range(4)],
+            [f"Generated image {i + 1}" for i in range(4)],
             label="Which image is the best?",
             elem_id="best-image",
             visible=False
