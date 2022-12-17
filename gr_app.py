@@ -113,7 +113,7 @@ def make_demo_visible(state, request: gr.Request):
 def best_image_click(best_image, state):
     if best_image is None:
         best_image = gr.update(interactive=True)
-        run = gr.update(visible=False)
+        run = gr.update()
         gallery = gr.update()
         download = gr.update(visible=False)
     else:
@@ -148,7 +148,7 @@ def clear_all(state):
     gallery = gr.update(visible=False, value=[])
     best_image = gr.update(visible=False, value=None)
     run = gr.update(value="Submit prompt", visible=True)
-    download =  gr.update(visible=False)
+    download = gr.update(visible=False)
     return prompt, gallery, best_image, run, state, download
 
 
