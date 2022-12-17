@@ -36,6 +36,6 @@ def upload_images():
 
 logger.debug("Setting up background jobs")
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=upload_images, trigger="interval", seconds=60)
+scheduler.add_job(func=upload_images, trigger="interval", seconds=180)
 scheduler.start()
 logger.debug("Finished setting up background jobs")
