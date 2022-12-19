@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Pick a Pic: About Us{% endblock %}
+
+{% block content %}
+    <div class="bgimg3 w3-display-container w3-animate-opacity w3-text-white">
+        <div class="w3-display-middle">
+            <h1 align="center" class="with-eight"><strong>Pick a Pic: About Us</strong></h1>
+            <hr class="w3-border-grey" style="margin:auto;width:100%">
+            <p align="left" class="with-eight">
+                We are a group of researchers that wish to make human feedback of generative models more accessible to
+                the research community. We believe that the best way to do so is by creating platforms that allow users
+                to easily and quickly (and for free) provide feedback through interaction with generative models. We
+                hope that this specific effort will help to collect human feedback on text-to-image models, and will
+                trigger the community to initiate similar efforts in other modalities.
+                This is a community effort, and we would love to get your help and hear your feedback. If you have any
+                suggestions, comments, or questions, please contact us at <a href="mailto:pickapic.io@gmail.com
+">pickapick.io@gmail.com.</a>
+            </p>
+
+            <hr class="w3-border-grey" style="margin:auto;width:100%">
+            <a href="/" style="text-decoration:none">
+                <p align="center" class="with-eight">Back to homepage</p>
+            </a>
+
+            {% if not is_authenticated %}
+                <hr class="w3-border-grey" style="margin:auto;width:50%">
+                <a href="/login" style="text-decoration:none">
+                    <p align="center" class="with-eight">Login and Participate</p>
+                </a>
+            {% endif %}
+            <hr class="w3-border-grey" style="margin:auto;width:100%">
+
+            <h4 align="center" class="with-eight"><strong>Contributors</strong></h4>
+            <p align="left" class="with-eight" style="font-size: 1vw">
+                Yuval Kirstain, Omer Levy, Adam Polyak, Uriel Singer, Uri Shaham, Or Honovich, Itai Itzhak, and more.
+            </p>
+        </div>
+    </div>
+{% endblock %}

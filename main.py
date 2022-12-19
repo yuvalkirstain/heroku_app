@@ -11,10 +11,13 @@ from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
+
 logger.debug("importing demo")
 from gr_app import demo
+
 logger.debug("importing DB")
-from sql_db import add_user, create_user_table, create_image_table, create_rankings_table, get_all_users, get_all_images, get_all_rankings # download_db
+from sql_db import add_user, create_user_table, create_image_table, create_rankings_table, get_all_users, \
+    get_all_images, get_all_rankings  # download_db
 
 logger.debug("finished importing DB")
 app = FastAPI()
@@ -39,11 +42,12 @@ logger.debug("Finished importing DB")
 
 @app.get('/')
 async def homepage(request: Request):
-    user = request.session.get('user')
-    if user:
-        add_user(user["email"], user["name"])
-        return RedirectResponse("/legal")
-    return templates.TemplateResponse("home.html", {"request": request})
+    # user = request.session.get('user')
+    # if user:
+    #     add_user(user["email"], user["name"])
+    #     return RedirectResponse("/legal")
+    return templates.TemplateResponse("home.html",
+                                      {"request": request, "is_authenticated": request.session.get('user') is not None})
 
 
 @app.get('/legal')
@@ -56,9 +60,9 @@ async def legal(request: Request):
     return RedirectResponse("/")
 
 
-@app.get('/info')
-async def legal(request: Request):
-    return templates.TemplateResponse("info.html",
+@app.get('/reach_out')
+async def reach_out(request: Request):
+    return templates.TemplateResponse("reach_out.html",
                                       {"request": request, "is_authenticated": request.session.get('user') is not None})
 
 
@@ -66,6 +70,16 @@ async def legal(request: Request):
 async def login(request: Request):
     redirect_uri = request.url_for('auth')
     return await oauth.google.authorize_redirect(request, redirect_uri)
+
+
+@app.get('/gradio_entry')
+async def login(request: Request):
+    user = request.session.get('user')
+    logger.debug(f"{user}")
+    if user:
+        add_user(user["email"], user["name"])
+        return templates.TemplateResponse("legal.html", {"request": request})
+    return RedirectResponse("/")
 
 
 @app.get('/auth')
@@ -78,7 +92,7 @@ async def auth(request: Request):
     if user:
         request.session['user'] = dict(user)
         add_user(user["email"], user["name"])
-    return RedirectResponse(url='/')
+    return RedirectResponse(url='/gradio_entry')
 
 
 @app.get('/logout')
