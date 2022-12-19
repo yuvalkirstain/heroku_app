@@ -1,4 +1,5 @@
 import base64
+import json
 import os
 from datetime import datetime
 
@@ -14,12 +15,13 @@ logger.debug("Importing db")
 from sql_db import IMAGE_DIR, ImageData, RankingData, add_ranking, get_user_by_email
 
 logger.debug("Finished importing db")
-BACKEND_URL = os.environ["BACKEND_URL"]
+BACKEND_URLS = json.loads(os.environ["BACKEND_URLS"])
 DUMMY_IMG_URL = f"https://loremflickr.com/256/256"
 IMAGES_DATA_NAME = "images_data"
 IMAGES_NAME = "images"
 BEST_IMAGE_IDX_NAME = 'best_image_idx'
 
+cur_backend_url_idx = 0
 
 def get_random_images():
     logger.debug("Getting random images")
@@ -34,8 +36,12 @@ def get_random_images():
 def get_stable_images(prompt, negative_prompt, num_samples, user_id):
     logger.debug("Generating images...")
     start = datetime.now()
+    global cur_backend_url_idx
+    print(f"Using backend {BACKEND_URLS[cur_backend_url_idx]}")
+    backend_url = BACKEND_URLS[cur_backend_url_idx]
+    cur_backend_url_idx = (cur_backend_url_idx + 1) % len(BACKEND_URLS)
     response = requests.post(
-        BACKEND_URL,
+        backend_url,
         json={
             "prompt": prompt,
             "negative_prompt": negative_prompt,
@@ -302,7 +308,7 @@ h1.with-eight {
 
 logger.debug("Finished importing demo")
 demo.queue(
-    concurrency_count=4,
-    max_size=20,
+    concurrency_count=len(BACKEND_URLS) * 8,
+    max_size=len(BACKEND_URLS) * 8 * 4,
     default_enabled=True
 )
