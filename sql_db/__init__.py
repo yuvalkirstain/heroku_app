@@ -20,7 +20,6 @@ from utils import logger
 
 
 def upload_images():
-    logger.debug(f"Starting updating images - {datetime.now()}")
     s3_client = boto3.client(
         's3',
         aws_access_key_id=AWS_ACCESS_KEY,
@@ -38,7 +37,6 @@ def upload_images():
                               path,
                               ExtraArgs=S3_EXTRA_ARGS)
         os.remove(path)
-    logger.debug(f"Finished updating images - {datetime.now()}")
 
 
 logger.debug("Setting up background jobs")
