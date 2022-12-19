@@ -63,6 +63,18 @@ h3.with-eight {
     0.05em 0.05em black;
 }
 
+h4.with-eight {
+    font-size: 2vw;
+    text-shadow: 0.05em 0 black,
+    0 0.05em black,
+    -0.05em 0 black,
+    0 -0.05em black,
+    -0.05em -0.05em black,
+    -0.05em 0.05em black,
+    0.05em -0.05em black,
+    0.05em 0.05em black;
+}
+
 p.with-eight {
     text-decoration: none;
     font-size: 2vw;
