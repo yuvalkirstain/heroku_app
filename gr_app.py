@@ -306,9 +306,11 @@ h1.with-eight {
         outputs=[prompt, gallery, best_image, run_btn, state, download]
     )
 
-logger.debug("Finished importing demo")
+concurrency_count = len(BACKEND_URLS) * 8
+max_size = len(BACKEND_URLS) * 8 * 4
+logger.debug(f"Finished importing demo:\n   concurrency_count: {concurrency_count}\n    max_size: {max_size}")
 demo.queue(
-    concurrency_count=len(BACKEND_URLS) * 8,
-    max_size=len(BACKEND_URLS) * 8 * 4,
+    concurrency_count=concurrency_count,
+    max_size=max_size,
     default_enabled=True
 )
