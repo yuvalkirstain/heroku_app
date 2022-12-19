@@ -1,5 +1,6 @@
 import base64
 import os
+from datetime import datetime
 
 from utils import logger
 from dataclasses import asdict
@@ -32,21 +33,25 @@ def get_random_images():
 
 def get_stable_images(prompt, negative_prompt, num_samples, user_id):
     logger.debug("Generating images...")
+    start = datetime.now()
     response = requests.post(
         BACKEND_URL,
         json={
-            "prompt": [prompt] * num_samples,
-            "negative_prompt": [negative_prompt] * num_samples,
+            "prompt": prompt,
+            "negative_prompt": negative_prompt,
             "user_id": user_id,
             "num_samples": num_samples,
         }
     )
+    print(f"Generating images took {datetime.now() - start}")
+    start = datetime.now()
     response_json = response.json()
     images = response_json.pop("images")
     pil_images = []
-    for image in images:
+    for image in images[:num_samples]:
         image = Image.open(BytesIO(base64.b64decode(image)))
         pil_images.append(image)
+    print(f"Decoding images took {datetime.now() - start}")
     image_data = []
     for i in range(num_samples):
         image_data.append(ImageData(user_id=response_json["user_id"],
@@ -55,7 +60,7 @@ def get_stable_images(prompt, negative_prompt, num_samples, user_id):
                                     seed=response_json["seed"],
                                     gs=response_json["gs"],
                                     steps=response_json["steps"],
-                                    idx=i,
+                                    idx=response_json["idx"][i],
                                     num_generated=response_json["num_generated"],
                                     scheduler_cls=response_json["scheduler_cls"],
                                     model_id=response_json["model_id"]))
@@ -74,11 +79,11 @@ def run_model(prompt, state, request: gr.Request):
     if best_image_idx is not None:
         images_data.insert(best_image_idx, ImageData(**state[IMAGES_DATA_NAME][best_image_idx]))
         images.insert(best_image_idx, state[IMAGES_NAME][best_image_idx])
-
+    start = datetime.now()
     for image, image_data in zip(images, images_data):
         image_hash = hash(image_data)
         image.save(f"{IMAGE_DIR}/{image_hash}.png")
-
+    print(f"Saving images took {datetime.now() - start}")
     state[IMAGES_DATA_NAME] = [asdict(image_data) for image_data in images_data]
     state[IMAGES_NAME] = images
     image_captions = [(image, f"Generated image {i + 1}") for i, image in enumerate(images)]
