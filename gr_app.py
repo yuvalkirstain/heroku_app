@@ -16,6 +16,7 @@ from sql_db import IMAGE_DIR, ImageData, RankingData, add_ranking, get_user_by_e
 
 logger.debug("Finished importing db")
 BACKEND_URLS = json.loads(os.environ["BACKEND_URLS"])
+logger.debug(f"BACKEND_URLS={BACKEND_URLS}")
 DUMMY_IMG_URL = f"https://loremflickr.com/256/256"
 IMAGES_DATA_NAME = "images_data"
 IMAGES_NAME = "images"
