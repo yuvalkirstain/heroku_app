@@ -1,12 +1,17 @@
----
-title: Natali
-emoji: 📚
-colorFrom: blue
-colorTo: red
-sdk: gradio
-sdk_version: 3.13.0
-app_file: app.py
-pinned: false
----
+# Installation
 
-Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+Create an env and run:
+```bash
+pip install -r requirements.txt
+```
+
+# Run locally
+```bash
+uvicorn main:app --reload --port 8080
+```
+
+# Run on Heroku
+Simply go to the heroku app and press deploy.
+
+# Pull Requests
+Please send us pull requests so we can improve the app!
