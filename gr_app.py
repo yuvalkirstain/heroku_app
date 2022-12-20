@@ -12,7 +12,7 @@ from PIL import Image
 from io import BytesIO
 
 logger.debug("Importing db")
-from sql_db import IMAGE_DIR, ImageData, RankingData, add_ranking, get_user_by_email
+from sql_db import IMAGE_DIR, ImageData, RankingData, add_ranking, get_user_by_email, add_image
 
 logger.debug("Finished importing db")
 BACKEND_URLS = json.loads(os.environ["BACKEND_URLS"])
@@ -88,6 +88,7 @@ def run_model(prompt, state, request: gr.Request):
     start = datetime.now()
     for image, image_data in zip(images, images_data):
         image_hash = hash(image_data)
+        add_image(image_data)
         image.save(f"{IMAGE_DIR}/{image_hash}.png")
     print(f"Saving images took {datetime.now() - start}")
     state[IMAGES_DATA_NAME] = [asdict(image_data) for image_data in images_data]

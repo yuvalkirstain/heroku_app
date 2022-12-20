@@ -111,10 +111,10 @@ async def create_db():
     logger.debug("Finished Init DB")
 
 
-# @app.get('/users')
-# async def users():
-#     users = get_all_users()
-#     return HTMLResponse(users.to_html())
+@app.get('/users')
+async def users():
+    users = get_all_users()
+    return HTMLResponse(users.to_html())
 
 
 @app.get('/images')
