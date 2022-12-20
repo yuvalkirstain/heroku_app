@@ -40,31 +40,7 @@ body, html {
 }
 
 h1.with-eight {
-    font-size: 4vw;
-    text-shadow: 0.05em 0 black,
-    0 0.05em black,
-    -0.05em 0 black,
-    0 -0.05em black,
-    -0.05em -0.05em black,
-    -0.05em 0.05em black,
-    0.05em -0.05em black,
-    0.05em 0.05em black;
-}
-
-h3.with-eight {
-    font-size: 2.5vw;
-    text-shadow: 0.05em 0 black,
-    0 0.05em black,
-    -0.05em 0 black,
-    0 -0.05em black,
-    -0.05em -0.05em black,
-    -0.05em 0.05em black,
-    0.05em -0.05em black,
-    0.05em 0.05em black;
-}
-
-h4.with-eight {
-    font-size: 2vw;
+    font-size: 5vmin;
     text-shadow: 0.05em 0 black,
     0 0.05em black,
     -0.05em 0 black,
@@ -77,7 +53,7 @@ h4.with-eight {
 
 p.with-eight {
     text-decoration: none;
-    font-size: 2vw;
+    font-size: 2.5vmin;
     text-shadow: 0.05em 0 black,
     0 0.05em black,
     -0.05em 0 black,
@@ -90,7 +66,7 @@ p.with-eight {
 
 li.with-eight {
     text-decoration: none;
-    font-size: 2vw;
+    font-size: 2.5vmin;
     text-shadow: 0.05em 0 black,
     0 0.05em black,
     -0.05em 0 black,
