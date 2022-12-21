@@ -21,7 +21,8 @@ DUMMY_IMG_URL = f"https://loremflickr.com/256/256"
 IMAGES_DATA_NAME = "images_data"
 IMAGES_NAME = "images"
 BEST_IMAGE_IDX_NAME = 'best_image_idx'
-
+EXTRA_IM_DATA = "extra_im_data"
+EXTRA_IM = "extra_im"
 cur_backend_url_idx = 0
 
 def get_random_images():
@@ -34,7 +35,15 @@ def get_random_images():
     return images
 
 
-def get_stable_images(prompt, negative_prompt, num_samples, user_id):
+def get_stable_images(prompt, negative_prompt, num_samples, user_id, state):
+    print("Getting images")
+    if state[EXTRA_IM_DATA] is not None:
+        print("Using extra images")
+        images_data = state[EXTRA_IM_DATA][:num_samples]
+        images = state[EXTRA_IM][:num_samples]
+        state[EXTRA_IM_DATA] = None
+        state[EXTRA_IM] = None
+        return images, images_data
     logger.debug("Generating images...")
     start = datetime.now()
     global cur_backend_url_idx
@@ -55,12 +64,12 @@ def get_stable_images(prompt, negative_prompt, num_samples, user_id):
     response_json = response.json()
     images = response_json.pop("images")
     pil_images = []
-    for image in images[:num_samples]:
+    for image in images:
         image = Image.open(BytesIO(base64.b64decode(image)))
         pil_images.append(image)
     print(f"Decoding images took {datetime.now() - start}")
     image_data = []
-    for i in range(num_samples):
+    for i in range(len(pil_images)):
         image_data.append(ImageData(user_id=response_json["user_id"],
                                     prompt=response_json["prompt"][i],
                                     negative_prompt=response_json["negative_prompt"][i],
@@ -71,17 +80,20 @@ def get_stable_images(prompt, negative_prompt, num_samples, user_id):
                                     num_generated=response_json["num_generated"],
                                     scheduler_cls=response_json["scheduler_cls"],
                                     model_id=response_json["model_id"]))
+    image_data, state[EXTRA_IM_DATA] = image_data[:num_samples], image_data[num_samples:]
+    pil_images, state[EXTRA_IM] = pil_images[:num_samples], pil_images[num_samples:]
     logger.debug("Finished generating images...")
     return pil_images, image_data
 
 
 def run_model(prompt, state, request: gr.Request):
+    print("Running model")
     negative_prompt = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
     user_mail = state["user_mail"]
     best_image_update = gr.update(visible=True, interactive=True, value=None)
     user_id = get_user_by_email(user_mail).user_id
     num_samples = 4 if state[BEST_IMAGE_IDX_NAME] is None else 3
-    images, images_data = get_stable_images(prompt, negative_prompt, num_samples, user_id)
+    images, images_data = get_stable_images(prompt, negative_prompt, num_samples, user_id, state)
     best_image_idx = state[BEST_IMAGE_IDX_NAME]
     if best_image_idx is not None:
         images_data.insert(best_image_idx, ImageData(**state[IMAGES_DATA_NAME][best_image_idx]))
@@ -214,6 +226,8 @@ h1.with-eight {
             IMAGES_DATA_NAME: None,
             IMAGES_NAME: None,
             "user_mail": None,
+            EXTRA_IM_DATA: None,
+            EXTRA_IM: None
         }
     )
 
