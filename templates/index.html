@@ -7,64 +7,83 @@
 </head>
 <body>
 
-{% if not is_authenticated %}
-    <div class="splash-screen" id="splash-screen">
-        <div class="splash-screen-inner" id="intro">
-            <h1>Pick a Pic</h1>
-            <p> Human feedback led to dramatic improvements in natural language processing.
-                In this project we wish to initiate a community effort to use human feedback in text-to-image
-                generation.
-                Being a community effort, all the code, data, and models resulting from this project will be completely
-                open-sourced.
-                We welcome any contributions and help with this effort.</p>
-            <div class="splash-screen-buttons">
-                <button class="splash-screen-button" id="next-button-intro">Next</button>
-            </div>
-        </div>
-        <div class="splash-screen-inner" id="legal-notice" style="display: none;">
-            <h1>Legal Notice</h1>
-            <p>By using this demo, you agree to the following terms and conditions:</p>
-            <ul>
-                <li>This demo is intended for research purposes only.</li>
-                <li>The authors are not responsible for any misuse of the demo. This includes damages or losses that may
-                    result from using the demo.
-                </li>
-                <li>By using the demo, the users grant consent for their prompts, interactions, and generated images to
-                    be collected and eventually released into the public domain.
-                </li>
-            </ul>
-            <div class="splash-screen-buttons">
-                <button class="splash-screen-button" id="back-button" style="margin-right: 0.5vh">Back</button>
-                <button class="splash-screen-button" id="next-button-legal">Next</button>
-            </div>
-        </div>
-        <div class="splash-screen-inner" id="google-sign-in" style="display: none;">
-            <h1>Pick a Pic</h1>
-            <p> The last step before participating and using the demo is to authenticate that you are a real human
-                user.
-            </p>
-            <div class="splash-screen-buttons">
-                <button class="splash-screen-button" id="google-back-button" style="margin-right: 0.5vh">Back</button>
-                <button class="splash-screen-button" id="google-button">Sign in with Google</button>
-            </div>
+<div class="splash-screen" id="splash-screen">
+    <div class="splash-screen-inner" id="intro">
+        <h1>Pick a Pic</h1>
+        <p> Human feedback led to dramatic improvements in natural language processing.
+            In this project we wish to initiate a community effort to use human feedback in text-to-image
+            generation.
+            Being a community effort, all the code, data, and models resulting from this project will be completely
+            open-sourced.
+            We welcome any contributions and help with this effort.</p>
+        <div class="splash-screen-buttons">
+            <button class="splash-screen-button" id="next-button-intro">Next</button>
         </div>
     </div>
-{% endif %}
+    <div class="splash-screen-inner" id="legal-notice" style="display: none;">
+        <h1>Legal Notice</h1>
+        <p>By using this demo, you agree to the following terms and conditions:</p>
+        <ul>
+            <li>This demo is intended for research purposes only.</li>
+            <li>The authors are not responsible for any misuse of the demo. This includes damages or losses that may
+                result from using the demo.
+            </li>
+            <li>By using the demo, the users grant consent for their prompts, interactions, and generated images to
+                be collected and eventually released into the public domain.
+            </li>
+        </ul>
+        <div class="splash-screen-buttons">
+            <button class="splash-screen-button" id="back-button" style="margin-right: 0.5vh">Back</button>
+            <button class="splash-screen-button" id="next-button-legal">Next</button>
+        </div>
+    </div>
+    <div class="splash-screen-inner" id="google-sign-in" style="display: none;">
+        <h1>Pick a Pic</h1>
+        <p> The last step before participating and using the demo is to authenticate that you are a real human
+            user.
+        </p>
+        <div class="splash-screen-buttons">
+            <button class="splash-screen-button" id="google-back-button" style="margin-right: 0.5vh">Back</button>
+            <button class="splash-screen-button" id="google-button">Sign in with Google</button>
+        </div>
+    </div>
+    <div class="splash-screen-inner" id="model-info" style="display: none;">
+        <h1>Pick a Pic</h1>
+        <p> Currently we use <a href="https://huggingface.co/stabilityai/stable-diffusion-2-1" style="font-weight: bold; text-decoration: none">Stable diffusion 2.1</a>
+            with a guidance scale of 9. If you think that there is a better open-sourced model available, or would like
+            to suggest
+            better approaches to employ this model, please contact us.</p>
+        <div class="splash-screen-buttons">
+            <button class="splash-screen-button" id="model-info-button" style="margin-right: 0.5vh">Return to demo
+            </button>
+        </div>
+    </div>
+</div>
+
 <div class="parent" style="top: 0;">
-    <footer>
-        <p>Reach us on <a href="https://discord.gg/SWVEm9Kz" target="_blank">💬 Discord</a> or at <a
-                href="mailto:pickapic.io@gmail.com" target="_blank">pickapic.io@gmail.com</a></p>
-    </footer>
+
+    <div class="top-buttons">
+        <a href="/logout">
+            <button class="top-button" id="logout-button">Logout</button>
+        </a>
+        <a href=https://discord.gg/qKEVkF85DT" target="_blank">
+            <button class="top-button">Discord</button>
+        </a>
+        <a href="mailto:pickapic.io@gmail.com">
+            <button class="top-button">Mail Us</button>
+        </a>
+        <button class="top-button" onclick="activateLegalNotice()">Legal</button>
+        <button class="top-button" onclick="activateModelInfo()">Model</button>
+    </div>
     <div class="container" style="top: 0; margin-top: 0">
         <h1 style="font-size: large">Pick a Pic</h1>
         <input type="text" id="prompt" placeholder="An image of...">
         <div class="button-container">
-            {#            <button id="clear-button" style="width: 49%">Clear</button>#}
-            <button id="submit-button" style="width: 100%; margin-right: 0">Generate</button>
-            <button id="download-button" style="display: none; width: 0%">Download</button>
+            <button id="submit-button" style="margin-right: 0">Generate</button>
+            <button id="download-button" style="display: none">Download</button>
         </div>
-
     </div>
+
 
     <div class="progress-container" style="display: block">
         <div class="status-text" style="width: 100%"></div>
@@ -111,57 +130,90 @@
     const imageGrid = document.querySelector('.image-grid');
     const statusText = document.querySelector('.status-text');
     let formerPromptInput = ""
+
+    {% if is_authenticated %}
+        const is_authenticated = true;
+    {% else %}
+        const is_authenticated = false;
+    {% endif %}
+
+    console.log(is_authenticated)
     {#const originalButtonWidth = clearButton.style.width;#}
 
-    {% if not is_authenticated %}
-        const splashScreen = document.getElementById('splash-screen');
-        const nextButtonIntro = document.getElementById('next-button-intro');
-        const nextButtonLegal = document.getElementById('next-button-legal');
-        const backButton = document.getElementById('back-button');
-        const intro = document.getElementById('intro');
-        const legalNotice = document.getElementById('legal-notice');
-        const googleSignIn = document.getElementById('google-sign-in');
-        const googleBackButton = document.getElementById('google-back-button');
-        const googleSignInButton = document.getElementById('google-button');
+    const splashScreen = document.getElementById('splash-screen');
+    const nextButtonIntro = document.getElementById('next-button-intro');
+    const nextButtonLegal = document.getElementById('next-button-legal');
+    const backButton = document.getElementById('back-button');
+    const intro = document.getElementById('intro');
+    const legalNotice = document.getElementById('legal-notice');
+    const googleSignIn = document.getElementById('google-sign-in');
+    const googleBackButton = document.getElementById('google-back-button');
+    const googleSignInButton = document.getElementById('google-button');
+    const modelInfo = document.getElementById('model-info');
+    const modelInfoButton = document.getElementById('model-info-button');
 
+    if (is_authenticated) {
+        splashScreen.style.display = 'none';
+        intro.style.display = 'none';
+        legalNotice.style.display = 'none';
+        googleSignIn.style.display = 'none';
+    }
 
-        nextButtonIntro.addEventListener('click', () => {
-            // Toggle the display of the legal notice
-            console.log('Showing legal notice');
-            intro.style.display = 'none';
-            legalNotice.style.display = 'block';
-            backButton.style.display = 'block';
-        });
+    function activateLegalNotice() {
+        splashScreen.style.display = 'block';
+        legalNotice.style.display = 'block';
+        nextButtonLegal.innerText = 'Return to demo';
+        backButton.style.display = 'none';
+    }
 
-        nextButtonLegal.addEventListener('click', () => {
-            // Toggle the display of the legal notice
-            console.log('Finished splash screen');
+    function activateModelInfo(){
+        splashScreen.style.display = 'block';
+        modelInfo.style.display = 'block';
+    }
+
+    modelInfoButton.addEventListener('click', () => {
+        splashScreen.style.display = 'none';
+    });
+
+    nextButtonIntro.addEventListener('click', () => {
+        // Toggle the display of the legal notice
+        console.log('Showing legal notice');
+        intro.style.display = 'none';
+        legalNotice.style.display = 'block';
+        backButton.style.display = 'block';
+    });
+
+    nextButtonLegal.addEventListener('click', () => {
+        // Toggle the display of the legal notice
+        console.log('Finished splash screen');
+        if (is_authenticated) {
+            splashScreen.style.display = 'none';
+        } else {
             googleSignIn.style.display = 'block';
             legalNotice.style.display = 'none';
-        });
+        }
+    });
 
-        backButton.addEventListener('click', () => {
-            // Toggle the display of the legal notice
-            console.log('Showing intro');
-            intro.style.display = 'block';
-            legalNotice.style.display = 'none';
-        });
+    backButton.addEventListener('click', () => {
+        // Toggle the display of the legal notice
+        console.log('Showing intro');
+        intro.style.display = 'block';
+        legalNotice.style.display = 'none';
+    });
 
-        googleSignInButton.addEventListener('click', () => {
-            const a = document.createElement('a');
-            a.href = "/login";
-            document.body.appendChild(a);
-            a.click();
-        });
+    googleSignInButton.addEventListener('click', () => {
+        const a = document.createElement('a');
+        a.href = "/login";
+        document.body.appendChild(a);
+        a.click();
+    });
 
-        googleBackButton.addEventListener('click', () => {
-            // Toggle the display of the legal notice
-            console.log('Showing intro');
-            legalNotice.style.display = 'block';
-            googleSignIn.style.display = 'none';
-        });
-
-    {% endif %}
+    googleBackButton.addEventListener('click', () => {
+        // Toggle the display of the legal notice
+        console.log('Showing intro');
+        legalNotice.style.display = 'block';
+        googleSignIn.style.display = 'none';
+    });
 
     {#function clearDemo() {#}
     {#    const clearButton = document.getElementById('clear-button');#}
@@ -216,11 +268,11 @@
         });
 
         downloadButton.style.display = 'inline-block';
-        downloadButton.style.width = '49%';
+        {#downloadButton.style.width = '49%';#}
         downloadButton.href = image.src;
 
         submitButton.style.display = 'block';
-        submitButton.style.width = '49%';
+        {#submitButton.style.width = '49%';#}
         submitButton.style.marginRight = '2%';
 
         // Make other images darker
