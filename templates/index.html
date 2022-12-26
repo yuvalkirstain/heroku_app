@@ -333,6 +333,7 @@
                     if (status === 'finished') {
                         console.log('Job finished');
                         getJobResult(jobId);
+                        document.querySelector('.progress-bar-background').style.display = 'none';
                         statusText.innerText = "Click on your favourite image"
                     } else {
                         setTimeout(() => {
