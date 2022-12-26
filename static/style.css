@@ -40,6 +40,12 @@ body {
     margin: 10px 5px;
 }
 
+.title-button-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .image-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(min(45vmin, 256px), 1fr));
@@ -105,7 +111,7 @@ button:not(.top-button) {
     /*text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);*/
     color: #fff;
     cursor: pointer;
-    margin-right: 20px;
+    /*margin-right: 20px;*/
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     transition: background 0.5s ease;
 }

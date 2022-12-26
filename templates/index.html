@@ -50,7 +50,7 @@
     <div class="splash-screen-inner" id="model-info" style="display: none;">
         <h1>Pick a Pic</h1>
         <p> Currently we use <a href="https://huggingface.co/stabilityai/stable-diffusion-2-1"
-                                style="font-weight: bold; text-decoration: none">Stable diffusion 2.1</a>
+                                style="font-weight: bold; text-decoration: none; color: lightgrey">Stable diffusion 2.1</a>
             with a guidance scale of 9. If you think that there is a better open-sourced model available, or would like
             to suggest
             better approaches to employ this model, please contact us.</p>
@@ -109,10 +109,12 @@
         </button>
     </div>
     <div class="container" style="top: 0; margin-top: 0">
-        <h1 style="font-size: large">Pick a Pic</h1>
-        <div class="button-container">
-            <button id="submit-button" style="margin-right: 0">Generate</button>
-            <button id="download-button" style="display: none">Download</button>
+        <div class="title-button-container">
+            <h1 style="font-size: large;text-align: center;">Pick a Pic</h1>
+            <div class="button-container">
+                <button id="submit-button" style="margin-right: 0">Generate</button>
+                <button id="download-button" style="display: none">Download</button>
+            </div>
         </div>
         <input type="text" id="prompt" placeholder="An image of...">
     </div>
@@ -205,6 +207,7 @@
     }
 
     modelInfoButton.addEventListener('click', () => {
+        modelInfo.style.display = 'none';
         splashScreen.style.display = 'none';
     });
 
@@ -223,8 +226,8 @@
             splashScreen.style.display = 'none';
         } else {
             googleSignIn.style.display = 'block';
-            legalNotice.style.display = 'none';
         }
+        legalNotice.style.display = 'none';
     });
 
     backButton.addEventListener('click', () => {
