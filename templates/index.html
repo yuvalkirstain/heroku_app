@@ -6,6 +6,11 @@
 </head>
 <body>
 
+<footer>
+    <p>Join us on <a href="https://discord.gg/SWVEm9Kz" target="_blank">💬 Discord</a> or send us an email at <a
+            href="mailto:pickapic.io@gmail.com" target="_blank">pickapick.io@gmail.com</a></p>
+</footer>
+
 {% if not is_authenticated %}
     <div class="splash-screen" id="splash-screen">
         <div class="splash-screen-inner" id="intro">
@@ -52,7 +57,7 @@
     </div>
 {% endif %}
 <div class="parent" style="top: 0;">
-    <div class="container" style="top: 0;">
+    <div class="container" style="top: 0; margin-top: 0">
         <h1>Pick a Pic</h1>
         <input type="text" id="prompt" placeholder="An image of...">
         <div class="button-container">
@@ -63,9 +68,9 @@
 
     </div>
 
-    <div class="progress-container" style="display: none">
-        <div class="status-text"></div>
-        <div class="progress-bar-background">
+    <div class="progress-container" style="display: block">
+        <div class="status-text" style="width: 100%"></div>
+        <div class="progress-bar-background" style="display: none">
             <div class="progress-bar"></div>
         </div>
     </div>
@@ -98,12 +103,6 @@
     </div>
 
 
-    <footer>
-        <p>Join us on <a href="https://discord.gg/SWVEm9Kz" target="_blank">💬 Discord</a> or send us an email at <a
-                href="mailto:pickapic.io@gmail.com" target="_blank">pickapick.io@gmail.com</a></p>
-    </footer>
-
-
     <script>
         {#const clearButton = document.getElementById('clear-button');#}
         const submitButton = document.getElementById('submit-button');
@@ -111,6 +110,7 @@
         const promptInput = document.getElementById('prompt');
         const imageGridContainer = document.getElementById('image-grid-container');
         const imageGrid = document.querySelector('.image-grid');
+        const statusText = document.querySelector('.status-text');
         {#const originalButtonWidth = clearButton.style.width;#}
 
         {% if not is_authenticated %}
@@ -232,6 +232,9 @@
             image.classList.add('after_clicked');
             image.classList.add('clicked');
 
+            statusText.innerText = ""
+            window.scrollTo(0, 0)
+
             // Enable submit button to generate more images
             {#clearButton.style.width = '33%';#}
             {#clearButton.style.marginRight = '0.5%';#}
@@ -276,7 +279,7 @@
             }
 
             // Hide progress indicator
-            document.querySelector('.progress-container').style.display = 'none';
+            document.querySelector('.progress-bar-background').style.display = 'none';
         }
 
         function onRequestLoad(event) {
@@ -290,7 +293,7 @@
                 console.error('Error loading images');
 
                 // Hide progress indicator
-                document.querySelector('.progress-container').style.display = 'none';
+                document.querySelector('.progress-bar-background').style.display = 'none';
             }
         }
 
@@ -315,7 +318,6 @@
         }
 
         function checkJobStatus(jobId) {
-            const statusText = document.querySelector('.status-text');
             const request = new XMLHttpRequest();
             request.open('GET', '/get_images_status/?job_id=' + jobId, true);
 
@@ -331,6 +333,7 @@
                     if (status === 'finished') {
                         console.log('Job finished');
                         getJobResult(jobId);
+                        statusText.innerText = "Click on your favourite image"
                     } else {
                         setTimeout(() => {
                             checkJobStatus(jobId);
@@ -379,7 +382,7 @@
                 };
 
                 // Show progress indicator
-                document.querySelector('.progress-container').style.display = 'block';
+                document.querySelector('.progress-bar-background').style.display = 'block';
                 document.querySelector('.status-text').innerText = '';
                 // Start interval to update progress bar
                 updateProgressBar(request);
