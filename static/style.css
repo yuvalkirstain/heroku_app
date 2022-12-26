@@ -1,0 +1,280 @@
+body {
+    background-color: #222;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    alignment: center;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.parent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container {
+    width: 95%;
+    max-width: 800px;
+    padding: 10px;
+    alignment: center;
+    background: linear-gradient(to bottom, #333, #444);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(200px, 1fr));
+    grid-template-rows: repeat(2, minmax(200px, 1fr));
+    grid-gap: 10px;
+}
+
+.image-container {
+    max-width: 100%;
+    max-height: 100%;
+    height: 90%;
+    padding: 10px;
+    transition: transform 0.5s;
+}
+
+.image-container:hover {
+    transform: scale(1.1);
+}
+
+.image-grid img {
+    width: 100%;
+    height: auto;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.19);
+}
+
+h1 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+p {
+    margin-top: 5px;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+button {
+    display: inline-block;
+    padding: 5px 20px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    background: linear-gradient(to bottom, #033964, #94a6f1);
+    /*text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);*/
+    color: #fff;
+    cursor: pointer;
+    margin-right: 20px;
+    transition: background 0.5s ease;
+}
+
+button:last-of-type {
+    margin-right: 0;
+}
+
+button:hover {
+    /* Change the gradient color on hover */
+    background: linear-gradient(to bottom, #94a6f1, #033964);
+}
+
+.progress-container {
+    display: flex;
+    align-items: center;
+    width: 95%;
+    height: 5px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.status-text {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    color: #eee4e4;
+    width: 60px;
+    line-height: 5px;
+}
+
+.progress-bar-background {
+    margin-left: 60px;
+    background: linear-gradient(to bottom, #ddd, #eee);
+}
+
+.progress-bar {
+    flex: 1; /* add this */
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(to bottom, #4caf50, #7cbc41);
+    border-radius: 5px;
+    transition: width 0.5s ease;
+}
+
+
+.after_clicked {
+    pointer-events: none; /* Make element unclickable */
+}
+
+.clicked {
+}
+
+.splash-screen {
+    position: fixed; /* position the splash screen as a fixed element on top of the page */
+    top: 0;
+    left: 0;
+    width: 100%; /* set the width to be 100% of the viewport width */
+    height: 100%; /* set the height to be 100% of the viewport height */
+    background-color: rgba(0, 0, 0, 0.8); /* set a transparent black background */
+    z-index: 999; /* set the z-index to ensure the splash screen is on top of other elements */
+    display: flex; /* make the splash screen a flex container */
+    align-items: center; /* center the splash screen vertically */
+    justify-content: center;
+    font-family: 'Roboto', sans-serif;
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1.5;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+    .splash-screen {
+        /* Use a smaller font size on smaller screens */
+        font-size: 18px;
+    }
+}
+
+.splash-screen-inner {
+    background-color: linear-gradient(to bottom, #333, #444); /* set the same color as the demo container */
+    border-radius: 10px; /* add rounded corners */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* add a shadow */
+    max-width: 600px; /* set a maximum width */
+    width: 80%; /* set the width to be 80% of the viewport width */
+    padding: 40px; /* add some padding */
+    margin: auto; /* center the splash screen horizontally and vertically */
+    display: flex; /* make the splash screen a flex container */
+    flex-direction: column; /* set the flex direction to a column layout */
+    align-items: center; /* center the content horizontally */
+}
+
+.splash-screen h1 {
+    margin: 0;
+    text-align: center;
+    font-size: 32px;
+}
+
+.splash-screen p {
+    margin: 20px 0;
+    text-align: center;
+    font-size: 18px;
+}
+
+.splash-screen li {
+    margin: 20px 0;
+    text-align: left;
+    font-size: 18px;
+}
+
+
+.splash-screen-buttons {
+    display: flex; /* make the buttons a flex container */
+    margin-top: 20px;
+}
+
+.splash-screen-button {
+    display: inline-block;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    background: linear-gradient(to bottom, #033964, #94a6f1);
+    /*text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);*/
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.5s ease;
+    flex: 1; /* set the flex value to 1 to evenly distribute the buttons in the container */
+    text-align: center; /* center the button text */
+}
+
+.a {
+    display: inline-block;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    background: linear-gradient(to bottom, #033964, #94a6f1);
+    /*text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);*/
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.5s ease;
+    flex: 1; /* set the flex value to 1 to evenly distribute the buttons in the container */
+    text-align: center; /* center the button text */
+}
+
+button.google-button {
+    background-image: url('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png');
+    background-size: 50px 50px; /* set the width and height to 50 pixels */
+    background-repeat: no-repeat;
+    background-position: center top;
+}
+
+
+.splash-screen-button:hover {
+    background: linear-gradient(to bottom, #94a6f1, #033964);
+}
+
+.footer {
+    position: fixed; /* position the footer at the bottom of the viewport */
+    bottom: 0; /* align the bottom edge of the footer with the bottom of the viewport */
+    width: 100%; /* make the footer full width */
+    background-color: #333; /* set the background color */
+    color: #fff; /* set the text color */
+    padding: 10px; /* add some padding to the footer */
+    alignment: center;
+    align-content: center;
+    text-align: center;
+}
+
+footer a {
+    /* Use the same font color as the rest of the footer text */
+    color: #fff;
+
+    /* Add a hover effect to the links */
+    transition: color 0.5s;
+}
+
+footer a:hover {
+    /* Change the font color on hover */
+    color: #00b8d4;
+}
+
+footer p {
+    text-align: center;
+}
+

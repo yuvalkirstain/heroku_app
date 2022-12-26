@@ -1,0 +1,439 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <title>Pick a Pic</title>
+</head>
+<body>
+
+{% if not is_authenticated %}
+    <div class="splash-screen" id="splash-screen">
+        <div class="splash-screen-inner" id="intro">
+            <h1>Pick a Pic</h1>
+            <p> Human feedback led to dramatic improvements in natural language processing.
+                In this project we wish to initiate a community effort to use human feedback in text-to-image
+                generation.
+                Being a community effort, all the code, data, and models resulting from this project will be completely
+                open-sourced.
+                We welcome any contributions and help with this effort.</p>
+            <div class="splash-screen-buttons">
+                <button class="splash-screen-button" id="next-button-intro">Next</button>
+            </div>
+        </div>
+        <div class="splash-screen-inner" id="legal-notice" style="display: none;">
+            <h1>Legal Notice</h1>
+            <p>By using this demo, you agree to the following terms and conditions:</p>
+            <ul>
+                <li>This demo is intended for research purposes only.</li>
+                <li>The authors are not responsible for any misuse of the demo. This includes damages or losses that may
+                    result from using the demo.
+                </li>
+                <li>We are not responsible for any damages or losses that may result from using the demo.</li>
+                <li>By using the demo, the users grant consent for their prompts, interactions, and generated images to
+                    be
+                    collected and eventually released into the public domain.
+                </li>
+            </ul>
+            <div class="splash-screen-buttons">
+                <button class="splash-screen-button" id="back-button">Back</button>
+                <button class="splash-screen-button" id="next-button-legal">Next</button>
+            </div>
+        </div>
+        <div class="splash-screen-inner" id="google-sign-in" style="display: none;">
+            <h1>Pick a Pic</h1>
+            <p> The last step before participating and using the demo is to authenticate that you are a real human
+                user.
+            </p>
+            <div class="splash-screen-buttons">
+                <button class="splash-screen-button" id="google-back-button">Back</button>
+                <button class="splash-screen-button" id="google-button">Sign in with Google</button>
+            </div>
+        </div>
+    </div>
+{% endif %}
+<div class="parent" style="top: 0;">
+    <div class="container" style="top: 0;">
+        <h1>Pick a Pic</h1>
+        <input type="text" id="prompt" placeholder="An image of...">
+        <div class="button-container">
+            {#            <button id="clear-button" style="width: 49%">Clear</button>#}
+            <button id="submit-button" style="width: 100%; margin-right: 0">Generate</button>
+            <button id="download-button" style="display: none; width: 0%">Download</button>
+        </div>
+
+    </div>
+
+    <div class="progress-container" style="display: none">
+        <div class="status-text"></div>
+        <div class="progress-bar-background">
+            <div class="progress-bar"></div>
+        </div>
+    </div>
+    <div class="container" style="display: block" id="image-grid-container">
+        <div class="image-grid">
+            <div class="image-container">
+                <img class="img after_clicked" src="https://loremflickr.com/512/512" id="image-grid-item-0-image"
+                     style="opacity: 0">
+            </div>
+            <div class="image-container">
+                <img class="img after_clicked" src="https://loremflickr.com/512/512" id="image-grid-item-0-image"
+                     style="opacity: 0">
+            </div>
+            <div class="image-container">
+                <img class="img after_clicked" src="https://loremflickr.com/512/512" id="image-grid-item-0-image"
+                     style="opacity: 0">
+            </div>
+            <div class="image-container">
+                <img class="img after_clicked" src="https://loremflickr.com/512/512" id="image-grid-item-0-image"
+                     style="opacity: 0">
+            </div>
+        </div>
+    </div>
+
+    <div class="splash-screen" id="error-screen" style="display: none">
+        <div class="splash-screen-inner" id="error">
+            <h1>Pick a Pic</h1>
+            <p> OMG. Given our current resources, there are too many users. Please to refresh in a minute or two.</p>
+        </div>
+    </div>
+
+
+    <footer>
+        <p>Join us on <a href="https://discord.gg/SWVEm9Kz" target="_blank">💬 Discord</a> or send us an email at <a
+                href="mailto:pickapic.io@gmail.com" target="_blank">pickapick.io@gmail.com</a></p>
+    </footer>
+
+
+    <script>
+        {#const clearButton = document.getElementById('clear-button');#}
+        const submitButton = document.getElementById('submit-button');
+        const downloadButton = document.getElementById('download-button');
+        const promptInput = document.getElementById('prompt');
+        const imageGridContainer = document.getElementById('image-grid-container');
+        const imageGrid = document.querySelector('.image-grid');
+        {#const originalButtonWidth = clearButton.style.width;#}
+
+        {% if not is_authenticated %}
+            const splashScreen = document.getElementById('splash-screen');
+            const nextButtonIntro = document.getElementById('next-button-intro');
+            const nextButtonLegal = document.getElementById('next-button-legal');
+            const backButton = document.getElementById('back-button');
+            const intro = document.getElementById('intro');
+            const legalNotice = document.getElementById('legal-notice');
+            const googleSignIn = document.getElementById('google-sign-in');
+            const googleBackButton = document.getElementById('google-back-button');
+            const googleSignInButton = document.getElementById('google-button');
+
+
+            nextButtonIntro.addEventListener('click', () => {
+                // Toggle the display of the legal notice
+                console.log('Showing legal notice');
+                intro.style.display = 'none';
+                legalNotice.style.display = 'block';
+                backButton.style.display = 'block';
+            });
+
+            nextButtonLegal.addEventListener('click', () => {
+                // Toggle the display of the legal notice
+                console.log('Finished splash screen');
+                googleSignIn.style.display = 'block';
+                legalNotice.style.display = 'none';
+            });
+
+            backButton.addEventListener('click', () => {
+                // Toggle the display of the legal notice
+                console.log('Showing intro');
+                intro.style.display = 'block';
+                legalNotice.style.display = 'none';
+            });
+
+            googleSignInButton.addEventListener('click', () => {
+                const a = document.createElement('a');
+                a.href = "/login";
+                document.body.appendChild(a);
+                a.click();
+            });
+
+            googleBackButton.addEventListener('click', () => {
+                // Toggle the display of the legal notice
+                console.log('Showing intro');
+                legalNotice.style.display = 'block';
+                googleSignIn.style.display = 'none';
+            });
+
+        {% endif %}
+
+        {#function clearDemo() {#}
+        {#    const clearButton = document.getElementById('clear-button');#}
+        {#    const submitButton = document.getElementById('submit-button');#}
+        {#    const downloadButton = document.getElementById('download-button');#}
+        {#    const statusText = document.querySelector('.status-text');#}
+        {##}
+        {#    statusText.innerText = '';#}
+        {#    promptInput.value = '';#}
+        {#    downloadButton.style.display = 'none';#}
+        {#    submitButton.style.display = 'inline-block';#}
+        {#    submitButton.disabled = false;#}
+        {#    submitButton.style.width = '49%';#}
+        {#    clearButton.style.width = '49%';#}
+        {#    const imageContainerChildren = imageGrid.children;#}
+        {#    for (let i = 0; i < imageContainerChildren.length; i++) {#}
+        {#        const imageChildren = imageContainerChildren[i].children;#}
+        {#        for (let j = 0; j < imageChildren.length; j++) {#}
+        {#            const image = imageChildren[j];#}
+        {#            image.style.opacity = 0;#}
+        {#            image.classList.add('after_clicked');#}
+        {#        }#}
+        {#    }#}
+        {# }#}
+
+        {#clearButton.addEventListener('click', function () {#}
+        {#    clearDemo();#}
+        {# });#}
+
+        function onImageClick(event) {
+            const image = event.target;
+            const prompt = promptInput.value;
+            const allImages = document.querySelectorAll('.image-grid img');
+            const imageIds = [];
+
+            for (let i = 0; i < allImages.length; i++) {
+                imageIds.push(allImages[i].imageId);
+            }
+            console.log('Clicked image ' + image.idx);
+            fetch('/update_clicked_image/', {
+                method: 'POST',
+                body: JSON.stringify({image_uid: image.imageId, image_uids: imageIds, prompt: prompt}),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                // API call success
+                console.log('Successfully updated clicked image');
+            }).catch(error => {
+                // API call error
+                console.error('Error updating clicked image:', error);
+            });
+
+            downloadButton.style.display = 'inline-block';
+            downloadButton.style.width = '49%';
+            downloadButton.href = image.src;
+
+            submitButton.style.display = 'block';
+            submitButton.style.width = '49%';
+            submitButton.style.marginRight = '2%';
+
+            // Make other images darker
+            const otherImages = document.querySelectorAll('.image-grid img:not(:hover)');
+            for (let i = 0; i < otherImages.length; i++) {
+                otherImages[i].style.filter = 'brightness(50%)';
+                otherImages[i].classList.add('after_clicked');
+            }
+            image.classList.add('after_clicked');
+            image.classList.add('clicked');
+
+            // Enable submit button to generate more images
+            {#clearButton.style.width = '33%';#}
+            {#clearButton.style.marginRight = '0.5%';#}
+            {#submitButton.style.marginRight = '0.5%';#}
+        }
+
+        function updateImages(data) {
+            const images = data.images;
+            const imageIds = data.image_uids;
+            let clickedImage = document.querySelector('.clicked');
+
+            // Clear current images
+            while (imageGrid.firstChild) {
+                imageGrid.removeChild(imageGrid.firstChild);
+            }
+
+            // Add new images
+            for (let i = 0; i < images.length; i++) {
+
+                let imageData = images[i];
+                let imageId = imageIds[i];
+                const imageContainer = document.createElement('div');
+                imageContainer.classList.add('image-container');
+                const img = document.createElement('img');
+                // Keep clicked image
+                if (clickedImage && i === clickedImage.idx) {
+                    imageId = clickedImage.imageId;
+                    imageData = clickedImage.imageData;
+                }
+
+                img.src = 'data:image/jpeg;base64,' + imageData;
+                img.imageId = imageId;
+                img.imageData = imageData;
+                img.idx = i;
+                img.alt = 'Generated image';
+
+                // Add click event listener to image
+                img.addEventListener('click', onImageClick);
+
+                imageContainer.appendChild(img);
+                imageGrid.appendChild(imageContainer);
+            }
+
+            // Hide progress indicator
+            document.querySelector('.progress-container').style.display = 'none';
+        }
+
+        function onRequestLoad(event) {
+            const request = event.target;
+            if (request.status >= 200 && request.status < 400) {
+                // Success!
+                const data = JSON.parse(request.response);
+                updateImages(data);
+            } else {
+                // Error
+                console.error('Error loading images');
+
+                // Hide progress indicator
+                document.querySelector('.progress-container').style.display = 'none';
+            }
+        }
+
+        function updateProgressBar(request, progress) {
+            const progressBar = document.querySelector('.progress-bar');
+            progressBar.style.width = progress + '%';
+        }
+
+        function getJobResult(jobId) {
+            const request = new XMLHttpRequest();
+            request.open('GET', '/get_images_result?job_id=' + jobId, true);
+
+            request.onload = function () {
+                if (request.status === 200) {
+                    const data = JSON.parse(request.response);
+                    updateImages(data);
+                } else {
+                    // Handle error
+                }
+            }
+            request.send();
+        }
+
+        function checkJobStatus(jobId) {
+            const statusText = document.querySelector('.status-text');
+            const request = new XMLHttpRequest();
+            request.open('GET', '/get_images_status/?job_id=' + jobId, true);
+
+            request.onload = function () {
+                if (request.status === 200) {
+                    const data = JSON.parse(request.response);
+                    const status = data.status;
+                    const progress = data.progress;
+                    statusText.innerText = status
+
+                    console.log("job id: " + jobId + " status: " + status + " progress: " + progress);
+                    updateProgressBar(request, progress);
+                    if (status === 'finished') {
+                        console.log('Job finished');
+                        getJobResult(jobId);
+                    } else {
+                        setTimeout(() => {
+                            checkJobStatus(jobId);
+                        }, 1000);
+                    }
+                } else {
+                    // Handle error
+                }
+            }
+            request.send();
+        }
+
+        function displayErrorMessage(message) {
+            console.log("Displaying error message")
+            const errorContainer = document.getElementById('error-screen');
+            errorContainer.style.display = 'block';
+        }
+
+        submitButton.addEventListener('click', function () {
+                document.getElementById('download-button').style.display = 'none';
+                document.querySelector('.progress-bar').style.width = '0%';
+                imageGridContainer.style.display = 'block';
+                submitButton.style.display = 'none';
+                {#clearButton.style.width = '100%';#}
+                {#clearButton.style.marginRight = '0';#}
+
+                // Send request to image service
+                const request = new XMLHttpRequest();
+
+                const requestUrl = '/get_images/?prompt=' + promptInput.value;
+                request.open('POST', requestUrl, true);
+                request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+                request.onload = function () {
+                    if (request.status === 200) {
+                        const response = JSON.parse(request.responseText);
+                        const jobId = response.jobId;
+                        console.log('Job ID: ' + jobId);
+                        checkJobStatus(jobId);
+                    } else if (request.status === 429) {
+                        const errorMessage = 'Sorry, we are experiencing high traffic at the moment. Please try again in a few minutes.';
+                        displayErrorMessage(errorMessage);
+                    } else {
+                        console.log("Error: " + request.status);
+                    }
+                };
+
+                // Show progress indicator
+                document.querySelector('.progress-container').style.display = 'block';
+                document.querySelector('.status-text').innerText = '';
+                // Start interval to update progress bar
+                updateProgressBar(request);
+                request.send('prompt=' + promptInput.value);
+            }
+        );
+
+        promptInput.addEventListener("keypress", function (event) {
+            if (event.key === "Enter" && promptInput.value !== '' && submitButton.style.display !== 'none') {
+                event.preventDefault();
+                submitButton.click();
+            }
+        });
+
+        downloadButton.addEventListener('click', function () {
+            const clickedImage = document.querySelector('.clicked');
+            const prompt = promptInput.value;
+            const imageUrl = clickedImage.src;
+            const imageId = clickedImage.imageId;
+            const allImages = document.querySelectorAll('.image-grid img');
+            const imageIds = [];
+
+            for (let i = 0; i < allImages.length; i++) {
+                imageIds.push(allImages[i].imageId);
+            }
+
+            fetch(imageUrl)
+                .then(response => response.blob())
+                .then(blob => {
+                    const file = new Blob([blob], {type: 'image/png'});
+                    const fileUrl = URL.createObjectURL(file);
+                    const a = document.createElement('a');
+                    a.download = promptInput.value.replace(/\s/g, '_') + '.png';
+                    a.href = fileUrl;
+                    document.body.appendChild(a);
+                    a.click();
+                    URL.revokeObjectURL(fileUrl);
+                });
+
+            fetch('/update_download_image/', {
+                method: 'POST',
+                body: JSON.stringify({image_uid: imageId, image_uids: imageIds, prompt: prompt}),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                // API call success
+                console.log('Successfully updated clicked image');
+            }).catch(error => {
+                // API call error
+                console.error('Error updating clicked image:', error);
+            });
+        });
+
+    </script>
+</body>
+</html>

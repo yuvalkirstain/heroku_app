@@ -1,10 +1,9 @@
-import sqlite3
 from dataclasses import dataclass
 import pandas as pd
 import psycopg2
 
 from sql_db import DATABASE_URL
-from utils import logger
+from utils.logging_utils import logger
 
 
 def create_image_table():
@@ -18,7 +17,7 @@ def create_image_table():
             '''
             CREATE TABLE images (image_id SERIAL PRIMARY KEY,
                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                image_hash TEXT UNIQUE,
+                                image_uid TEXT UNIQUE,
                                 user_id INTEGER,
                                 prompt TEXT,
                                 negative_prompt TEXT,
@@ -39,6 +38,7 @@ def create_image_table():
 
 @dataclass(frozen=True)
 class ImageData:
+    image_uid: str
     user_id: int
     prompt: str
     negative_prompt: str
@@ -52,20 +52,21 @@ class ImageData:
 
 
 def add_image(image_data: ImageData):
-    image_hash = hash(image_data)
+    image_uid = image_data.image_uid
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM images WHERE image_hash=%s", (f"{image_hash}", ))
+    cursor.execute(f"SELECT * FROM images WHERE image_uid=%s", (image_uid, ))
     image = cursor.fetchone()
     if image is not None:
-        logger.debug(f"Image with hash {image_hash} exists")
+        logger.debug(f"Image with uid {image_uid} exists")
     else:
         cursor.execute(
-            f"INSERT INTO images (image_hash, user_id, prompt, negative_prompt, seed, gs, steps, idx, num_generated, scheduler_cls, model_id) VALUES ({image_hash}, {image_data.user_id}, '{image_data.prompt}', '{image_data.negative_prompt}', {image_data.seed}, {image_data.gs}, {image_data.steps}, {image_data.idx}, {image_data.num_generated}, '{image_data.scheduler_cls}', '{image_data.model_id}')")
+            f"INSERT INTO images (image_uid, user_id, prompt, negative_prompt, seed, gs, steps, idx, num_generated, scheduler_cls, model_id) VALUES ('{image_uid}', {image_data.user_id}, '{image_data.prompt}', '{image_data.negative_prompt}', {image_data.seed}, {image_data.gs}, {image_data.steps}, {image_data.idx}, {image_data.num_generated}, '{image_data.scheduler_cls}', '{image_data.model_id}')")
         conn.commit()
-        logger.debug(f"Added image with hash {image_hash}")
+        logger.debug(f"Added image with uid {image_uid}")
     cursor.close()
     conn.close()
+    return
 
 
 def get_all_images() -> pd.DataFrame:
@@ -77,7 +78,7 @@ def get_all_images() -> pd.DataFrame:
     conn.close()
     df = pd.DataFrame(images, columns=['image_id',
                                        'created_at',
-                                       'image_hash',
+                                       'image_uid',
                                        'user_id',
                                        'prompt',
                                        'negative_prompt',

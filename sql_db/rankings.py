@@ -1,11 +1,9 @@
-import os
-
 import psycopg2
 from dataclasses import dataclass
 import pandas as pd
 
 from sql_db import DATABASE_URL
-from utils import logger
+from utils.logging_utils import logger
 
 
 def create_rankings_table():
@@ -21,11 +19,12 @@ def create_rankings_table():
             CREATE TABLE rankings (ranking_id SERIAL PRIMARY KEY,
                                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
                                     user_id INTEGER,
-                                    image_0_hash TEXT,
-                                    image_1_hash TEXT,
-                                    image_2_hash TEXT,
-                                    image_3_hash TEXT,
-                                    best_image_hash TEXT,
+                                    image_0_uid TEXT,
+                                    image_1_uid TEXT,
+                                    image_2_uid TEXT,
+                                    image_3_uid TEXT,
+                                    best_image_uid TEXT,
+                                    prompt TEXT,
                                     FOREIGN KEY(user_id) REFERENCES users(user_id))
             ''')
         conn.commit()
@@ -39,28 +38,29 @@ class RankingSchema:
     ranking_id: str
     created_at: str
     user_id: int
-    image_0_hash: str
-    image_1_hash: str
-    image_2_hash: str
-    image_3_hash: str
-    best_image_hash: str
+    image_0_uid: str
+    image_1_uid: str
+    image_2_uid: str
+    image_3_uid: str
+    best_image_uid: str
+    prompt: str
 
 
 @dataclass
 class RankingData:
     user_id: int
-    image_0_hash: str
-    image_1_hash: str
-    image_2_hash: str
-    image_3_hash: str
-    best_image_hash: str
+    image_0_uid: str
+    image_1_uid: str
+    image_2_uid: str
+    image_3_uid: str
+    best_image_uid: str
+    prompt: str
 
 
 def add_ranking(ranking: RankingData):
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    cursor.execute(
-        f"INSERT INTO rankings (user_id, image_0_hash, image_1_hash, image_2_hash, image_3_hash, best_image_hash) VALUES ({ranking.user_id}, '{ranking.image_0_hash}', '{ranking.image_1_hash}', '{ranking.image_2_hash}', '{ranking.image_3_hash}', '{ranking.best_image_hash}')")
+    cursor.execute(f"INSERT INTO rankings (user_id, image_0_uid, image_1_uid, image_2_uid, image_3_uid, best_image_uid, prompt) VALUES ({ranking.user_id}, '{ranking.image_0_uid}', '{ranking.image_1_uid}', '{ranking.image_2_uid}', '{ranking.image_3_uid}', '{ranking.best_image_uid}', '{ranking.prompt}')")
     conn.commit()
     cursor.close()
     conn.close()
@@ -74,6 +74,6 @@ def get_all_rankings() -> pd.DataFrame:
     cursor.close()
     conn.close()
     df = pd.DataFrame(rankings,
-                      columns=['ranking_id', 'created_at', 'user_id', 'image_1_hash', 'image_2_hash', 'image_3_hash',
-                               'image_4_hash', 'best_image_hash'])
+                      columns=['ranking_id', 'created_at', 'user_id', 'image_1_uid', 'image_2_uid', 'image_3_uid',
+                               'image_4_uid', 'best_image_uid', 'prompt'])
     return df

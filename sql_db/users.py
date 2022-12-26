@@ -1,10 +1,9 @@
-import sqlite3
 from dataclasses import dataclass
 import pandas as pd
 import psycopg2
 
 from sql_db import DATABASE_URL
-from utils import logger
+from utils.logging_utils import logger
 
 
 def create_user_table():
@@ -44,10 +43,12 @@ def add_user(email: str, name: str):
         logger.info(f"Adding user {name} with email {email}")
         cursor.execute(f"INSERT INTO users (email, name) VALUES ('{email}', '{name}')")
         conn.commit()
+        user = get_user_by_email(email)
     else:
         logger.info(f"User {name} with email {email} already exists")
     cursor.close()
     conn.close()
+    return user.user_id
 
 
 def get_user_by_email(email: str):
