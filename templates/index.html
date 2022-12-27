@@ -572,7 +572,7 @@
         }
     );
 
-    promptInput.addEventListener("keypress", function (event) {
+    document.addEventListener("keydown", function (event) {
         if (event.key === "Enter" && promptInput.value !== '' && submitButton.style.display !== 'none') {
             event.preventDefault();
             submitButton.click();
