@@ -432,7 +432,7 @@
             imageContainer.classList.add('image-container');
             const img = document.createElement('img');
             // Keep clicked image
-            if (clickedImage && i === clickedImage.idx && promptInput.value === formerPromptInput) {
+            if (clickedImage && i === clickedImage.idx) {# && promptInput.value === formerPromptInput) TODO new prompt --> all images are new  #} {
                 imageId = clickedImage.imageId;
                 imageData = clickedImage.imageData;
             }
