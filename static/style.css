@@ -58,7 +58,7 @@ body {
     transition: transform 0.5s;
 }
 
-.image-container:hover {
+.image-container:not(.after-clicked):hover {
     transform: scale(1.1);
 }
 
