@@ -311,9 +311,23 @@ h1 a {
     color: #c0e0c7;
     transition: color 0.5s;
     cursor: pointer;
+    text-decoration: none;
+    target: "_blank";
 }
 
 h1 a:hover {
+    /* Change the font color on hover */
+    color: #00b8d4;
+}
+
+li a {
+    color: #c0e0c7;
+    transition: color 0.5s;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+li a:hover {
     /* Change the font color on hover */
     color: #00b8d4;
 }
