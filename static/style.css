@@ -243,7 +243,7 @@ button:hover:not(.top-button) {
 .splash-screen li {
     margin: 20px 0;
     text-align: left;
-    font-size: 18px;
+    font-size: min(4vmin, 18px);
 }
 
 .splash-screen-buttons {
@@ -305,6 +305,17 @@ button.google-button {
     alignment: center;
     align-content: center;
     text-align: center;
+}
+
+h1 a {
+    color: #c0e0c7;
+    transition: color 0.5s;
+    cursor: pointer;
+}
+
+h1 a:hover {
+    /* Change the font color on hover */
+    color: #00b8d4;
 }
 
 footer a {
