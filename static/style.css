@@ -1,10 +1,11 @@
-html, body {
-    height: 100%;
+* {
+    box-sizing: border-box;
 }
 
 html {
-    display: table;
-    margin: auto;
+    display: flex;
+    justify-content: center;
+    margin: 0;
 }
 
 body {
@@ -16,40 +17,36 @@ body {
     alignment: center;
     align-items: center;
     justify-content: center;
+    /*width: 100vw;*/
+    margin: 0;
     /*height: 100vh;*/
 }
 
 .parent {
-    display: flex;
-    flex-wrap: wrap;
-    alignment: center;
-    align-items: center;
-    justify-content: center;
     flex-direction: column;
-    max-width: min(95vw, 540px);
+    width: 95vw;
 }
 
 .container {
-    width: 95%;
-    max-width: 95%;
+    width: 100%;
     padding: 10px;
     alignment: center;
     background: linear-gradient(to bottom, #333, #444);
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    margin: 10px 5px;
+    margin: 10px 0;
 }
 
 .title-button-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .image-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(min(45vmin, 256px), 1fr));
-    grid-template-rows: repeat(2, minmax(min(45vmin, 256px), 1fr));
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
     grid-gap: 1vmin;
 }
 

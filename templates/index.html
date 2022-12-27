@@ -50,7 +50,8 @@
     <div class="splash-screen-inner" id="model-info" style="display: none;">
         <h1>Pick a Pic</h1>
         <p> Currently we use <a href="https://huggingface.co/stabilityai/stable-diffusion-2-1"
-                                style="font-weight: bold; text-decoration: none; color: lightgrey">Stable diffusion 2.1</a>
+                                style="font-weight: bold; text-decoration: none; color: lightgrey">Stable diffusion
+            2.1</a>
             with a guidance scale of 9. If you think that there is a better open-sourced model available, or would like
             to suggest
             better approaches to employ this model, please contact us.</p>
@@ -129,20 +130,20 @@
     <div class="container" style="display: block" id="image-grid-container">
         <div class="image-grid">
             <div class="image-container">
-                <img class="img after_clicked" src="https://loremflickr.com/512/512" id="image-grid-item-0-image"
-                     style="opacity: 0">
+                <img class="img after_clicked" src="https://loremflickr.com/768/768" id="image-grid-item-0-image"
+                     style="opacity: 100">
             </div>
             <div class="image-container">
-                <img class="img after_clicked" src="https://loremflickr.com/512/512" id="image-grid-item-0-image"
-                     style="opacity: 0">
+                <img class="img after_clicked" src="https://loremflickr.com/768/768" id="image-grid-item-0-image"
+                     style="opacity: 100">
             </div>
             <div class="image-container">
-                <img class="img after_clicked" src="https://loremflickr.com/512/512" id="image-grid-item-0-image"
-                     style="opacity: 0">
+                <img class="img after_clicked" src="https://loremflickr.com/768/768" id="image-grid-item-0-image"
+                     style="opacity: 100">
             </div>
             <div class="image-container">
-                <img class="img after_clicked" src="https://loremflickr.com/512/512" id="image-grid-item-0-image"
-                     style="opacity: 0">
+                <img class="img after_clicked" src="https://loremflickr.com/768/768" id="image-grid-item-0-image"
+                     style="opacity: 100">
             </div>
         </div>
     </div>
@@ -166,15 +167,6 @@
     const statusText = document.querySelector('.status-text');
     let formerPromptInput = ""
 
-    {% if is_authenticated %}
-        const is_authenticated = true;
-    {% else %}
-        const is_authenticated = false;
-    {% endif %}
-
-    console.log(is_authenticated)
-    {#const originalButtonWidth = clearButton.style.width;#}
-
     const splashScreen = document.getElementById('splash-screen');
     const nextButtonIntro = document.getElementById('next-button-intro');
     const nextButtonLegal = document.getElementById('next-button-legal');
@@ -186,6 +178,14 @@
     const googleSignInButton = document.getElementById('google-button');
     const modelInfo = document.getElementById('model-info');
     const modelInfoButton = document.getElementById('model-info-button');
+
+    {% if is_authenticated %}
+        const is_authenticated = true;
+    {% else %}
+        const is_authenticated = false;
+    {% endif %}
+
+    console.log(is_authenticated)
 
     if (is_authenticated) {
         splashScreen.style.display = 'none';
@@ -278,6 +278,50 @@
     {#clearButton.addEventListener('click', function () {#}
     {#    clearDemo();#}
     {# });#}
+
+    function resizeParentWidth() {
+        console.log("window width " + window.innerWidth)
+        console.log("window height " + window.innerHeight)
+        console.log("parent width " + parent.offsetWidth)
+        console.log("parent height " + parent.offsetHeight)
+        console.log("imageGridContainer height " + imageGridContainer.offsetHeight)
+        console.log("imageGrid height " + imageGrid.offsetHeight)
+
+        if (parent.offsetHeight > window.innerHeight) {
+            let subtract = (parent.offsetHeight - imageGridContainer.offsetHeight)
+            console.log("too high")
+            parent.style.width = window.innerHeight - subtract
+        }
+        if (parent.offsetWidth > window.innerWidth) {
+            console.log("too wide")
+            parent.style.width = window.innerWidth * 0.95
+        }
+        if (parent.offsetWidth < window.innerWidth && (parent.offsetHeight < window.innerHeight)) {
+            console.log("not wide and not high")
+            if (window.innerWidth < window.innerHeight) {
+                console.log("increasing width")
+                parent.style.width = window.innerWidth * 0.95
+            } else {
+                console.log("increasing height")
+                let subtract = (parent.offsetHeight - imageGridContainer.offsetHeight)
+                parent.style.width = window.innerHeight - subtract
+            }
+        }
+        console.log("Changed size of app")
+    }
+
+    let img = document.querySelector('img')
+    if (img.complete) {
+        resizeParentWidth()
+    } else {
+        img.addEventListener('load', resizeParentWidth)
+    }
+
+    const parent = document.querySelector('.parent');
+    window.addEventListener('resize', function (event) {
+        resizeParentWidth()
+    }, true);
+
 
     function onImageClick(event) {
         const image = event.target;
