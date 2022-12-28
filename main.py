@@ -12,6 +12,7 @@ import boto3
 import requests
 from PIL import Image
 from pydantic import BaseModel, Field
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from sql_db.users import create_user_table, add_user, get_all_users
 from sql_db.downloads import add_download, create_downloads_table, DownloadData, get_all_downloads
@@ -55,9 +56,10 @@ oauth.register(
 logger.debug("Finished importing DB")
 
 BACKEND_URLS = json.loads(os.environ["BACKEND_URLS"])
+app.backend_urls = BACKEND_URLS[:]
 backend_url_idx = 0
-MAX_SIZE_IN_QUEUE = len(BACKEND_URLS) * 2
-MAX_SIZE_CONCURRENT = len(BACKEND_URLS) * 3
+MAX_SIZE_IN_QUEUE = len(app.backend_urls)
+MAX_SIZE_CONCURRENT = len(app.backend_urls)
 logger.debug(f"{MAX_SIZE_IN_QUEUE=} {MAX_SIZE_CONCURRENT=}")
 
 AWS_ACCESS_KEY = os.environ["AWS_ACCESS_KEY"]
@@ -70,6 +72,7 @@ app.job_adding_semaphore = asyncio.Semaphore(1)
 app.semaphore = asyncio.Semaphore(MAX_SIZE_CONCURRENT)
 app.queue = asyncio.Queue(maxsize=MAX_SIZE_IN_QUEUE)
 app.jobs = OrderedDict()
+scheduler = BackgroundScheduler()
 
 
 class UpdateImageRequest(BaseModel):
@@ -195,18 +198,19 @@ async def create_images(prompt, user_id):
     global backend_url_idx
 
     verified = False
-    backend_url_idx = (backend_url_idx + 1) % len(BACKEND_URLS)
+    backend_url_idx = (backend_url_idx + 1) % len(app.backend_urls)
+    logger.debug(f"Getting backend url for prompt {prompt}")
     while not verified:
-        backend_url_idx = backend_url_idx % len(BACKEND_URLS)
-        backend_url = BACKEND_URLS[backend_url_idx]
+        backend_url_idx = backend_url_idx % len(app.backend_urls)
+        backend_url = app.backend_urls[backend_url_idx]
         try:
             response = requests.get(backend_url.replace("generate", ""), timeout=1.5)
             if response.status_code == 200:
                 verified = True
             logger.debug(f"{backend_url=} {prompt=} worked")
-        except requests.exceptions.Timeout:
-            BACKEND_URLS.remove(backend_url)
-            logger.debug(f"{backend_url=} {prompt=} failed")
+        except Exception as e:
+            app.backend_urls.remove(backend_url)
+            logger.debug(f"{backend_url=} {prompt=} failed with exception {e}")
             continue
     app.backend_url_semaphore.release()
 
@@ -324,6 +328,27 @@ async def update_download_image(request: Request, data: UpdateImageRequest, back
     return "success"
 
 
+def update_urls():
+    working_urls = []
+    bad_urls = []
+    for backend_url in BACKEND_URLS:
+        try:
+            response = requests.get(backend_url.replace("generate", ""))
+            if response.status_code == 200:
+                working_urls.append(backend_url)
+        except Exception as e:
+            bad_urls.append(backend_url)
+            # logger.debug(f"{backend_url=} failed with exception {e}")
+    app.backend_urls = working_urls
+    logger.debug(f"Updated: {len(app.backend_urls)}/{len(BACKEND_URLS)}\nWorking URLs: {app.backend_urls}\nBad URLs: {bad_urls}")
+
+
+def create_background_tasks():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=update_urls, trigger="interval", seconds=180)
+    scheduler.start()
+
+
 @app.on_event("startup")
 async def startapp():
     logger.debug("Init DB")
@@ -332,6 +357,7 @@ async def startapp():
     create_rankings_table()
     create_downloads_table()
     logger.debug("Finished Init DB")
+    create_background_tasks()
 
 
 @app.get('/users')
