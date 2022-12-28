@@ -32,7 +32,13 @@ class LogConfig(BaseModel):
     }
 
 
+class EndpointFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.getMessage().find("/get_images_status/") == -1
+
+
 dictConfig(LogConfig().dict())
 logger = logging.getLogger("mycoolapp")
+logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
 logger.debug("Created Logger!")
