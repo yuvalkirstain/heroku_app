@@ -202,12 +202,13 @@ async def create_images(prompt, user_id):
         backend_url = BACKEND_URLS[backend_url_idx]
         print(backend_url)
         try:
-            response = requests.get(backend_url.replace("generate", ""), timeout=0.5)
+            response = requests.get(backend_url.replace("generate", ""), timeout=1.5)
             print(response.elapsed)
             if response.status_code == 200:
                 verified = True
         except requests.exceptions.Timeout:
             BACKEND_URLS.remove(backend_url)
+            logger.debug(f"{BACKEND_URLS=}")
             continue
     app.backend_url_semaphore.release()
 
