@@ -82,7 +82,7 @@ class Job(BaseModel):
     prompt: str
     job_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     status: str = "queued"
-    start_time: int = time.time()
+    start_time: int = Field(default_factory=lambda: time.time())
     images: list = []
     image_uids: list = []
     estimated_total_time: int = 15
@@ -276,7 +276,7 @@ async def get_images(prompt: str = Form(...),
 @app.get("/get_images_status/")
 async def get_images_status(job_id: str):
     job = app.jobs[job_id]
-    if job.status == "running":
+    if job.status in ["running", "queued"]:
         elapsed_time = time.time() - job.start_time
         job.progress = int(elapsed_time * 100 / job.estimated_total_time) % 101
     return job
