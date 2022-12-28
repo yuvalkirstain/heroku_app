@@ -58,8 +58,8 @@ logger.debug("Finished importing DB")
 BACKEND_URLS = json.loads(os.environ["BACKEND_URLS"])
 app.backend_urls = BACKEND_URLS[:]
 backend_url_idx = 0
-MAX_SIZE_IN_QUEUE = len(app.backend_urls)
-MAX_SIZE_CONCURRENT = len(app.backend_urls)
+MAX_SIZE_IN_QUEUE = len(app.backend_urls) * 2
+MAX_SIZE_CONCURRENT = len(app.backend_urls) * 4
 logger.debug(f"{MAX_SIZE_IN_QUEUE=} {MAX_SIZE_CONCURRENT=}")
 
 AWS_ACCESS_KEY = os.environ["AWS_ACCESS_KEY"]
