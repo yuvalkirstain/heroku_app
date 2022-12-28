@@ -158,9 +158,6 @@ button:hover:not(.top-button) {
 }
 
 .status-text {
-    position: absolute;
-    left: 0;
-    top: 0;
     font-family: 'Montserrat', sans-serif;
     font-size: 16px;
     color: #eee4e4;
@@ -318,6 +315,19 @@ h1 a {
 h1 a:hover {
     /* Change the font color on hover */
     color: #00b8d4;
+}
+
+a {
+    color: #ec6565;
+    transition: color 0.5s;
+    cursor: pointer;
+    text-decoration: none;
+    target: "_blank";
+}
+
+a:hover {
+    /* Change the font color on hover */
+    color: #e71414;
 }
 
 li a {

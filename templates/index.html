@@ -49,21 +49,24 @@
     </div>
     <div class="splash-screen-inner" id="model-info" style="display: none;">
         <h1>Pick a Pic</h1>
-        <li><strong>Mission</strong>: We are on a mission to build the largest open-sourced and publicly available human-feedback for text-to-image dataset.
+        <li>
+            <strong>Mission</strong>: We are on a mission to build the largest open-sourced and publicly available
+            human-feedback for text-to-image dataset.
         </li>
-        <li><strong>Model</strong>: Currently we use <a href="https://huggingface.co/stabilityai/stable-diffusion-2-1"
-                                                        >Stable
-            diffusion
-            2.1</a>
-            with a guidance scale of 9. If you think that there is a better open-sourced model available, or would like
-            to suggest
-            better approaches to employ this model, please contact us.
+        <li>
+            <strong>Model</strong>: Currently we use <a href="https://huggingface.co/stabilityai/stable-diffusion-2-1">
+            Stable diffusion 2.1</a> with a guidance scale of 9. If you think that there is a better open-sourced model
+            available, or would like to suggest better approaches to employ this model, please contact us.
         </li>
-        <li><strong>Data</strong>: We will update this <a href="https://huggingface.co/datasets/yuvalkirstain/PickaPic"
+        <li>
+            <strong>Data</strong>: We will update this <a href="https://huggingface.co/datasets/yuvalkirstain/PickaPic"
                                                           target="_blank">dataset</a>
             once a week with the new collected data.
         </li>
-        <li><strong>Reach Out</strong>: If you would like to help, suggest, or chat with us, please reach out on <a href="https://discord.gg/qKEVkF85DT">discord</a> or by <a href=":mailto:pickapic.io@gmail.com">mail</a>. </li>
+        <li>
+            <strong>Reach Out</strong>: If you would like to help, suggest, or chat with us, please reach out on <a
+                href="https://discord.gg/qKEVkF85DT">discord</a> or by <a href=":mailto:pickapic.io@gmail.com">mail</a>.
+        </li>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="model-info-button" style="margin-right: 0.5vh">Return to demo
             </button>
@@ -72,7 +75,8 @@
     <div class="splash-screen-inner" id="ack-info" style="display: none;">
         <h1>Pick a Pic</h1>
         <li> We thank the <a href="https://sites.research.google/trc/about/">Google TRC Program</a>
-            for their generous support in providing the compute used in this project. </li>
+            for their generous support in providing the compute used in this project.
+        </li>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="ack-info-button" style="margin-right: 0.5vh">Return to demo
             </button>
@@ -136,7 +140,10 @@
     </div>
     <div class="container" style="top: 0; margin-top: 0">
         <div class="title-button-container">
-            <h1 id="title" style="font-size: large;text-align: left;margin-right: 4vw">Pick a Pic: <a onclick="activateModelInfo()">collaborative</a> & <a href="https://huggingface.co/datasets/yuvalkirstain/PickaPic" target="_blank" style="text-decoration: none">open</a> dataset </h1>
+            <h1 id="title" style="font-size: large;text-align: left;margin-right: 4vw">Pick a Pic: <a
+                    onclick="activateModelInfo()">collaborative</a> & <a
+                    href="https://huggingface.co/datasets/yuvalkirstain/PickaPic" target="_blank"
+                    style="text-decoration: none">open</a> dataset </h1>
             <div class="button-container">
                 <button id="submit-button" style="margin-right: 0">Generate</button>
                 <button id="download-button" style="display: none">Download</button>
@@ -147,7 +154,7 @@
 
 
     <div class="progress-container" style="display: block">
-        <div class="status-text" style="width: 100%"></div>
+        <div class="status-text" style="width: 100%"><a id='bad-images'></a></div>
         <div class="progress-bar-background" style="display: none">
             <div class="progress-bar"></div>
         </div>
@@ -361,6 +368,10 @@
         resizeParentWidth()
     }, true);
 
+    function isImage(element) {
+        return element.hasOwnProperty("imageId");
+    }
+
 
     function onImageClick(event) {
         const image = event.target;
@@ -371,10 +382,23 @@
         for (let i = 0; i < allImages.length; i++) {
             imageIds.push(allImages[i].imageId);
         }
-        console.log('Clicked image ' + image.idx);
+        let imageId;
+        if (isImage(image)) {
+            imageId = image.imageId;
+            console.log('Clicked image ' + image.idx);
+            downloadButton.style.display = 'inline-block';
+            downloadButton.href = image.src;
+            image.classList.add('after_clicked');
+            image.classList.add('clicked');
+        } else {
+            imageId = 'none';
+            console.log('all images suck');
+        }
+
+
         fetch('/update_clicked_image/', {
             method: 'POST',
-            body: JSON.stringify({image_uid: image.imageId, image_uids: imageIds, prompt: prompt}),
+            body: JSON.stringify({image_uid: imageId, image_uids: imageIds, prompt: prompt}),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -386,13 +410,8 @@
             console.error('Error updating clicked image:', error);
         });
 
-        downloadButton.style.display = 'inline-block';
         title.innerHTML = '<h1 id="title" style="font-size: large;text-align: center;">Pick a Pic</h1>'
-        {#downloadButton.style.width = '49%';#}
-        downloadButton.href = image.src;
-
         submitButton.style.display = 'block';
-        {#submitButton.style.width = '49%';#}
         submitButton.style.marginRight = '2%';
 
         // Make other images darker
@@ -401,17 +420,12 @@
             otherImages[i].style.filter = 'brightness(50%)';
             otherImages[i].classList.add('after_clicked');
         }
-        image.classList.add('after_clicked');
-        image.classList.add('clicked');
 
-        statusText.innerText = ""
+        statusText.innerHTML = ""
         window.scrollTo(0, 0)
-
-        // Enable submit button to generate more images
-        {#clearButton.style.width = '33%';#}
-        {#clearButton.style.marginRight = '0.5%';#}
-        {#submitButton.style.marginRight = '0.5%';#}
     }
+
+    {#document.getElementById('bad-images').addEventListener('click', onImageClick);#}
 
     function updateImages(data) {
         const images = data.images;
@@ -500,9 +514,9 @@
                 const data = JSON.parse(request.response);
                 const status = data.status;
                 const progress = data.progress;
-                statusText.innerText = status
-                if (statusText.innerText === "running") {
-                    statusText.innerText = ""
+                statusText.innerHTML = status
+                if (statusText.innerHTML === "running") {
+                    statusText.innerHTML = ""
                     document.querySelector('.progress-bar-background').style.display = 'block';
                 } else {
                     document.querySelector('.progress-bar-background').style.display = 'none';
@@ -514,7 +528,8 @@
                     console.log('Job finished');
                     getJobResult(jobId);
                     document.querySelector('.progress-bar-background').style.display = 'none';
-                    statusText.innerText = "Click on your favourite image"
+
+                    statusText.innerHTML = "<div><p>Click on your favourite image. If all are <strong>bad</strong> press <a id='bad-images' href='#' onclick='javascript:onImageClick(event)'>here.</a><p><div>"
                 } else {
                     setTimeout(() => {
                         checkJobStatus(jobId);
@@ -565,19 +580,27 @@
 
             // Show progress indicator
             document.querySelector('.progress-bar-background').style.display = 'block';
-            document.querySelector('.status-text').innerText = '';
+            statusText.innerHTML = '';
             // Start interval to update progress bar
             updateProgressBar(request);
             request.send('prompt=' + promptInput.value);
         }
     );
 
-    document.addEventListener("keydown", function (event) {
+    function submitOnEnter(event) {
         if (event.key === "Enter" && promptInput.value !== '' && submitButton.style.display !== 'none') {
             event.preventDefault();
             submitButton.click();
         }
+    }
+
+    document.addEventListener("keydown", function (event) {
+        submitOnEnter(event);
     });
+
+    {#promptInput.addEventListener("keypress", function (event) {#}
+    {#    submitOnEnter(event);#}
+    {# });#}
 
     downloadButton.addEventListener('click', function () {
         const clickedImage = document.querySelector('.clicked');
