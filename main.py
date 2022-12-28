@@ -113,7 +113,6 @@ async def login(request: Request):
 
 @app.get('/auth')
 async def auth(request: Request):
-    print("auth")
     try:
         token = await oauth.google.authorize_access_token(request)
     except OAuthError as error:
@@ -200,15 +199,14 @@ async def create_images(prompt, user_id):
     while not verified:
         backend_url_idx = backend_url_idx % len(BACKEND_URLS)
         backend_url = BACKEND_URLS[backend_url_idx]
-        print(backend_url)
         try:
             response = requests.get(backend_url.replace("generate", ""), timeout=1.5)
-            print(response.elapsed)
             if response.status_code == 200:
                 verified = True
+            logger.debug(f"{backend_url=} {prompt=} worked")
         except requests.exceptions.Timeout:
             BACKEND_URLS.remove(backend_url)
-            logger.debug(f"{BACKEND_URLS=}")
+            logger.debug(f"{backend_url=} {prompt=} failed")
             continue
     app.backend_url_semaphore.release()
 
@@ -217,7 +215,7 @@ async def create_images(prompt, user_id):
 
     start = time.time()
 
-    print("Starting to create images")
+    logger.info(f"Starting to create images for prompt {prompt}")
     async with aiohttp.ClientSession() as session:
         async with session.post(backend_url,
                                 json={
@@ -228,7 +226,7 @@ async def create_images(prompt, user_id):
                                 }) as response:
             response_json = await response.json()
 
-    print(f"Generating images took {time.time() - start:.2f} seconds")
+    logger.info(f"Generating images from prompt {prompt} took {time.time() - start:.2f} seconds")
     images = response_json.pop("images")
     image_uids = [str(uuid.uuid4()) for _ in range(len(images))]
     image_data = extract_image_data(response_json, image_uids)
@@ -257,7 +255,6 @@ async def consumer():
 async def get_images(prompt: str = Form(...),
                      request: Request = None,
                      background_tasks: BackgroundTasks = None):
-    print("Inside get_images")
     user_id = request.session.get('user_id')
     if not user_id:
         return RedirectResponse(url='/')
@@ -267,7 +264,6 @@ async def get_images(prompt: str = Form(...),
         raise HTTPException(status_code=429, detail="too many users")
     job = Job(prompt=prompt, user_id=user_id)
     app.jobs[job.job_id] = job
-    print(list(app.jobs.keys()))
     await app.queue.put(job)
     asyncio.create_task(consumer())
     app.job_adding_semaphore.release()
