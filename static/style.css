@@ -167,14 +167,14 @@ button:hover:not(.top-button) {
 
 .progress-bar-background {
     /*margin-left: 60px;*/
-    background: #f1952b;
+    background: #eaad67;
 }
 
 .progress-bar {
     flex: 1; /* add this */
     width: 0%;
     height: 100%;
-    background: #4caf50;
+    background: #9fde95;
     border-radius: 5px;
     transition: width 0.5s ease;
 }
