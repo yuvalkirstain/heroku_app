@@ -57,12 +57,19 @@ logger.debug("Finished importing DB")
 BACKEND_URLS = json.loads(os.environ["BACKEND_URLS"])
 backend_url_idx = 0
 MAX_SIZE_IN_QUEUE = len(BACKEND_URLS) * 2
-MAX_SIZE_CONCURRENT = len(BACKEND_URLS) * 4
+MAX_SIZE_CONCURRENT = len(BACKEND_URLS) * 3
+logger.debug(f"{MAX_SIZE_IN_QUEUE=} {MAX_SIZE_CONCURRENT=}")
 
 AWS_ACCESS_KEY = os.environ["AWS_ACCESS_KEY"]
 AWS_SECRET_KEY = os.environ["AWS_SECRET_KEY"]
 BUCKET_NAME = "text-to-image-human-preferences"
 S3_EXTRA_ARGS = {'ACL': 'public-read'}
+
+app.backend_url_semaphore = asyncio.Semaphore(1)
+app.job_adding_semaphore = asyncio.Semaphore(1)
+app.semaphore = asyncio.Semaphore(MAX_SIZE_CONCURRENT)
+app.queue = asyncio.Queue(maxsize=MAX_SIZE_IN_QUEUE)
+app.jobs = OrderedDict()
 
 
 class UpdateImageRequest(BaseModel):
@@ -234,15 +241,15 @@ async def get_stable_images(job):
 
 
 async def consumer():
-    while True:
-        await app.semaphore.acquire()
-        job = await app.queue.get()
-        logger.debug(f"Starting job {job.job_id}")
-        job.start_time = time.time()
-        # await get_random_images(job)
-        await get_stable_images(job)
-        app.semaphore.release()
-        app.queue.task_done()
+    await app.semaphore.acquire()
+    job = await app.queue.get()
+    job.start_time = time.time()
+    # await get_random_images(job)
+    logger.debug(f"Starting job {job.prompt}")
+    await get_stable_images(job)
+    logger.debug(f"Finished job {job.prompt}")
+    app.semaphore.release()
+    app.queue.task_done()
 
 
 @app.post("/get_images/")
@@ -261,6 +268,7 @@ async def get_images(prompt: str = Form(...),
     app.jobs[job.job_id] = job
     print(list(app.jobs.keys()))
     await app.queue.put(job)
+    asyncio.create_task(consumer())
     app.job_adding_semaphore.release()
     return {"jobId": job.job_id}
 
@@ -327,12 +335,6 @@ async def startapp():
     create_rankings_table()
     create_downloads_table()
     logger.debug("Finished Init DB")
-    app.backend_url_semaphore = asyncio.Semaphore(1)
-    app.job_adding_semaphore = asyncio.Semaphore(1)
-    app.semaphore = asyncio.Semaphore(MAX_SIZE_CONCURRENT)
-    app.queue = asyncio.Queue(maxsize=MAX_SIZE_IN_QUEUE)
-    app.jobs = OrderedDict()
-    asyncio.create_task(consumer())
 
 
 @app.get('/users')
