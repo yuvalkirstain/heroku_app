@@ -9,6 +9,7 @@ from typing import List
 
 import aiohttp
 import boto3
+import requests
 from PIL import Image
 from pydantic import BaseModel, Field
 
@@ -186,8 +187,21 @@ def extract_image_data(response_json, image_uids):
 async def create_images(prompt, user_id):
     await app.backend_url_semaphore.acquire()
     global backend_url_idx
-    backend_url = BACKEND_URLS[backend_url_idx]
+
+    verified = False
     backend_url_idx = (backend_url_idx + 1) % len(BACKEND_URLS)
+    while not verified:
+        backend_url_idx = backend_url_idx % len(BACKEND_URLS)
+        backend_url = BACKEND_URLS[backend_url_idx]
+        print(backend_url)
+        try:
+            response = requests.get(backend_url.replace("generate", ""), timeout=0.5)
+            print(response.elapsed)
+            if response.status_code == 200:
+                verified = True
+        except requests.exceptions.Timeout:
+            BACKEND_URLS.remove(backend_url)
+            continue
     app.backend_url_semaphore.release()
 
     negative_prompt = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
