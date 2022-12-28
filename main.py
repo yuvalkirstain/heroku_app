@@ -336,7 +336,10 @@ async def startapp():
 
 
 @app.get('/users')
-async def users():
+async def users(request: Request):
+    user_id = request.session.get('user_id')
+    if not user_id or user_id != 1:
+        return RedirectResponse(url='/')
     users = get_all_users()
     return HTMLResponse(users.to_html())
 
