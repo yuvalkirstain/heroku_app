@@ -485,8 +485,25 @@
         }
     }
 
-    function updateProgressBar(request, progress) {
+    function updateProgressBar(data) {
         const progressBar = document.querySelector('.progress-bar');
+        const status = data.status;
+        const progress = data.progress;
+        if (status === "running") {
+            statusText.innerHTML = ""
+            document.querySelector('.progress-bar-background').style.display = 'block';
+            document.querySelector('.progress-bar-background').style.background = '#eaad67';
+            document.querySelector('.progress-bar').style.background = '#9fde95';
+        } else if (status === "queued") {
+            statusText.innerHTML = ""
+            document.querySelector('.progress-bar-background').style.display = 'block';
+            document.querySelector('.progress-bar-background').style.background = '#ec6565';
+            document.querySelector('.progress-bar').style.background = '#eaad67';
+        } else {
+            document.querySelector('.progress-bar-background').style.display = 'none';
+        }
+        console.log('Status: ' + status);
+        console.log('Progress: ' + progress);
         progressBar.style.width = progress + '%';
     }
 
@@ -513,31 +530,11 @@
             if (request.status === 200) {
                 const data = JSON.parse(request.response);
                 const status = data.status;
-                const progress = data.progress;
-                statusText.innerHTML = status
-                if (statusText.innerHTML === "running") {
-                    statusText.innerHTML = ""
-                    document.querySelector('.progress-bar-background').style.display = 'block';
-                    document.querySelector('.progress-bar-background').style.background = '#eaad67';
-                    document.querySelector('.progress-bar').style.background = '#9fde95';
-                } else if (statusText.innerHTML === "queued") {
-                    statusText.innerHTML = ""
-                    document.querySelector('.progress-bar-background').style.display = 'block';
-                    document.querySelector('.progress-bar-background').style.background = '#ec6565';
-                    document.querySelector('.progress-bar').style.background = '#eaad67';
-                } else {
-                    document.querySelector('.progress-bar-background').style.display = 'none';
-                }
-                console.log('Status: ' + status);
-                console.log('Progress: ' + progress);
-
-                console.log("job id: " + jobId + " status: " + status + " progress: " + progress);
-                updateProgressBar(request, progress);
+                updateProgressBar(data);
                 if (status === 'finished') {
                     console.log('Job finished');
                     getJobResult(jobId);
                     document.querySelector('.progress-bar-background').style.display = 'none';
-
                     statusText.innerHTML = "<div><p>Click on your favourite image. If all are <strong>bad</strong> press <a id='bad-images' href='#' onclick='javascript:onImageClick(event)'>here.</a><p><div>"
                 } else {
                     setTimeout(() => {
