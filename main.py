@@ -31,6 +31,7 @@ from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 from aiocache import Cache
 from aiocache.serializers import PickleSerializer
+from aiocache.lock import RedLock
 
 logger.debug("importing demo")
 
@@ -59,7 +60,6 @@ logger.debug("Finished importing DB")
 
 BACKEND_URLS = json.loads(os.environ["BACKEND_URLS"])
 app.backend_urls = BACKEND_URLS[:]
-backend_url_idx = 0
 MAX_SIZE_IN_QUEUE = len(app.backend_urls) * 4
 MAX_SIZE_CONCURRENT = len(app.backend_urls) * 4
 logger.debug(f"{MAX_SIZE_IN_QUEUE=} {MAX_SIZE_CONCURRENT=}")
@@ -84,8 +84,8 @@ print(f"{url.username=}")
 print(f"{url.password=}")
 
 
-app.jobs = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname, port=url.port,
-                 password=url.password, timeout=0)
+app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname, port=url.port,
+                  password=url.password, timeout=0)
 # app.jobs = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint="localhost", port=6379)
 scheduler = BackgroundScheduler()
 
@@ -113,16 +113,16 @@ class Job(BaseModel):
 
 
 async def get_job(job_id: str) -> Job:
-    job = await app.jobs.get(job_id)
+    job = await app.cache.get(job_id)
     return job
 
 
 async def set_job(job_id: str, job: Job):
-    await app.jobs.set(job_id, job)
+    await app.cache.set(job_id, job)
 
 
 async def clean_job(job_id):
-    await app.jobs.delete(job_id)
+    await app.cache.delete(job_id)
 
 
 def is_user_logged(request):
@@ -224,15 +224,21 @@ def extract_image_data(response_json, image_uids):
     return image_data
 
 
+async def get_backend_url_idx():
+    async with RedLock(app.cache, "backend_url_idx", 1000):
+        result = await app.cache.get("backend_url_idx")
+        print(f"{result=}")
+        await app.cache.set("backend_url_idx", result + 1)
+    return result % len(app.backend_urls)
+
+
 async def create_images(prompt, user_id):
     await app.backend_url_semaphore.acquire()
-    global backend_url_idx
 
     verified = False
-    backend_url_idx = (backend_url_idx + 1) % len(app.backend_urls)
     logger.debug(f"Getting backend url for prompt {prompt}")
     while not verified:
-        backend_url_idx = backend_url_idx % len(app.backend_urls)
+        backend_url_idx = await get_backend_url_idx()
         backend_url = app.backend_urls[backend_url_idx]
         try:
             response = requests.get(backend_url.replace("generate", ""), timeout=1.5)
