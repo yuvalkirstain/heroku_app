@@ -6,6 +6,7 @@ import time
 import uuid
 from io import BytesIO
 from typing import List
+from urllib.parse import urlparse
 
 import aiohttp
 import boto3
@@ -28,7 +29,8 @@ from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
-from collections import OrderedDict
+from aiocache import Cache
+from aiocache.serializers import PickleSerializer
 
 logger.debug("importing demo")
 
@@ -58,7 +60,7 @@ logger.debug("Finished importing DB")
 BACKEND_URLS = json.loads(os.environ["BACKEND_URLS"])
 app.backend_urls = BACKEND_URLS[:]
 backend_url_idx = 0
-MAX_SIZE_IN_QUEUE = len(app.backend_urls) * 2
+MAX_SIZE_IN_QUEUE = len(app.backend_urls) * 4
 MAX_SIZE_CONCURRENT = len(app.backend_urls) * 4
 logger.debug(f"{MAX_SIZE_IN_QUEUE=} {MAX_SIZE_CONCURRENT=}")
 
@@ -71,7 +73,20 @@ app.backend_url_semaphore = asyncio.Semaphore(1)
 app.job_adding_semaphore = asyncio.Semaphore(1)
 app.semaphore = asyncio.Semaphore(MAX_SIZE_CONCURRENT)
 app.queue = asyncio.Queue(maxsize=MAX_SIZE_IN_QUEUE)
-app.jobs = OrderedDict()
+REDIS_URL = os.environ.get("REDIS_URL")
+url = urlparse(REDIS_URL)
+# r = redis.Redis(host=url.hostname, port=url.port, username=url.username, password=url.password, ssl=True,
+#                 ssl_cert_reqs=None)
+print(f"{url=}")
+print(f"{url.hostname=}")
+print(f"{url.port=}")
+print(f"{url.username=}")
+print(f"{url.password=}")
+
+
+app.jobs = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname, port=url.port,
+                 password=url.password, timeout=0)
+# app.jobs = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint="localhost", port=6379)
 scheduler = BackgroundScheduler()
 
 
@@ -91,7 +106,23 @@ class Job(BaseModel):
     estimated_total_time: int = 15
     progress: int = 0
     user_id: str = None
-    image_data: List = None
+    image_data: List = []
+
+    def __str__(self):
+        return f"Job(job_id={self.job_id}, status={self.status}, start_time={self.start_time}, len_images={len(self.images)}, image_uids={self.image_uids}, estimated_total_time={self.estimated_total_time}, progress={self.progress}, user_id={self.user_id}, len_image_data={len(self.image_data)})"
+
+
+async def get_job(job_id: str) -> Job:
+    job = await app.jobs.get(job_id)
+    return job
+
+
+async def set_job(job_id: str, job: Job):
+    await app.jobs.set(job_id, job)
+
+
+async def clean_job(job_id):
+    await app.jobs.delete(job_id)
 
 
 def is_user_logged(request):
@@ -219,7 +250,7 @@ async def create_images(prompt, user_id):
 
     start = time.time()
 
-    logger.info(f"Starting to create images for prompt {prompt}")
+    logger.info(f"Starting to create images for prompt {prompt} {os.getpid()=}")
     async with aiohttp.ClientSession() as session:
         async with session.post(backend_url,
                                 json={
@@ -239,14 +270,22 @@ async def create_images(prompt, user_id):
 
 async def get_stable_images(job):
     job.status = "running"
+    logger.debug(f"setting job before run: {job.prompt} {os.getpid()=}")
+    await set_job(job.job_id, job)
+    logger.debug(f"finished setting job before run: {job.prompt} {os.getpid()=}")
     job.images, job.image_uids, job.image_data = await create_images(job.prompt, job.user_id)
     job.status = "finished"
+    logger.debug(f"setting job after run: {job.prompt} {os.getpid()=}")
+    await set_job(job.job_id, job)
+    logger.debug(f"finished setting job before run: {job.prompt} {os.getpid()=}")
 
 
 async def consumer():
     await app.semaphore.acquire()
-    job = await app.queue.get()
+    job_id = await app.queue.get()
+    job = await get_job(job_id)
     job.start_time = time.time()
+    await set_job(job_id, job)
     # await get_random_images(job)
     logger.debug(f"Starting job {job.prompt}")
     await get_stable_images(job)
@@ -267,8 +306,8 @@ async def get_images(prompt: str = Form(...),
         app.job_adding_semaphore.release()
         raise HTTPException(status_code=429, detail="too many users")
     job = Job(prompt=prompt, user_id=user_id)
-    app.jobs[job.job_id] = job
-    await app.queue.put(job)
+    await set_job(job.job_id, job)
+    await app.queue.put(job.job_id)
     asyncio.create_task(consumer())
     app.job_adding_semaphore.release()
     return {"jobId": job.job_id}
@@ -276,10 +315,11 @@ async def get_images(prompt: str = Form(...),
 
 @app.get("/get_images_status/")
 async def get_images_status(job_id: str):
-    job = app.jobs[job_id]
+    job = await get_job(job_id)
     if job.status in ["running", "queued"]:
         elapsed_time = time.time() - job.start_time
         job.progress = int(elapsed_time * 100 / job.estimated_total_time) % 101
+        await set_job(job.job_id, job)
     return job
 
 
@@ -288,10 +328,11 @@ async def get_images_result(job_id: str, background_tasks: BackgroundTasks = Non
     user_id = request.session.get('user_id')
     if not user_id:
         return RedirectResponse(url='/')
-    job = app.jobs[job_id]
+    job = await get_job(job_id)
     background_tasks.add_task(upload_images, job.images, job.image_uids)
     for image_data in job.image_data:
         background_tasks.add_task(add_image, image_data)
+        background_tasks.add_task(clean_job, job_id)
     return job
 
 
@@ -340,7 +381,8 @@ def update_urls():
             bad_urls.append(backend_url)
             # logger.debug(f"{backend_url=} failed with exception {e}")
     app.backend_urls = working_urls
-    logger.debug(f"Updated: {len(app.backend_urls)}/{len(BACKEND_URLS)}\nWorking URLs: {app.backend_urls}\nBad URLs: {bad_urls}")
+    logger.debug(
+        f"Updated: {len(app.backend_urls)}/{len(BACKEND_URLS)}\nWorking URLs: {app.backend_urls}\nBad URLs: {bad_urls}")
 
 
 def create_background_tasks():
