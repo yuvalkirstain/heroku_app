@@ -406,6 +406,7 @@ async def startapp():
     create_downloads_table()
     logger.debug("Finished Init DB")
     create_background_tasks()
+    app.cache.set("backend_url_idx", 0)
 
 
 @app.get('/users')
