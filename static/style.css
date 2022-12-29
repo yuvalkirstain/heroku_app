@@ -159,7 +159,7 @@ button:hover:not(.top-button) {
 
 .status-text {
     font-family: 'Montserrat', sans-serif;
-    font-size: 16px;
+    font-size: 3vmin;
     color: #eee4e4;
     width: 60px;
     line-height: 5px;
