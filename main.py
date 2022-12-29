@@ -276,14 +276,10 @@ async def create_images(prompt, user_id):
 
 async def get_stable_images(job):
     job.status = "running"
-    logger.debug(f"setting job before run: {job.prompt} {os.getpid()=}")
     await set_job(job.job_id, job)
-    logger.debug(f"finished setting job before run: {job.prompt} {os.getpid()=}")
     job.images, job.image_uids, job.image_data = await create_images(job.prompt, job.user_id)
     job.status = "finished"
-    logger.debug(f"setting job after run: {job.prompt} {os.getpid()=}")
     await set_job(job.job_id, job)
-    logger.debug(f"finished setting job before run: {job.prompt} {os.getpid()=}")
 
 
 async def consumer():
@@ -335,10 +331,10 @@ async def get_images_result(job_id: str, background_tasks: BackgroundTasks = Non
     if not user_id:
         return RedirectResponse(url='/')
     job = await get_job(job_id)
+    await clean_job(job_id)
     background_tasks.add_task(upload_images, job.images, job.image_uids)
     for image_data in job.image_data:
         background_tasks.add_task(add_image, image_data)
-        background_tasks.add_task(clean_job, job_id)
     return job
 
 
