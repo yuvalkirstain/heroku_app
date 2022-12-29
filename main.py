@@ -225,7 +225,7 @@ def extract_image_data(response_json, image_uids):
 
 
 async def get_backend_url_idx():
-    async with RedLock(app.cache, "backend_url_idx", 1000):
+    async with RedLock(app.cache, "backend_url_idx_lock", 1000):
         result = await app.cache.get("backend_url_idx")
         print(f"{result=}")
         await app.cache.set("backend_url_idx", result + 1)
@@ -406,7 +406,7 @@ async def startapp():
     create_downloads_table()
     logger.debug("Finished Init DB")
     create_background_tasks()
-    app.cache.set("backend_url_idx", 0)
+    await app.cache.set("backend_url_idx", 0)
 
 
 @app.get('/users')
