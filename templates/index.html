@@ -477,22 +477,6 @@
         progressBar.style.width = progress + '%';
     }
 
-    function getJobResult(jobId) {
-        let ws = new WebSocket("ws://localhost:{{ port }}/ws");
-
-        function sendMessage(jobId) {
-            ws.send(jobId);
-        }
-
-        ws.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            updateImages(data);
-        };
-        ws.onopen = function () {
-            sendMessage(jobId);
-        };
-    }
-
     function displayErrorMessage() {
         console.log("Displaying error message")
         const errorContainer = document.getElementById('error-screen');
@@ -506,7 +490,7 @@
         submitButton.style.display = 'none';
         title.innerHTML = '<h1 id="title" style="font-size: large;text-align: left;margin-right: 4vw">Pick a Pic: <a onclick="activateModelInfo()">collaborative</a> & <a href="https://huggingface.co/datasets/yuvalkirstain/PickaPic" target="_blank" style="text-decoration: none">open</a> dataset </h1>'
 
-        let ws = new WebSocket("ws://localhost:8000/ws");
+        let ws = new WebSocket("ws://localhost:{{ port }}/ws");
         ws.onmessage = function (event) {
             const data = JSON.parse(event.data);
             const status = data.status;
