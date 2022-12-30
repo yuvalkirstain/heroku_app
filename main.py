@@ -34,9 +34,6 @@ from aiocache import Cache
 from aiocache.serializers import PickleSerializer
 from aiocache.lock import RedLock
 
-PORT = os.environ["PORT"]
-logger.info(f"Starting server on port {PORT}")
-
 
 # DUMMY_IMG_URL = f"https://loremflickr.com/512/512"
 app = FastAPI()
@@ -124,8 +121,7 @@ async def homepage(request: Request):
     return templates.TemplateResponse("index.html",
                                       {"request": request,
                                        "is_authenticated": is_user_logged(request),
-                                       "user_id": user_id,
-                                       "port": PORT})
+                                       "user_id": user_id})
 
 
 @app.get('/login')

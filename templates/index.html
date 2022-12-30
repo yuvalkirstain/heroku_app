@@ -489,8 +489,10 @@
         imageGridContainer.style.display = 'block';
         submitButton.style.display = 'none';
         title.innerHTML = '<h1 id="title" style="font-size: large;text-align: left;margin-right: 4vw">Pick a Pic: <a onclick="activateModelInfo()">collaborative</a> & <a href="https://huggingface.co/datasets/yuvalkirstain/PickaPic" target="_blank" style="text-decoration: none">open</a> dataset </h1>'
+        const hostname = window.location.hostname;
+        const port = window.location.port;
 
-        let ws = new WebSocket("ws://localhost:{{ port }}/ws");
+        let ws = new WebSocket("ws://" + hostname + ":" + port + "/ws");
         ws.onmessage = function (event) {
             const data = JSON.parse(event.data);
             const status = data.status;
