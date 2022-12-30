@@ -11,7 +11,7 @@ def create_image_table():
     cursor = conn.cursor()
     cursor.execute("select exists(select * from information_schema.tables where table_name=%s)", ('images',))
     if cursor.fetchone()[0]:
-        logger.info("Table images already exists")
+        pass
     else:
         cursor.execute(
             '''
