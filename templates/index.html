@@ -478,7 +478,7 @@
     }
 
     function getJobResult(jobId) {
-        let ws = new WebSocket("ws://localhost:8000/ws");
+        let ws = new WebSocket("ws://localhost:{{ port }}/ws");
 
         function sendMessage(jobId) {
             ws.send(jobId);

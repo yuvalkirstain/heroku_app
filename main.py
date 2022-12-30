@@ -34,6 +34,8 @@ from aiocache import Cache
 from aiocache.serializers import PickleSerializer
 from aiocache.lock import RedLock
 
+PORT = os.environ["PORT"]
+logger.info(f"Starting server on port {PORT}")
 logger.debug("importing demo")
 
 logger.debug("importing DB")
@@ -135,7 +137,8 @@ async def homepage(request: Request):
     return templates.TemplateResponse("index.html",
                                       {"request": request,
                                        "is_authenticated": is_user_logged(request),
-                                       "user_id": user_id})
+                                       "user_id": user_id,
+                                       "port": PORT})
 
 
 @app.get('/login')
