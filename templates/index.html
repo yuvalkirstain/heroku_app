@@ -191,6 +191,7 @@
 
 <script>
     {#const clearButton = document.getElementById('clear-button');#}
+    const userId = {{ user_id }};
     const submitButton = document.getElementById('submit-button');
     const downloadButton = document.getElementById('download-button');
     const promptInput = document.getElementById('prompt');
@@ -297,33 +298,6 @@
         googleSignIn.style.display = 'none';
     });
 
-    {#function clearDemo() {#}
-    {#    const clearButton = document.getElementById('clear-button');#}
-    {#    const submitButton = document.getElementById('submit-button');#}
-    {#    const downloadButton = document.getElementById('download-button');#}
-    {#    const statusText = document.querySelector('.status-text');#}
-    {##}
-    {#    statusText.innerText = '';#}
-    {#    promptInput.value = '';#}
-    {#    downloadButton.style.display = 'none';#}
-    {#    submitButton.style.display = 'inline-block';#}
-    {#    submitButton.disabled = false;#}
-    {#    submitButton.style.width = '49%';#}
-    {#    clearButton.style.width = '49%';#}
-    {#    const imageContainerChildren = imageGrid.children;#}
-    {#    for (let i = 0; i < imageContainerChildren.length; i++) {#}
-    {#        const imageChildren = imageContainerChildren[i].children;#}
-    {#        for (let j = 0; j < imageChildren.length; j++) {#}
-    {#            const image = imageChildren[j];#}
-    {#            image.style.opacity = 0;#}
-    {#            image.classList.add('after_clicked');#}
-    {#        }#}
-    {#    }#}
-    {# }#}
-
-    {#clearButton.addEventListener('click', function () {#}
-    {#    clearDemo();#}
-    {# });#}
 
     function resizeParentWidth() {
         console.log("window width " + window.innerWidth)
@@ -425,8 +399,6 @@
         window.scrollTo(0, 0)
     }
 
-    {#document.getElementById('bad-images').addEventListener('click', onImageClick);#}
-
     function updateImages(data) {
         const images = data.images;
         const imageIds = data.image_uids;
@@ -502,94 +474,50 @@
         } else {
             document.querySelector('.progress-bar-background').style.display = 'none';
         }
-        console.log('Status: ' + status);
-        console.log('Progress: ' + progress);
         progressBar.style.width = progress + '%';
     }
 
-    function getJobResult(jobId) {
-        const request = new XMLHttpRequest();
-        request.open('GET', '/get_images_result?job_id=' + jobId, true);
-
-        request.onload = function () {
-            if (request.status === 200) {
-                const data = JSON.parse(request.response);
-                updateImages(data);
-            } else {
-                // Handle error
-            }
-        }
-        request.send();
-    }
-
-    function checkJobStatus(jobId) {
-        const request = new XMLHttpRequest();
-        request.open('GET', '/get_images_status/?job_id=' + jobId, true);
-
-        request.onload = function () {
-            if (request.status === 200) {
-                const data = JSON.parse(request.response);
-                const status = data.status;
-                updateProgressBar(data);
-                if (status === 'finished') {
-                    console.log('Job finished');
-                    getJobResult(jobId);
-                    document.querySelector('.progress-bar-background').style.display = 'none';
-                    statusText.innerHTML = "<div><p>Click on your favourite image. If all are <strong>bad</strong> press <a id='bad-images' href='#' onclick='javascript:onImageClick(event)'>here.</a><p><div>"
-                } else {
-                    setTimeout(() => {
-                        checkJobStatus(jobId);
-                    }, 1000);
-                }
-            } else {
-                // Handle error
-            }
-        }
-        request.send();
-    }
-
-    function displayErrorMessage(message) {
+    function displayErrorMessage() {
         console.log("Displaying error message")
         const errorContainer = document.getElementById('error-screen');
         errorContainer.style.display = 'block';
     }
 
+    function generate() {
+        document.getElementById('download-button').style.display = 'none';
+        document.querySelector('.progress-bar').style.width = '0%';
+        imageGridContainer.style.display = 'block';
+        submitButton.style.display = 'none';
+        title.innerHTML = '<h1 id="title" style="font-size: large;text-align: left;margin-right: 4vw">Pick a Pic: <a onclick="activateModelInfo()">collaborative</a> & <a href="https://huggingface.co/datasets/yuvalkirstain/PickaPic" target="_blank" style="text-decoration: none">open</a> dataset </h1>'
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        const websocketAddr = "wss://" + hostname + ":" + port + "/ws";
+        console.log("Connecting to websocket at " + websocketAddr);
+        let ws = new WebSocket(websocketAddr);
+        ws.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            const status = data.status;
+            updateProgressBar(data);
+            if (status === 'finished') {
+                console.log('Job finished');
+                updateImages(data);
+                document.querySelector('.progress-bar-background').style.display = 'none';
+                statusText.innerHTML = "<div><p>Click on your favourite image. If all are <strong>bad</strong> press <a id='bad-images' href='#' onclick='javascript:onImageClick(event)'>here.</a><p><div>";
+            }
+            else if (status === 'error') {
+                displayErrorMessage();
+            }
+        };
+
+        ws.onopen = function () {
+            let msg = JSON.stringify({prompt: promptInput.value, user_id: userId});
+            console.log("Sending job with " + msg);
+            ws.send(msg);
+        };
+    }
+
     submitButton.addEventListener('click', function () {
-            document.getElementById('download-button').style.display = 'none';
-            document.querySelector('.progress-bar').style.width = '0%';
-            imageGridContainer.style.display = 'block';
-            submitButton.style.display = 'none';
-            title.innerHTML = '<h1 id="title" style="font-size: large;text-align: left;margin-right: 4vw">Pick a Pic: <a onclick="activateModelInfo()">collaborative</a> & <a href="https://huggingface.co/datasets/yuvalkirstain/PickaPic" target="_blank" style="text-decoration: none">open</a> dataset </h1>'
-            {#clearButton.style.width = '100%';#}
-            {#clearButton.style.marginRight = '0';#}
-
-            // Send request to image service
-            const request = new XMLHttpRequest();
-
-            const requestUrl = '/get_images/?prompt=' + promptInput.value;
-            request.open('POST', requestUrl, true);
-            request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-            request.onload = function () {
-                if (request.status === 200) {
-                    const response = JSON.parse(request.responseText);
-                    const jobId = response.jobId;
-                    console.log('Job ID: ' + jobId);
-                    checkJobStatus(jobId);
-                } else if (request.status === 429) {
-                    const errorMessage = 'Sorry, we are experiencing high traffic at the moment. Please try again in a few minutes.';
-                    displayErrorMessage(errorMessage);
-                } else {
-                    console.log("Error: " + request.status);
-                }
-            };
-
-            // Show progress indicator
-            document.querySelector('.progress-bar-background').style.display = 'block';
-            statusText.innerHTML = '';
-            // Start interval to update progress bar
-            updateProgressBar(request);
-            request.send('prompt=' + promptInput.value);
+            generate();
         }
     );
 
@@ -603,10 +531,6 @@
     document.addEventListener("keydown", function (event) {
         submitOnEnter(event);
     });
-
-    {#promptInput.addEventListener("keypress", function (event) {#}
-    {#    submitOnEnter(event);#}
-    {# });#}
 
     downloadButton.addEventListener('click', function () {
         const clickedImage = document.querySelector('.clicked');

@@ -11,7 +11,7 @@ def create_image_table():
     cursor = conn.cursor()
     cursor.execute("select exists(select * from information_schema.tables where table_name=%s)", ('images',))
     if cursor.fetchone()[0]:
-        logger.info("Table images already exists")
+        pass
     else:
         cursor.execute(
             '''
@@ -58,7 +58,7 @@ def add_image(image_data: ImageData):
     cursor.execute(f"SELECT * FROM images WHERE image_uid=%s", (image_uid, ))
     image = cursor.fetchone()
     if image is not None:
-        logger.debug(f"Image with uid {image_uid} exists")
+        pass
     else:
         cursor.execute(
             f"INSERT INTO images (image_uid, user_id, prompt, negative_prompt, seed, gs, steps, idx, num_generated, scheduler_cls, model_id) VALUES ('{image_uid}', {image_data.user_id}, '{image_data.prompt}', '{image_data.negative_prompt}', {image_data.seed}, {image_data.gs}, {image_data.steps}, {image_data.idx}, {image_data.num_generated}, '{image_data.scheduler_cls}', '{image_data.model_id}')")

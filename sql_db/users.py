@@ -12,7 +12,7 @@ def create_user_table():
     cursor = conn.cursor()
     cursor.execute("select exists(select * from information_schema.tables where table_name=%s)", ('users',))
     if cursor.fetchone()[0]:
-        logger.info("Table users already exists")
+        pass
     else:
         cursor.execute(
             '''
