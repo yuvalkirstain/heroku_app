@@ -12,7 +12,7 @@ def create_downloads_table():
     cursor = conn.cursor()
     cursor.execute("select exists(select * from information_schema.tables where table_name=%s)", ('downloads',))
     if cursor.fetchone()[0]:
-        logger.info("Table downloads already exists")
+        pass
     else:
         cursor.execute(
             '''

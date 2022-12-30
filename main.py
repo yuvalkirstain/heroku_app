@@ -36,12 +36,9 @@ from aiocache.lock import RedLock
 
 PORT = os.environ["PORT"]
 logger.info(f"Starting server on port {PORT}")
-logger.debug("importing demo")
 
-logger.debug("importing DB")
 
-DUMMY_IMG_URL = f"https://loremflickr.com/512/512"
-logger.debug("finished importing DB")
+# DUMMY_IMG_URL = f"https://loremflickr.com/512/512"
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="!secret")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -59,8 +56,6 @@ oauth.register(
     }
 )
 
-logger.debug("Finished importing DB")
-
 BACKEND_URLS = json.loads(os.environ["BACKEND_URLS"])
 app.backend_urls = BACKEND_URLS[:]
 MAX_SIZE_IN_QUEUE = len(app.backend_urls) * 1
@@ -74,18 +69,10 @@ S3_EXTRA_ARGS = {'ACL': 'public-read'}
 
 REDIS_URL = os.environ.get("REDIS_URL")
 url = urlparse(REDIS_URL)
-# r = redis.Redis(host=url.hostname, port=url.port, username=url.username, password=url.password, ssl=True,
-#                 ssl_cert_reqs=None)
-print(f"{url=}")
-print(f"{url.hostname=}")
-print(f"{url.port=}")
-print(f"{url.username=}")
-print(f"{url.password=}")
 
 app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname, port=url.port,
                   password=url.password, timeout=0)
 job_id2images = {}
-# app.jobs = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint="localhost", port=6379)
 scheduler = BackgroundScheduler()
 
 
@@ -419,12 +406,10 @@ def create_background_tasks():
 
 @app.on_event("startup")
 async def startapp():
-    logger.debug("Init DB")
     create_user_table()
     create_image_table()
     create_rankings_table()
     create_downloads_table()
-    logger.debug("Finished Init DB")
     create_background_tasks()
     await app.cache.set("backend_url_idx", 0)
     await app.cache.set("num_running", 0)
