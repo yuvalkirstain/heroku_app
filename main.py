@@ -409,6 +409,7 @@ def update_urls():
 
 
 def clean_jobs():
+    num_cleaned = 0
     job_ids = list(finished_job_id2uids.keys())
     for job_id in job_ids:
         if job_id not in finished_job_id2uids or job_id not in job_id2images:
@@ -420,7 +421,8 @@ def clean_jobs():
             continue
         del job_id2images[job_id]
         del finished_job_id2uids[job_id]
-
+        num_cleaned += 1
+    logger.debug(f"Cleaned {num_cleaned}/{len(job_ids)} jobs")
 
 def create_background_tasks():
     scheduler = BackgroundScheduler({'apscheduler.job_defaults.max_instances': 2})
