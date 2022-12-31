@@ -218,7 +218,7 @@ button:hover:not(.top-button) {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* add a shadow */
     max-width: 600px; /* set a maximum width */
     width: 100%; /* set the width to be 80% of the viewport width */
-    padding: 40px; /* add some padding */
+    padding: 4vmin; /* add some padding */
     margin: auto; /* center the splash screen horizontally and vertically */
     display: flex; /* make the splash screen a flex container */
     flex-direction: column; /* set the flex direction to a column layout */
@@ -232,13 +232,13 @@ button:hover:not(.top-button) {
 }
 
 .splash-screen p {
-    margin: 20px 0;
+    margin: 0 0;
     text-align: center;
     font-size: 18px;
 }
 
 .splash-screen li {
-    margin: 20px 0;
+    margin: 0 0;
     text-align: left;
     font-size: min(4vmin, 18px);
 }
