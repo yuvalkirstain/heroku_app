@@ -352,6 +352,7 @@ async def get_images(websocket: WebSocket):
                 message["images"] = job_id2images[job_id]
                 message["image_uids"] = job.image_uids
                 await websocket.send_json(message)
+                del job_id2images[job_id]
     await websocket.close()
 
 
