@@ -29,7 +29,7 @@ body {
 
 .container {
     width: 100%;
-    padding: 2vmin;
+    padding: 1.5vmin;
     alignment: center;
     background: linear-gradient(to bottom, #333, #444);
     border-radius: 1vmin;
@@ -76,7 +76,7 @@ body {
 
 input[type="text"] {
     width: 100%;
-    padding: 1vmin;
+    padding: 0.5vmin;
     margin-bottom: 1vmin;
     box-sizing: border-box;
     border: 0.2vmin solid #ccc;
