@@ -139,11 +139,9 @@
         </button>
     </div>
     <div class="container" style="top: 0; margin-top: 0">
-        <div class="title-button-container">
-            <h1 id="title" style="font-size: large;text-align: left;margin-right: 4vw">Pick a Pic: <a
-                    onclick="activateModelInfo()">collaborative</a> & <a
-                    href="https://huggingface.co/datasets/yuvalkirstain/PickaPic" target="_blank"
-                    style="text-decoration: none">open</a> dataset </h1>
+        <div class="title-button-container" style="margin-bottom: 1vmin">
+            <h1 id="title" style="font-size: large;text-align: left;margin-right: 4vw;">Pick a Pic: an <a
+                    onclick="activateModelInfo()">open</a> dataset </h1>
             <div class="button-container">
                 <button id="submit-button" style="margin-right: 0">Generate</button>
                 <button id="download-button" style="display: none">Download</button>
@@ -154,8 +152,8 @@
 
 
     <div class="progress-container" style="display: block">
-        <div class="status-text" style="width: 100%"><a id='bad-images'></a></div>
-        <div class="progress-bar-background" style="display: none">
+        <div class="progress-bar-background">
+            <div class="progress-bar-text"></div>
             <div class="progress-bar"></div>
         </div>
     </div>
@@ -197,7 +195,6 @@
     const promptInput = document.getElementById('prompt');
     const imageGridContainer = document.getElementById('image-grid-container');
     const imageGrid = document.querySelector('.image-grid');
-    const statusText = document.querySelector('.status-text');
     let formerPromptInput = ""
 
     const splashScreen = document.getElementById('splash-screen');
@@ -395,7 +392,7 @@
             otherImages[i].classList.add('after_clicked');
         }
 
-        statusText.innerHTML = ""
+        document.querySelector('.progress-bar-text').innerHTML = "<p>Thank you! You can download the selected image and/or generate new images!</p>"
         window.scrollTo(0, 0)
     }
 
@@ -437,9 +434,6 @@
         }
 
         formerPromptInput = promptInput.value
-
-        // Hide progress indicator
-        document.querySelector('.progress-bar-background').style.display = 'none';
     }
 
     function onRequestLoad(event) {
@@ -451,9 +445,6 @@
         } else {
             // Error
             console.error('Error loading images');
-
-            // Hide progress indicator
-            document.querySelector('.progress-bar-background').style.display = 'none';
         }
     }
 
@@ -461,19 +452,13 @@
         const progressBar = document.querySelector('.progress-bar');
         const status = data.status;
         const progress = data.progress;
+        const progress_text = data.progress_text;
         if (status === "running") {
-            statusText.innerHTML = ""
-            document.querySelector('.progress-bar-background').style.display = 'block';
-            document.querySelector('.progress-bar-background').style.background = '#eaad67';
             document.querySelector('.progress-bar').style.background = '#9fde95';
         } else if (status === "queued") {
-            statusText.innerHTML = ""
-            document.querySelector('.progress-bar-background').style.display = 'block';
-            document.querySelector('.progress-bar-background').style.background = '#ec6565';
             document.querySelector('.progress-bar').style.background = '#eaad67';
-        } else {
-            document.querySelector('.progress-bar-background').style.display = 'none';
         }
+        document.querySelector('.progress-bar-text').innerHTML = "<p>" + progress_text + "</p>"
         progressBar.style.width = progress + '%';
     }
 
@@ -488,10 +473,14 @@
         document.querySelector('.progress-bar').style.width = '0%';
         imageGridContainer.style.display = 'block';
         submitButton.style.display = 'none';
-        title.innerHTML = '<h1 id="title" style="font-size: large;text-align: left;margin-right: 4vw">Pick a Pic: <a onclick="activateModelInfo()">collaborative</a> & <a href="https://huggingface.co/datasets/yuvalkirstain/PickaPic" target="_blank" style="text-decoration: none">open</a> dataset </h1>'
+        title.innerHTML = '<h1 id="title" style="font-size: large;text-align: left;margin: 0">Pick a Pic: an <a onclick="activateModelInfo()">open</a> dataset </h1>'
         const hostname = window.location.hostname;
         const port = window.location.port;
-        const websocketAddr = "wss://" + hostname + ":" + port + "/ws";
+        let prefix = "wss"
+        if (hostname === "127.0.0.1") {
+            prefix = "ws"
+        }
+        const websocketAddr = prefix + "://" + hostname + ":" + port + "/ws";
         console.log("Connecting to websocket at " + websocketAddr);
         let ws = new WebSocket(websocketAddr);
         ws.onmessage = function (event) {
@@ -501,10 +490,9 @@
             if (status === 'finished') {
                 console.log('Job finished');
                 updateImages(data);
-                document.querySelector('.progress-bar-background').style.display = 'none';
-                statusText.innerHTML = "<div><p>Click on your favourite image. If all are <strong>bad</strong> press <a id='bad-images' href='#' onclick='javascript:onImageClick(event)'>here.</a><p><div>";
-            }
-            else if (status === 'error') {
+                document.querySelector('.progress-bar-text').innerHTML = "<p>Click on your favourite image. If all are <strong> bad </strong> press <a id='bad-images' href='#' onclick='javascript:onImageClick(event)'> here.</a><p>"
+                document.querySelector('.progress-bar').style.width = "0";
+            } else if (status === 'error') {
                 displayErrorMessage();
             }
         };

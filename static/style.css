@@ -29,18 +29,24 @@ body {
 
 .container {
     width: 100%;
-    padding: 10px;
+    padding: 2vmin;
     alignment: center;
     background: linear-gradient(to bottom, #333, #444);
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    margin: 10px 0;
+    border-radius: 1vmin;
+    box-shadow: 0 0 1vmin rgba(0, 0, 0, 0.2);
+    margin: 0 0;
+}
+
+.container h1 {
+    margin-bottom: 0;
+    margin-top: 0;
 }
 
 .title-button-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 1vmin;
 }
 
 .image-grid {
@@ -68,24 +74,14 @@ body {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.19);
 }
 
-h1 {
-    margin-top: 0;
-    margin-bottom: 5px;
-    text-align: center;
-}
-
-p {
-    margin-top: 5px;
-}
-
 input[type="text"] {
     width: 100%;
-    padding: 6px 20px;
-    margin-bottom: 10px;
+    padding: 1vmin;
+    margin-bottom: 1vmin;
     box-sizing: border-box;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    font-size: 12px;
+    border: 0.2vmin solid #ccc;
+    border-radius: 1vmin;
+    font-size: 2vmin;
 }
 
 .button-container {
@@ -152,17 +148,9 @@ button:hover:not(.top-button) {
     display: flex;
     align-items: center;
     width: 100%;
-    height: 5px;
+    height: 2.5vmin;
     border-radius: 5px;
     position: relative;
-}
-
-.status-text {
-    font-family: 'Montserrat', sans-serif;
-    font-size: min(3vmin, 16px);
-    color: #eee4e4;
-    width: 60px;
-    line-height: 5px;
 }
 
 .progress-bar-background {
@@ -172,11 +160,33 @@ button:hover:not(.top-button) {
 
 .progress-bar {
     flex: 1; /* add this */
-    width: 0%;
-    height: 100%;
+    height: 2vmin;
+    width: 0;
     background: #9fde95;
     border-radius: 5px;
     transition: width 0.5s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0.25vmin;
+}
+
+.progress-bar-text {
+    display: flex;
+    font-family: 'Montserrat', sans-serif;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    font-size: 2vmin;
+    z-index: 2;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.progress-bar-text p {
+    font-size: 2vmin;
+    margin: 0.25vmin;
 }
 
 

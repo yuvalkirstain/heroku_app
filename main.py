@@ -56,7 +56,7 @@ oauth.register(
 BACKEND_URLS = json.loads(os.environ["BACKEND_URLS"])
 app.backend_urls = BACKEND_URLS[:]
 MAX_SIZE_IN_QUEUE = len(app.backend_urls) * 2
-MAX_SIZE_CONCURRENT = len(app.backend_urls) * 4
+MAX_SIZE_CONCURRENT = len(app.backend_urls) * 1
 logger.debug(f"{MAX_SIZE_IN_QUEUE=} {MAX_SIZE_CONCURRENT=}")
 
 AWS_ACCESS_KEY = os.environ["AWS_ACCESS_KEY"]
@@ -85,13 +85,12 @@ class Job(BaseModel):
     status: str = "queued"
     start_time: int = Field(default_factory=lambda: time.time())
     image_uids: list = []
-    estimated_total_time: int = 15
     progress: int = 0
     user_id: str = None
     image_data: List = []
 
     def __str__(self):
-        return f"Job(job_id={self.job_id}, status={self.status}, start_time={self.start_time}, image_uids={self.image_uids}, estimated_total_time={self.estimated_total_time}, progress={self.progress}, user_id={self.user_id}, len_image_data={len(self.image_data)})"
+        return f"Job(job_id={self.job_id}, status={self.status}, start_time={self.start_time}, image_uids={self.image_uids}, progress={self.progress}, user_id={self.user_id}, len_image_data={len(self.image_data)})"
 
 
 async def get_job(job_id: str) -> Job:
@@ -283,7 +282,7 @@ async def consumer():
         qsize -= 1
         await app.cache.set("qsize", qsize)
         queue = await app.cache.get("queue")
-        job_id = queue.pop()
+        job_id = queue.popleft()
         await app.cache.set("queue", queue)
         logger.debug(f"{queue=} {qsize=}")
 
@@ -311,7 +310,7 @@ async def handle_images_request(prompt: str, user_id: str):
         await set_job(job.job_id, job)
         await app.cache.set("qsize", qsize + 1)
         queue = await app.cache.get("queue")
-        queue.appendleft(job.job_id)
+        queue.append(job.job_id)
         await app.cache.set("queue", queue)
     return job.job_id
 
@@ -332,13 +331,24 @@ async def get_images(websocket: WebSocket):
             job = await get_job(job_id)
             is_finished = job.status == "finished"
             elapsed_time = time.time() - job.start_time
-            job.progress = int(elapsed_time * 100 / job.estimated_total_time) % 101
-            message = {"status": job.status, "progress": job.progress}
+            estimated_time = await app.cache.get("estimated_running_time")
+            progress_text = f"Processing |"
+            if job.status == "queued":
+                queue = await app.cache.get("queue")
+                queue_idx = queue.index(job_id)
+                queue_real_position = (queue_idx // MAX_SIZE_CONCURRENT) + 1
+                estimated_time = estimated_time * queue_real_position
+                progress_text = f"Queue position: {queue_idx + 1}/{len(queue)} |"
+            progress_text += f" {round(elapsed_time, 1)}/{round(estimated_time, 1)}s"
+            job.progress = int(elapsed_time * 100 / estimated_time) % 101
+            message = {"status": job.status, "progress": job.progress, "progress_text": progress_text}
             if job.status in ["running", "queued"]:
                 await websocket.send_json(message)
                 await asyncio.sleep(0.5)
             else:
                 print(job)
+                await app.cache.set("estimated_running_time", 0.5 * elapsed_time + 0.5 * estimated_time)
+                logger.debug(f"estimated running time {0.5 * elapsed_time + 0.5 * estimated_time:.2f}")
                 message["images"] = job_id2images[job_id]
                 message["image_uids"] = job.image_uids
                 await websocket.send_json(message)
@@ -411,6 +421,7 @@ async def startapp():
     await app.cache.set("num_running", 0)
     await app.cache.set("qsize", 0)
     await app.cache.set("queue", collections.deque())
+    await app.cache.set("estimated_running_time", 30)
 
 
 @app.get('/users')
