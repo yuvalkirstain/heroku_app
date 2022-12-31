@@ -217,7 +217,7 @@ button:hover:not(.top-button) {
     border-radius: 10px; /* add rounded corners */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* add a shadow */
     max-width: 600px; /* set a maximum width */
-    width: 80%; /* set the width to be 80% of the viewport width */
+    width: 100%; /* set the width to be 80% of the viewport width */
     padding: 40px; /* add some padding */
     margin: auto; /* center the splash screen horizontally and vertically */
     display: flex; /* make the splash screen a flex container */
