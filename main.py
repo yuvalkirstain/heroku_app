@@ -404,8 +404,9 @@ def update_urls():
             bad_urls.append(backend_url)
             # logger.debug(f"{backend_url=} failed with exception {e}")
     app.backend_urls = working_urls
-    logger.debug(
-        f"Updated: {len(app.backend_urls)}/{len(BACKEND_URLS)}\nWorking URLs: {app.backend_urls}\nBad URLs: {bad_urls}")
+    if len(working_urls) < len(BACKEND_URLS):
+        logger.debug(
+            f"Updated: {len(app.backend_urls)}/{len(BACKEND_URLS)}\nWorking URLs: {app.backend_urls}\nBad URLs: {bad_urls}")
 
 
 def clean_jobs():
@@ -422,7 +423,8 @@ def clean_jobs():
         del job_id2images[job_id]
         del finished_job_id2uids[job_id]
         num_cleaned += 1
-    logger.debug(f"Cleaned {num_cleaned}/{len(job_ids)} jobs")
+    if len(job_ids) > 0:
+        logger.debug(f"Cleaned {num_cleaned}/{len(job_ids)} jobs")
 
 def create_background_tasks():
     scheduler = BackgroundScheduler({'apscheduler.job_defaults.max_instances': 2})
