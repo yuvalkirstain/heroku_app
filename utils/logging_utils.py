@@ -40,5 +40,3 @@ class EndpointFilter(logging.Filter):
 dictConfig(LogConfig().dict())
 logger = logging.getLogger("mycoolapp")
 logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
-
-logger.debug("Created Logger!")

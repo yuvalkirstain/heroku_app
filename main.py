@@ -70,6 +70,7 @@ url = urlparse(REDIS_URL)
 app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname, port=url.port,
                   password=url.password, timeout=0)
 job_id2images = {}
+finished_job_id2uids = {}
 scheduler = BackgroundScheduler()
 
 
@@ -168,7 +169,7 @@ async def logout(request: Request):
 #     job.image_uids = [str(uuid.uuid4()) for _ in range(4)]
 
 
-async def upload_images(images, image_uids):
+def upload_images(images, image_uids):
     s3_client = boto3.client(
         's3',
         aws_access_key_id=AWS_ACCESS_KEY,
@@ -300,6 +301,7 @@ async def consumer():
         num_running = await app.cache.get("num_running")
         await app.cache.set("num_running", num_running - 1)
 
+
 async def handle_images_request(prompt: str, user_id: str):
     async with RedLock(app.cache, f"qsize", 1000):
         qsize = await app.cache.get("qsize")
@@ -352,7 +354,8 @@ async def get_images(websocket: WebSocket):
                 message["images"] = job_id2images[job_id]
                 message["image_uids"] = job.image_uids
                 await websocket.send_json(message)
-                del job_id2images[job_id]
+                finished_job_id2uids[job.job_id] = job.image_uids
+                await set_job(job_id, job)
     await websocket.close()
 
 
@@ -405,9 +408,24 @@ def update_urls():
         f"Updated: {len(app.backend_urls)}/{len(BACKEND_URLS)}\nWorking URLs: {app.backend_urls}\nBad URLs: {bad_urls}")
 
 
+def clean_jobs():
+    job_ids = list(finished_job_id2uids.keys())
+    for job_id in job_ids:
+        if job_id not in finished_job_id2uids or job_id not in job_id2images:
+            continue
+        uids = finished_job_id2uids[job_id]
+        images = job_id2images[job_id]
+        upload_images(images, uids)
+        if job_id not in finished_job_id2uids or job_id not in job_id2images:
+            continue
+        del job_id2images[job_id]
+        del finished_job_id2uids[job_id]
+
+
 def create_background_tasks():
-    scheduler = BackgroundScheduler()
+    scheduler = BackgroundScheduler({'apscheduler.job_defaults.max_instances': 2})
     scheduler.add_job(func=update_urls, trigger="interval", seconds=180)
+    scheduler.add_job(func=clean_jobs, trigger="interval", seconds=60)
     scheduler.start()
 
 
