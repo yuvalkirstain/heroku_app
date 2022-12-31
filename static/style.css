@@ -220,6 +220,7 @@ button:hover:not(.top-button) {
     width: 100%; /* set the width to be 80% of the viewport width */
     padding: 4vmin; /* add some padding */
     margin: auto; /* center the splash screen horizontally and vertically */
+    margin-top: 2vmin;
     display: flex; /* make the splash screen a flex container */
     flex-direction: column; /* set the flex direction to a column layout */
     align-items: center; /* center the content horizontally */
