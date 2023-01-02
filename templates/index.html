@@ -1,6 +1,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <link rel="stylesheet" type="text/css" href="/static/normalize.css">
     <title>Pick a Pic</title>
@@ -436,30 +437,24 @@
         formerPromptInput = promptInput.value
     }
 
-    function onRequestLoad(event) {
-        const request = event.target;
-        if (request.status >= 200 && request.status < 400) {
-            // Success!
-            const data = JSON.parse(request.response);
-            updateImages(data);
-        } else {
-            // Error
-            console.error('Error loading images');
-        }
-    }
-
     function updateProgressBar(data) {
         const progressBar = document.querySelector('.progress-bar');
+        const progressBarText = document.querySelector('.progress-bar-text');
         const status = data.status;
         const progress = data.progress;
         const progress_text = data.progress_text;
         if (status === "running") {
-            document.querySelector('.progress-bar').style.background = '#9fde95';
+            progressBar.style.background = '#9fde95';
+            progressBarText.innerHTML = "<p>" + progress_text + "</p>"
+            progressBar.style.width = progress + '%';
         } else if (status === "queued") {
-            document.querySelector('.progress-bar').style.background = '#eaad67';
+            progressBar.style.background = '#eaad67';
+            progressBarText.innerHTML = "<p>" + progress_text + "</p>"
+            progressBar.style.width = progress + '%';
+        } else {
+            progressBar.style.width = '0';
+            progressBarText.innerHTML = "<p><i class='fa fa-circle-o-notch fa-spin'></i>        Uploading Images (this depends on your internet connection)</p>"
         }
-        document.querySelector('.progress-bar-text').innerHTML = "<p>" + progress_text + "</p>"
-        progressBar.style.width = progress + '%';
     }
 
     function displayErrorMessage() {
@@ -487,7 +482,7 @@
             const data = JSON.parse(event.data);
             const status = data.status;
             updateProgressBar(data);
-            if (status === 'finished') {
+            if (status === 'finished' && data.images) {
                 console.log('Job finished');
                 updateImages(data);
                 document.querySelector('.progress-bar-text').innerHTML = "<p>Click on your favourite image. If all are <strong> bad </strong> press <a id='bad-images' href='#' onclick='javascript:onImageClick(event)'> here.</a><p>"
