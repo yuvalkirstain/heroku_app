@@ -70,6 +70,7 @@ url = urlparse(REDIS_URL)
 app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname, port=url.port,
                   password=url.password, timeout=0)
 job_id2images = {}
+job_id2images_data = {}
 finished_job_id2uids = {}
 scheduler = BackgroundScheduler()
 
@@ -88,10 +89,9 @@ class Job(BaseModel):
     image_uids: list = []
     progress: int = 0
     user_id: str = None
-    image_data: List = []
 
     def __str__(self):
-        return f"Job(job_id={self.job_id}, status={self.status}, start_time={self.start_time}, image_uids={self.image_uids}, progress={self.progress}, user_id={self.user_id}, len_image_data={len(self.image_data)})"
+        return f"Job(job_id={self.job_id}, status={self.status}, start_time={self.start_time}, image_uids={self.image_uids}, progress={self.progress}, user_id={self.user_id})"
 
 
 async def get_job(job_id: str) -> Job:
@@ -260,7 +260,7 @@ async def create_images(prompt, user_id):
 async def get_stable_images(job):
     job.status = "running"
     await set_job(job.job_id, job)
-    job_id2images[job.job_id], job.image_uids, job.image_data = await create_images(job.prompt, job.user_id)
+    job_id2images[job.job_id], job.image_uids, job_id2images_data[job.job_id] = await create_images(job.prompt, job.user_id)
     job.status = "finished"
     await set_job(job.job_id, job)
 
@@ -422,6 +422,9 @@ def clean_jobs():
         if job_id not in finished_job_id2uids or job_id not in job_id2images:
             continue
         del job_id2images[job_id]
+        for image_data in job_id2images_data[job_id]:
+            add_image(image_data)
+        del job_id2images_data[job_id]
         del finished_job_id2uids[job_id]
         num_cleaned += 1
     if len(job_ids) > 0:
