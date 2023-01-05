@@ -286,8 +286,6 @@
         const is_authenticated = false;
     {% endif %}
 
-    console.log(is_authenticated)
-
     if (is_authenticated) {
         splashScreen.style.display = 'none';
         intro.style.display = 'none';
@@ -325,7 +323,6 @@
 
     nextButtonIntro.addEventListener('click', () => {
         // Toggle the display of the legal notice
-        console.log('Showing legal notice');
         intro.style.display = 'none';
         legalNotice.style.display = 'block';
         backButton.style.display = 'block';
@@ -333,7 +330,6 @@
 
     nextButtonLegal.addEventListener('click', () => {
         // Toggle the display of the legal notice
-        console.log('Finished splash screen');
         if (is_authenticated) {
             splashScreen.style.display = 'none';
         } else {
@@ -344,7 +340,6 @@
 
     backButton.addEventListener('click', () => {
         // Toggle the display of the legal notice
-        console.log('Showing intro');
         intro.style.display = 'block';
         legalNotice.style.display = 'none';
     });
@@ -358,59 +353,15 @@
 
     googleBackButton.addEventListener('click', () => {
         // Toggle the display of the legal notice
-        console.log('Showing intro');
         legalNotice.style.display = 'block';
         googleSignIn.style.display = 'none';
     });
 
-
-    function resizeParentWidth() {
-        console.log("window width " + window.innerWidth)
-        console.log("window height " + window.innerHeight)
-        console.log("parent width " + parent.offsetWidth)
-        console.log("parent height " + parent.offsetHeight)
-        console.log("imageGridContainer height " + imageGridContainer.offsetHeight)
-        console.log("imageGrid height " + imageGrid.offsetHeight)
-
-        if (parent.offsetHeight > window.innerHeight) {
-            let subtract = (parent.offsetHeight - imageGridContainer.offsetHeight)
-            console.log("too high")
-            parent.style.width = window.innerHeight - subtract
-        }
-        if (parent.offsetWidth > window.innerWidth) {
-            console.log("too wide")
-            parent.style.width = window.innerWidth * 0.95
-        }
-        if (parent.offsetWidth < window.innerWidth && (parent.offsetHeight < window.innerHeight)) {
-            console.log("not wide and not high")
-            if (window.innerWidth < window.innerHeight) {
-                console.log("increasing width")
-                parent.style.width = window.innerWidth * 0.95
-            } else {
-                console.log("increasing height")
-                let subtract = (parent.offsetHeight - imageGridContainer.offsetHeight)
-                parent.style.width = window.innerHeight - subtract
-            }
-        }
-        console.log("Changed size of app")
-    }
-
     let img = document.querySelector('img')
-    {#if (img.complete) {#}
-    {#    resizeParentWidth()#}
-    {# } else {#}
-    {#    img.addEventListener('load', resizeParentWidth)#}
-    {# }#}
-    {##}
-    {#const parent = document.querySelector('.parent');#}
-    {#window.addEventListener('resize', function (event) {#}
-    {#    resizeParentWidth()#}
-    {# }, true);#}
 
     function isImage(element) {
         return element.hasOwnProperty("imageId");
     }
-
 
     function onImageClick(event) {
         const image = event.target;
@@ -538,7 +489,6 @@
         document.getElementById('download-button').style.display = 'none';
         document.querySelector('.progress-bar').style.width = '0%';
         hasGenerated = true;
-        console.log("generate hasGenerated: " + hasGenerated)
         imageGridContainer.style.display = 'block';
         submitButton.style.display = 'none';
         title.innerHTML = '<h1 id="title" style="font-size: large;text-align: left;margin: 0">Pick a Pic: an <a onclick="activateModelInfo()">open</a> dataset </h1>'
@@ -549,14 +499,12 @@
             prefix = "ws"
         }
         const websocketAddr = prefix + "://" + hostname + ":" + port + "/ws";
-        console.log("Connecting to websocket at " + websocketAddr);
         let ws = new WebSocket(websocketAddr);
         ws.onmessage = function (event) {
             const data = JSON.parse(event.data);
             const status = data.status;
             updateProgressBar(data);
             if (status === 'finished' && data.images) {
-                console.log('Job finished');
                 updateImages(data);
                 document.querySelector('.progress-bar-text').innerHTML = "<p>Click on your favorite image. If all are <strong> bad </strong> press <a id='bad-images' href='#' onclick='javascript:onImageClick(event)'> here.</a><p>"
                 document.querySelector('.progress-bar').style.width = "0";
