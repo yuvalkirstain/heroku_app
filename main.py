@@ -34,7 +34,6 @@ from aiocache import Cache
 from aiocache.serializers import PickleSerializer
 from aiocache.lock import RedLock
 
-
 # DUMMY_IMG_URL = f"https://loremflickr.com/512/512"
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="!secret")
@@ -248,7 +247,7 @@ async def create_images(prompt, user_id):
                                     "num_samples": num_samples,
                                     "user_id": user_id
                                 }) as response:
-            response_json = await response.json()
+            response_json = await response.json(content_type=None)
 
     logger.info(f"Generating images from prompt {prompt} took {time.time() - start:.2f} seconds")
     images = response_json.pop("images")
@@ -260,7 +259,8 @@ async def create_images(prompt, user_id):
 async def get_stable_images(job):
     job.status = "running"
     await set_job(job.job_id, job)
-    job_id2images[job.job_id], job.image_uids, job_id2images_data[job.job_id] = await create_images(job.prompt, job.user_id)
+    job_id2images[job.job_id], job.image_uids, job_id2images_data[job.job_id] = await create_images(job.prompt,
+                                                                                                    job.user_id)
     job.status = "finished"
     await set_job(job.job_id, job)
 
@@ -429,6 +429,7 @@ def clean_jobs():
         num_cleaned += 1
     if len(job_ids) > 0:
         logger.debug(f"Cleaned {num_cleaned}/{len(job_ids)} jobs")
+
 
 def create_background_tasks():
     scheduler = BackgroundScheduler({'apscheduler.job_defaults.max_instances': 2})
