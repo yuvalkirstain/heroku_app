@@ -39,16 +39,20 @@ body {
 }
 
 .image-container {
+    display: flex;
     padding: 1vmin;
     transition: transform 0.5s;
 }
 
-.image-container:not(.after-clicked):hover {
-    transform: scale(1.1);
+@media (hover: hover) {
+    .image-container:not(.after-clicked):hover {
+        transform: scale(1.1);
+    }
 }
 
 .image-grid img {
-    width: min(512px, 43vmin);
+    max-width: 100%;
+    max-height: 100%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.19);
 }
 
@@ -59,7 +63,7 @@ input[type="text"] {
     box-sizing: border-box;
     border: 0.2vmin solid #ccc;
     border-radius: 1vmin;
-    font-size: min(4vmin, 16px);
+    font-size: max(2vmin, 16px);
 }
 
 .button-container {
@@ -130,13 +134,14 @@ button:hover:not(.top-button) {
 }
 
 .progress-bar-background {
-    /*margin-left: 60px;*/
-    background: #eaad67;
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease;
 }
 
 .progress-bar {
     flex: 1; /* add this */
-    height: max(2vmin, 16px);
+    height: 100%;
     width: 0;
     background: #9fde95;
     border-radius: 5px;
@@ -144,7 +149,6 @@ button:hover:not(.top-button) {
     position: absolute;
     top: 0;
     left: 0;
-    margin: 0.25vmin;
 }
 
 .progress-bar-text {
@@ -154,7 +158,7 @@ button:hover:not(.top-button) {
     justify-content: center;
     width: 100%;
     height: 100%;
-    font-size: max(2vmin, 14px);
+    font-size: max(2vmin, 12px);
     z-index: 2;
     position: absolute;
     top: 0;

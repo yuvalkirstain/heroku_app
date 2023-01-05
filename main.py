@@ -247,7 +247,7 @@ async def create_images(prompt, user_id):
                                     "num_samples": num_samples,
                                     "user_id": user_id
                                 }) as response:
-            response_json = await response.json(content_type=None)
+            response_json = await response.json()
 
     logger.info(f"Generating images from prompt {prompt} took {time.time() - start:.2f} seconds")
     images = response_json.pop("images")

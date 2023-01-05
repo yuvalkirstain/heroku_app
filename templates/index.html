@@ -389,7 +389,7 @@
             otherImages[i].classList.add('after_clicked');
         }
 
-        document.querySelector('.progress-bar-text').innerHTML = "<p>Thank you! You can download the selected image and/or generate new images!</p>"
+        document.querySelector('.progress-bar-text').innerHTML = "<p></p>"
         window.scrollTo(0, 0)
     }
 
@@ -449,7 +449,7 @@
             progressBar.style.width = progress + '%';
         } else {
             progressBar.style.width = '0';
-            progressBarText.innerHTML = "<p><i class='fa fa-circle-o-notch fa-spin'></i>        Uploading Images (speed depends on your internet connection)</p>"
+            progressBarText.innerHTML = "<p><i class='fa fa-circle-o-notch fa-spin'></i>        Uploading Images</p>"
         }
     }
 
