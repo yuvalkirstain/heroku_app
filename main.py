@@ -216,10 +216,9 @@ async def get_backend_url_idx():
     return result % len(app.backend_urls)
 
 
-async def create_images(prompt, user_id):
+async def get_verified_backend_url(prompt):
     verified = False
     backend_url = None
-    logger.debug(f"Getting backend url for prompt {prompt}")
     while not verified:
         backend_url_idx = await get_backend_url_idx()
         backend_url = app.backend_urls[backend_url_idx]
@@ -232,6 +231,11 @@ async def create_images(prompt, user_id):
             app.backend_urls.remove(backend_url)
             logger.debug(f"{backend_url=} {prompt=} failed with exception {e}")
             continue
+    return backend_url
+
+
+async def create_images(prompt, user_id):
+    backend_url = await get_verified_backend_url(prompt)
 
     negative_prompt = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
     num_samples = 4
@@ -240,14 +244,26 @@ async def create_images(prompt, user_id):
 
     logger.info(f"Starting to create images for prompt {prompt} {os.getpid()=}")
     async with aiohttp.ClientSession() as session:
-        async with session.post(backend_url,
-                                json={
-                                    "prompt": prompt,
-                                    "negative_prompt": negative_prompt,
-                                    "num_samples": num_samples,
-                                    "user_id": user_id
-                                }) as response:
-            response_json = await response.json()
+        try:
+            async with session.post(backend_url,
+                                    json={
+                                        "prompt": prompt,
+                                        "negative_prompt": negative_prompt,
+                                        "num_samples": num_samples,
+                                        "user_id": user_id
+                                    }) as response:
+                response_json = await response.json()
+        except Exception as e:
+            logger.error(f"Error creating images for prompt {prompt} with exception {e}")
+            backend_url = await get_verified_backend_url(prompt)
+            async with session.post(backend_url,
+                                    json={
+                                        "prompt": prompt,
+                                        "negative_prompt": negative_prompt,
+                                        "num_samples": num_samples,
+                                        "user_id": user_id
+                                    }) as response:
+                response_json = await response.json()
 
     logger.info(f"Generating images from prompt {prompt} took {time.time() - start:.2f} seconds")
     images = response_json.pop("images")
