@@ -3,7 +3,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="/static/style.css">
-    {#    <link rel="stylesheet" type="text/css" href="/static/normalize.css">#}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/introjs.min.css">
+    <link href="/static/introjs-modern.css" rel="stylesheet">
     <title>Pick a Pic</title>
 </head>
 <body>
@@ -136,20 +137,20 @@
         </svg>
     </button>
 </div>
-<div class="container">
+<div class="container" id="top-container">
     <div class="title-button-container" style="margin-bottom: 1vmin">
         <h1 id="title" style="font-size: large;text-align: left;margin-right: 4vw;">Pick a Pic: an <a
                 onclick="activateModelInfo()">open</a> dataset </h1>
         <div class="button-container">
-            <button id="submit-button" style="margin-right: 0">Generate</button>
-            <button id="download-button" style="display: none">Download</button>
+            <button id="submit-button" style="margin-right: 0" title="Generate images">Generate</button>
+            <button id="download-button" style="display: none" title="Download selected image">Download</button>
         </div>
     </div>
     <input type="text" id="prompt" placeholder="An image of...">
 </div>
 
 
-<div class="progress-container" style="display: block">
+<div class="progress-container" style="display: block" id="progress-container">
     <div class="progress-bar-background">
         <div class="progress-bar-text"></div>
         <div class="progress-bar"></div>
@@ -183,6 +184,7 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/intro.min.js"></script>
 
 <script>
     {#const clearButton = document.getElementById('clear-button');#}
@@ -192,6 +194,8 @@
     const promptInput = document.getElementById('prompt');
     const imageGridContainer = document.getElementById('image-grid-container');
     const imageGrid = document.querySelector('.image-grid');
+    const topContainer = document.getElementById('top-container');
+    const progressContainer = document.getElementById('progress-container');
     let formerPromptInput = ""
 
     const splashScreen = document.getElementById('splash-screen');
@@ -208,6 +212,74 @@
     const ackInfo = document.getElementById('ack-info');
     const ackInfoButton = document.getElementById('ack-info-button');
     const title = document.getElementById('title');
+
+    const introDriver = introJs();
+    introDriver.setOptions({
+        dontShowAgain: true,
+        steps: [
+            {
+                title: 'Pick a Pic',
+                intro: 'Welcome to the Pic a Pic tour. Click next to start.',
+            },
+            {
+                element: promptInput,
+                title: "Write a prompt",
+                intro: "Write a description of the image you wish to generate. For the tutorial we wrote 'A mature poodle toy.'",
+            },
+            {
+                element: submitButton,
+                title: "Generate images",
+                intro: "To generate images you can click this button or press enter. For now, simply press next.",
+            },
+            {
+                element: progressContainer,
+                title: "Generating!",
+                intro: "Now the model is creating images for you. Click next once you see them.",
+                position: 'top',
+            },
+            {
+                element: imageGridContainer,
+                title: "Rank!",
+                intro: "Now you should click on your favourite image and we will add this feedback to the open dataset! For this tutorial, after you press next, we will click on a random image.",
+                position: 'top',
+            },
+            {
+                element: topContainer,
+                title: "Thank you!",
+                intro: "Now you can: (1) download the image with the download button, (2) generate new images with the generate button/enter, or (3) change the prompt and then generate new images. Good luck and enjoy!",
+            }
+        ]
+    });
+
+    introDriver.onchange(function (targetElement) {
+        console.log(targetElement.id);
+        switch (targetElement.id) {
+            case "prompt":
+                promptInput.value = "A mature poodle toy.";
+                break;
+            case "progress-container":
+                submitButton.click();
+                break;
+            case "image-grid-container":
+                break;
+            case "top-container":
+                const images = document.querySelectorAll('.image-grid img');
+                if (images) {
+                    console.log("clicked image");
+                    const idx = Math.floor(Math.random() * images.length);
+                    console.log("Sampled index: " + idx + " out of " + images.length);
+                    images.item(idx).click();
+                }
+                else {
+                    console.log("No image found");
+                    introDriver.previousStep();
+                }
+                imageGrid.children[Math.floor(Math.random() * 4)].click();
+                break;
+        }
+    });
+
+    introDriver.start();
 
     {% if is_authenticated %}
         const is_authenticated = true;
@@ -385,8 +457,12 @@
         // Make other images darker
         const otherImages = document.querySelectorAll('.image-grid img:not(:hover)');
         for (let i = 0; i < otherImages.length; i++) {
-            otherImages[i].style.filter = 'brightness(50%)';
-            otherImages[i].classList.add('after_clicked');
+            const img = otherImages[i];
+            if (img.classList.contains('clicked')) {
+                continue;
+            }
+            img.style.filter = 'brightness(50%)';
+            img.classList.add('after_clicked');
         }
 
         document.querySelector('.progress-bar-text').innerHTML = "<p></p>"
