@@ -219,7 +219,7 @@
         steps: [
             {
                 title: 'Pick a Pic',
-                intro: 'Welcome to the Pic a Pic tour. Click next to start.',
+                intro: 'Welcome to the Pick a Pic tour. Click next to start.',
             },
             {
                 element: promptInput,
@@ -230,6 +230,7 @@
                 element: submitButton,
                 title: "Generate images",
                 intro: "To generate images you can click this button or press enter. For now, simply press next.",
+                position: 'left'
             },
             {
                 element: progressContainer,
@@ -252,7 +253,6 @@
     });
 
     introDriver.onchange(function (targetElement) {
-        console.log(targetElement.id);
         switch (targetElement.id) {
             case "prompt":
                 promptInput.value = "A mature poodle toy.";
@@ -265,13 +265,10 @@
             case "top-container":
                 const images = document.querySelectorAll('.image-grid img');
                 if (images) {
-                    console.log("clicked image");
                     const idx = Math.floor(Math.random() * images.length);
-                    console.log("Sampled index: " + idx + " out of " + images.length);
                     images.item(idx).click();
                 }
                 else {
-                    console.log("No image found");
                     introDriver.previousStep();
                 }
                 imageGrid.children[Math.floor(Math.random() * 4)].click();
