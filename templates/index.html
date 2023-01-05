@@ -276,10 +276,9 @@
         }
     });
 
-    introDriver.start();
-
     {% if is_authenticated %}
         const is_authenticated = true;
+        introDriver.start();
     {% else %}
         const is_authenticated = false;
     {% endif %}
