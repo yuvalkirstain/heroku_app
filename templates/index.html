@@ -39,7 +39,8 @@
     </div>
     <div class="splash-screen-inner" id="google-sign-in" style="display: none;">
         <h1>Pick a Pic</h1>
-        <p> The last step before participating and using the demo is ensuring that you are a real human, by authenticating through Google.
+        <p> The last step before participating and using the demo is ensuring that you are a real human, by
+            authenticating through Google.
         </p>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="google-back-button" style="margin-right: 0.5vh">Back</button>
@@ -265,17 +266,17 @@
                 break;
             case "top-container":
                 console.log("hasGenerated " + hasGenerated)
-                if (hasGenerated) {
-                    break;
+                if (!hasGenerated) {
+                    const images = document.querySelectorAll('.image-grid img');
+                    console.log("Generating from click")
+                    if (images) {
+                        const idx = Math.floor(Math.random() * images.length);
+                        images.item(idx).click();
+                    } else {
+                        introDriver.previousStep();
+                    }
+                    imageGrid.children[Math.floor(Math.random() * 4)].click();
                 }
-                const images = document.querySelectorAll('.image-grid img');
-                if (images) {
-                    const idx = Math.floor(Math.random() * images.length);
-                    images.item(idx).click();
-                } else {
-                    introDriver.previousStep();
-                }
-                imageGrid.children[Math.floor(Math.random() * 4)].click();
                 break;
         }
     });
