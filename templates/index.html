@@ -260,23 +260,21 @@
                 promptInput.value = "A mature poodle toy.";
                 break;
             case "progress-container":
-                submitButton.click();
+                if (!hasGenerated) {
+                    submitButton.click();
+                }
                 break;
             case "image-grid-container":
                 break;
             case "top-container":
-                console.log("hasGenerated " + hasGenerated)
-                if (!hasGenerated) {
-                    const images = document.querySelectorAll('.image-grid img');
-                    console.log("Generating from click")
-                    if (images) {
-                        const idx = Math.floor(Math.random() * images.length);
-                        images.item(idx).click();
-                    } else {
-                        introDriver.previousStep();
-                    }
-                    imageGrid.children[Math.floor(Math.random() * 4)].click();
+                const images = document.querySelectorAll('.image-grid img');
+                if (images) {
+                    const idx = Math.floor(Math.random() * images.length);
+                    images.item(idx).click();
+                } else {
+                    introDriver.previousStep();
                 }
+                imageGrid.children[Math.floor(Math.random() * 4)].click();
                 break;
         }
     });
