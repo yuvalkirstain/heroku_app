@@ -12,12 +12,11 @@
 <div class="splash-screen" id="splash-screen">
     <div class="splash-screen-inner" id="intro">
         <h1>Pick a Pic</h1>
-        <p> Human feedback led to dramatic improvements in natural language processing.
-            In this project we wish to initiate a community effort to use human feedback in text-to-image
-            generation.
+        <p> Pick a Pic is a platform for data collection of human feedback in text-to-image.
+            In this platform users can generate images from text, and then rank them.
             Being a community effort, all the code, data, and models resulting from this project will be completely
-            open-sourced.
-            We welcome any contributions and help with this effort.</p>
+            open-sourced, and will hopefully help facilitate alignment research in text-to-image.
+        </p>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="next-button-intro">Next</button>
         </div>
@@ -40,8 +39,7 @@
     </div>
     <div class="splash-screen-inner" id="google-sign-in" style="display: none;">
         <h1>Pick a Pic</h1>
-        <p> The last step before participating and using the demo is to authenticate that you are a real human
-            user.
+        <p> The last step before participating and using the demo is ensuring that you are a real human, by authenticating through Google.
         </p>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="google-back-button" style="margin-right: 0.5vh">Back</button>
@@ -55,9 +53,9 @@
             human-feedback for text-to-image dataset.
         </li>
         <li>
-            <strong>Model</strong>: Currently we use <a href="https://huggingface.co/stabilityai/stable-diffusion-2-1">
+            <strong>Model</strong>: Currently, we use <a href="https://huggingface.co/stabilityai/stable-diffusion-2-1">
             Stable diffusion 2.1</a> and <a href="https://huggingface.co/darkstorm2150/Protogen_x3.4_Official_Release">
-            ProtogenX3.4</a>. Please reach out of you wish to hear more details about guidance scale and negative
+            ProtogenX3.4</a>. Please reach out if you wish to hear more details about guidance scale and negative
             prompts, or if you think that there is a better open-sourced model
             available, or would like to suggest better approaches to employ these models.
         </li>
@@ -78,7 +76,7 @@
     <div class="splash-screen-inner" id="ack-info" style="display: none;">
         <h1>Pick a Pic</h1>
         <li> We thank the <a href="https://sites.research.google/trc/about/">Google TRC Program</a>
-            for their generous support in providing the compute used in this project.
+            for their generous support throughout this project.
         </li>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="ack-info-button" style="margin-right: 0.5vh">Return to demo
@@ -269,8 +267,7 @@
                 if (images) {
                     const idx = Math.floor(Math.random() * images.length);
                     images.item(idx).click();
-                }
-                else {
+                } else {
                     introDriver.previousStep();
                 }
                 imageGrid.children[Math.floor(Math.random() * 4)].click();
