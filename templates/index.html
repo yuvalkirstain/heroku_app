@@ -241,7 +241,7 @@
             {
                 element: imageGridContainer,
                 title: "Rank!",
-                intro: "Now you should click on your favourite image and we will add this feedback to the open dataset! For this tutorial, after you press next, we will click on a random image.",
+                intro: "Now you should click on your favorite image and we will add this feedback to the open dataset! For this tutorial, after you press next, we will click on a random image.",
                 position: 'top',
             },
             {
@@ -553,7 +553,7 @@
             if (status === 'finished' && data.images) {
                 console.log('Job finished');
                 updateImages(data);
-                document.querySelector('.progress-bar-text').innerHTML = "<p>Click on your favourite image. If all are <strong> bad </strong> press <a id='bad-images' href='#' onclick='javascript:onImageClick(event)'> here.</a><p>"
+                document.querySelector('.progress-bar-text').innerHTML = "<p>Click on your favorite image. If all are <strong> bad </strong> press <a id='bad-images' href='#' onclick='javascript:onImageClick(event)'> here.</a><p>"
                 document.querySelector('.progress-bar').style.width = "0";
             } else if (status === 'error') {
                 displayErrorMessage();
