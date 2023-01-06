@@ -469,28 +469,28 @@ async def startapp():
     await app.cache.set("estimated_running_time", 30)
 
 
-@app.get('/users')
-async def users(request: Request):
-    user_id = request.session.get('user_id')
-    if not user_id or user_id != 1:
-        return RedirectResponse(url='/')
-    users = get_all_users()
-    return HTMLResponse(users.to_html())
+# @app.get('/users')
+# async def users(request: Request):
+#     user_id = request.session.get('user_id')
+#     if not user_id or user_id != 1:
+#         return RedirectResponse(url='/')
+#     users = get_all_users()
+#     return HTMLResponse(users.to_html())
 
 
-@app.get('/images')
-async def images():
-    images = get_all_images()
-    return HTMLResponse(images.to_html())
-
-
-@app.get('/rankings')
-async def rankings():
-    rankings = get_all_rankings()
-    return HTMLResponse(rankings.to_html())
-
-
-@app.get('/downloads')
-async def downloads():
-    downloads = get_all_downloads()
-    return HTMLResponse(downloads.to_html())
+# @app.get('/images')
+# async def images():
+#     images = get_all_images()
+#     return HTMLResponse(images.to_html())
+#
+#
+# @app.get('/rankings')
+# async def rankings():
+#     rankings = get_all_rankings()
+#     return HTMLResponse(rankings.to_html())
+#
+#
+# @app.get('/downloads')
+# async def downloads():
+#     downloads = get_all_downloads()
+#     return HTMLResponse(downloads.to_html())
