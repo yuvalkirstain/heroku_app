@@ -357,7 +357,7 @@ async def get_images(websocket: WebSocket):
                 queue_real_position = (queue_idx // MAX_SIZE_CONCURRENT) + 1
                 estimated_time = estimated_time * queue_real_position
                 progress_text = f"Queue position: {queue_idx + 1}/{len(queue)} |"
-            reported_estimated_time = estimated_time * 2
+            reported_estimated_time = estimated_time * 1.5
             progress_text += f" {round(elapsed_time, 1)}/{round(reported_estimated_time, 1)}s"
             job.progress = int(elapsed_time * 100 / reported_estimated_time) % 101
             message = {"status": job.status, "progress": job.progress, "progress_text": progress_text}

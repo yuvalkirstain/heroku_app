@@ -12,10 +12,10 @@
 <div class="splash-screen" id="splash-screen">
     <div class="splash-screen-inner" id="intro">
         <h1>Pick a Pic</h1>
-        <p> Pick a Pic is a platform for data collection of human feedback in text-to-image.
-            In this platform users can generate images from text, and then rank them.
-            Being a community effort, all the code, data, and models resulting from this project will be completely
-            open-sourced, and will hopefully help facilitate alignment research in text-to-image.
+        <p>
+            Pick a Pic is an app for collecting human feedback on AI-generated images for supporting academic research
+            in AI. Users can generate images from text, and then rank them. Being an academic community effort, all
+            code, data, and models resulting from this research project will be completely open-sourced.
         </p>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="next-button-intro">Next</button>
@@ -25,9 +25,7 @@
         <h1>Legal Notice</h1>
         <ul>
             <li>This demo is intended for research purposes only.</li>
-            <li>The authors are not responsible for any misuse of the demo. This includes damages or losses that may
-                result from using the demo.
-            </li>
+            <li>The authors are not responsible for any misuse of the demo.</li>
             <li>By using the demo, the users grant consent for their prompts, interactions, and generated images to
                 be collected and eventually released into the public domain.
             </li>
@@ -40,7 +38,7 @@
     <div class="splash-screen-inner" id="google-sign-in" style="display: none;">
         <h1>Pick a Pic</h1>
         <p> The last step before participating and using the demo is ensuring that you are a real human, by
-            authenticating through Google.
+            authenticating via Google.
         </p>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="google-back-button" style="margin-right: 0.5vh">Back</button>
@@ -226,12 +224,12 @@
             {
                 element: promptInput,
                 title: "Write a prompt",
-                intro: "Write a description of the image you wish to generate. For example, you can write 'A mature poodle toy.'. Then, click next.",
+                intro: "Write a description of the image you wish to generate. For example, you can write 'A mature toy poodle.'. Then, click next.",
             },
             {
                 element: submitButton,
                 title: "Generate images",
-                intro: "Click on the Generate button or press enter. Afterwards, press next.",
+                intro: "Click on the Generate button or press enter. Afterward, press next.",
                 position: 'left'
             },
             {
@@ -243,7 +241,7 @@
             {
                 element: imageGridContainer,
                 title: "Rank!",
-                intro: "Now you should click on your favorite image and we will add your feedback to the open dataset! Afterwards, click next.",
+                intro: "Now you should click on your favorite image and we will add your feedback to the open dataset! Afterward, click next.",
                 position: 'top',
             },
             {
