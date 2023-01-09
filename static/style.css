@@ -215,6 +215,7 @@ button:hover:not(.top-button) {
 .splash-screen p {
     margin: 4vmin 0;
     font-size: 18px;
+    text-align: justify;
 }
 
 .splash-screen li {
