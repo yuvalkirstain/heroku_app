@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import pandas as pd
 import psycopg2
 
-from sql_db import DATABASE_URL
+from sql_db import DATABASE_URL, get_num_rows
 from utils.logging_utils import logger
 
 
@@ -90,3 +90,8 @@ def get_all_images() -> pd.DataFrame:
                                        'scheduler_cls',
                                        'model_id'])
     return df
+
+
+def get_num_images() -> int:
+    num_rows = get_num_rows("images")
+    return num_rows

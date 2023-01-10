@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import pandas as pd
 import psycopg2
 
-from sql_db import DATABASE_URL
+from sql_db import DATABASE_URL, get_num_rows
 from utils.logging_utils import logger
 
 
@@ -82,3 +82,8 @@ def get_all_users() -> pd.DataFrame:
     conn.close()
     df = pd.DataFrame(users, columns=['user_id', 'created_at', 'email', 'name'])
     return df
+
+
+def get_num_users() -> int:
+    num_rows = get_num_rows("users")
+    return num_rows

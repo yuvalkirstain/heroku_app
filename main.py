@@ -16,10 +16,10 @@ from PIL import Image
 from pydantic import BaseModel, Field
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from sql_db.users import create_user_table, add_user, get_all_users
-from sql_db.downloads import add_download, create_downloads_table, DownloadData, get_all_downloads
-from sql_db.rankings import add_ranking, create_rankings_table, get_all_rankings, RankingData
-from sql_db.images import add_image, create_image_table, get_all_images, ImageData
+from sql_db.users import create_user_table, add_user, get_all_users, get_num_users
+from sql_db.downloads import add_download, create_downloads_table, DownloadData, get_all_downloads, get_num_downloads
+from sql_db.rankings import add_ranking, create_rankings_table, get_all_rankings, RankingData, get_num_rankings
+from sql_db.images import add_image, create_image_table, get_all_images, ImageData, get_num_images
 from utils.logging_utils import logger
 from authlib.integrations.base_client import OAuthError
 from fastapi import FastAPI, BackgroundTasks, Form, HTTPException, WebSocket, Cookie
@@ -467,28 +467,19 @@ async def startapp():
     await app.cache.set("estimated_running_time", 30)
 
 
-# @app.get('/users')
-# async def users(request: Request):
-#     user_id = request.session.get('user_id')
-#     if not user_id or user_id != 1:
-#         return RedirectResponse(url='/')
-#     users = get_all_users()
-#     return HTMLResponse(users.to_html())
+@app.get('/metrics')
+async def downloads(request: Request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return RedirectResponse(url='/')
+    num_downloads = get_num_downloads()
+    num_rankings = get_num_rankings()
+    num_users = get_num_users()
+    num_images = get_num_images()
+    return {
+        "num_downloads": num_downloads,
+        "num_rankings": num_rankings,
+        "num_users": num_users,
+        "num_images": num_images,
+    }
 
-
-# @app.get('/images')
-# async def images():
-#     images = get_all_images()
-#     return HTMLResponse(images.to_html())
-#
-#
-# @app.get('/rankings')
-# async def rankings():
-#     rankings = get_all_rankings()
-#     return HTMLResponse(rankings.to_html())
-#
-#
-# @app.get('/downloads')
-# async def downloads():
-#     downloads = get_all_downloads()
-#     return HTMLResponse(downloads.to_html())

@@ -2,7 +2,7 @@ import psycopg2
 from dataclasses import dataclass
 import pandas as pd
 
-from sql_db import DATABASE_URL
+from sql_db import DATABASE_URL, get_num_rows
 from utils.logging_utils import logger
 
 
@@ -64,3 +64,8 @@ def get_all_downloads() -> pd.DataFrame:
     df = pd.DataFrame(rankings,
                       columns=['download_id', 'created_at', 'user_id', 'image_uid', 'prompt'])
     return df
+
+
+def get_num_downloads() -> int:
+    num_rows = get_num_rows("downloads")
+    return num_rows
