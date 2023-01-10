@@ -52,6 +52,7 @@ class ImageData:
 
 
 def add_image(image_data: ImageData):
+    prompt = image_data.prompt.replace("'", "[single_quote]")
     image_uid = image_data.image_uid
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
@@ -61,7 +62,7 @@ def add_image(image_data: ImageData):
         pass
     else:
         cursor.execute(
-            f"INSERT INTO images (image_uid, user_id, prompt, negative_prompt, seed, gs, steps, idx, num_generated, scheduler_cls, model_id) VALUES ('{image_uid}', {image_data.user_id}, '{image_data.prompt}', '{image_data.negative_prompt}', {image_data.seed}, {image_data.gs}, {image_data.steps}, {image_data.idx}, {image_data.num_generated}, '{image_data.scheduler_cls}', '{image_data.model_id}')")
+            f"INSERT INTO images (image_uid, user_id, prompt, negative_prompt, seed, gs, steps, idx, num_generated, scheduler_cls, model_id) VALUES ('{image_uid}', {image_data.user_id}, '{prompt}', '{image_data.negative_prompt}', {image_data.seed}, {image_data.gs}, {image_data.steps}, {image_data.idx}, {image_data.num_generated}, '{image_data.scheduler_cls}', '{image_data.model_id}')")
         conn.commit()
         logger.debug(f"Added image with uid {image_uid}")
     cursor.close()

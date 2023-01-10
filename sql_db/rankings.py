@@ -58,9 +58,10 @@ class RankingData:
 
 
 def add_ranking(ranking: RankingData):
+    prompt = ranking.prompt.replace("'", "[single_quote]")
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    cursor.execute(f"INSERT INTO rankings (user_id, image_0_uid, image_1_uid, image_2_uid, image_3_uid, best_image_uid, prompt) VALUES ({ranking.user_id}, '{ranking.image_0_uid}', '{ranking.image_1_uid}', '{ranking.image_2_uid}', '{ranking.image_3_uid}', '{ranking.best_image_uid}', '{ranking.prompt}')")
+    cursor.execute(f"INSERT INTO rankings (user_id, image_0_uid, image_1_uid, image_2_uid, image_3_uid, best_image_uid, prompt) VALUES ({ranking.user_id}, '{ranking.image_0_uid}', '{ranking.image_1_uid}', '{ranking.image_2_uid}', '{ranking.image_3_uid}', '{ranking.best_image_uid}', '{prompt}')")
     conn.commit()
     cursor.close()
     conn.close()
