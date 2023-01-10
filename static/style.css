@@ -323,6 +323,18 @@ li a:hover {
     color: #00b8d4;
 }
 
+p a {
+    color: #c0e0c7;
+    transition: color 0.5s;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+p a:hover {
+    /* Change the font color on hover */
+    color: #00b8d4;
+}
+
 footer a {
     color: #fff;
     transition: color 0.5s;
