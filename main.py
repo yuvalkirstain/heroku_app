@@ -260,6 +260,8 @@ async def create_images(prompt, user_id):
             except Exception as e:
                 num_tries += 1
                 logger.error(f"Error #{num_tries} creating images for prompt {prompt} with exception {e}")
+                if num_tries > 5:
+                    raise e
 
     logger.info(f"Generating images from prompt {prompt} took {time.time() - start:.2f} seconds")
     images = response_json.pop("images")
