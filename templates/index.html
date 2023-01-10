@@ -186,6 +186,13 @@
     </div>
 </div>
 
+<div class="splash-screen" id="failed-screen" style="display: none">
+    <div class="splash-screen-inner" id="error">
+        <h1>Pick a Pic</h1>
+        <p> OMG. Something went wrong. Please refresh the page and try again.</p>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/intro.min.js"></script>
 
 <script>
@@ -486,6 +493,12 @@
         errorContainer.style.display = 'block';
     }
 
+    function displayFailedMessage() {
+        console.log("Displaying error message")
+        const errorContainer = document.getElementById('failed-screen');
+        errorContainer.style.display = 'block';
+    }
+
     function generate() {
         document.getElementById('download-button').style.display = 'none';
         document.querySelector('.progress-bar').style.width = '0%';
@@ -511,6 +524,8 @@
                 document.querySelector('.progress-bar').style.width = "0";
             } else if (status === 'error') {
                 displayErrorMessage();
+            } else if (status === 'failed') {
+                displayFailedMessage();
             }
         };
 

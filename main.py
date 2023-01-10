@@ -235,7 +235,6 @@ async def get_verified_backend_url(prompt):
 
 
 async def create_images(prompt, user_id):
-
     negative_prompt = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
     num_samples = 4
 
@@ -258,10 +257,11 @@ async def create_images(prompt, user_id):
                     response_json = await response.json()
                     has_generated = True
             except Exception as e:
+                await asyncio.sleep(1)
                 num_tries += 1
                 logger.error(f"Error #{num_tries} creating images for prompt {prompt} with exception {e}")
                 if num_tries > 5:
-                    raise e
+                    return None
 
     logger.info(f"Generating images from prompt {prompt} took {time.time() - start:.2f} seconds")
     images = response_json.pop("images")
@@ -273,10 +273,14 @@ async def create_images(prompt, user_id):
 async def get_stable_images(job):
     job.status = "running"
     await set_job(job.job_id, job)
-    job_id2images[job.job_id], job.image_uids, job_id2images_data[job.job_id] = await create_images(job.prompt,
-                                                                                                    job.user_id)
-    job.status = "finished"
-    await set_job(job.job_id, job)
+    result = await create_images(job.prompt, job.user_id)
+    if result is None:
+        job.status = "failed"
+        await set_job(job.job_id, job)
+    else:
+        job_id2images[job.job_id], job.image_uids, job_id2images_data[job.job_id] = result
+        job.status = "finished"
+        await set_job(job.job_id, job)
 
 
 async def consumer():
@@ -362,6 +366,8 @@ async def get_images(websocket: WebSocket):
             if job.status in ["running", "queued"]:
                 await websocket.send_json(message)
                 await asyncio.sleep(0.5)
+            elif job.status == "failed":
+                await websocket.send_json({"status": "failed"})
             else:
                 print(job)
                 await websocket.send_json(message)
@@ -482,4 +488,3 @@ async def downloads(request: Request):
         "num_users": num_users,
         "num_images": num_images,
     }
-
