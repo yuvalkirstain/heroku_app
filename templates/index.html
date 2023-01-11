@@ -15,7 +15,9 @@
         <p>
             Pick a Pic is an app for collecting human feedback on AI-generated images for supporting academic research
             in AI. Users can generate images from text, and then rank them. Being an academic community effort, all
-            <a href="https://github.com/yuvalkirstain/heroku_app" target="_blank"> code</a>, <a href="https://huggingface.co/datasets/yuvalkirstain/PickaPic" target="_blank"> data</a>, and models resulting from this research project will be completely open-sourced.
+            <a href="https://github.com/yuvalkirstain/heroku_app" target="_blank"> code</a>, <a
+                href="https://huggingface.co/datasets/yuvalkirstain/PickaPic" target="_blank"> data</a>, and models
+            resulting from this research project will be completely open-sourced.
         </p>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="next-button-intro">Next</button>
@@ -52,11 +54,15 @@
             human-feedback for text-to-image dataset.
         </li>
         <li>
-            <strong>Code</strong>: All of our code is open-source. This includes the <a href="https://github.com/yuvalkirstain/heroku_app" target="_blank"> web app</a> repository and the <a href="https://github.com/yuvalkirstain/model_app" target="_blank">model inference</a> repository.
+            <strong>Code</strong>: All of our code is open-source. This includes the <a
+                href="https://github.com/yuvalkirstain/heroku_app" target="_blank"> web app</a> repository and the <a
+                href="https://github.com/yuvalkirstain/model_app" target="_blank">model inference</a> repository.
         </li>
         <li>
-            <strong>Model</strong>: Currently, we use <a href="https://huggingface.co/stabilityai/stable-diffusion-2-1" target="_blank">
-            Stable diffusion 2.1</a> and <a href="https://huggingface.co/darkstorm2150/Protogen_x3.4_Official_Release" target="_blank">
+            <strong>Model</strong>: Currently, we use <a href="https://huggingface.co/stabilityai/stable-diffusion-2-1"
+                                                         target="_blank">
+            Stable diffusion 2.1</a> and <a href="https://huggingface.co/darkstorm2150/Protogen_x3.4_Official_Release"
+                                            target="_blank">
             ProtogenX3.4</a>. Please reach out if you wish to hear more details about guidance scale and negative
             prompts, or if you think that there is a better open-sourced model
             available, or would like to suggest better approaches to employ these models.
@@ -68,7 +74,8 @@
         </li>
         <li>
             <strong>Reach Out</strong>: If you would like to help, suggest, or chat with us, please reach out on <a
-                href="https://discord.gg/qKEVkF85DT" target="_blank">discord</a> or by <a href=":mailto:pickapic.io@gmail.com" target="_blank">mail</a>.
+                href="https://discord.gg/qKEVkF85DT" target="_blank">discord</a> or by <a
+                href=":mailto:pickapic.io@gmail.com" target="_blank">mail</a>.
         </li>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="model-info-button" style="margin-right: 0.5vh">Return to demo
@@ -148,7 +155,7 @@
             <button id="download-button" style="display: none" title="Download selected image">Download</button>
         </div>
     </div>
-    <input type="text" id="prompt" placeholder="An image of...">
+    <input type="search" id="prompt" placeholder="An image of...">
 </div>
 
 
@@ -377,6 +384,13 @@
         const allImages = document.querySelectorAll('.image-grid img');
         const imageIds = [];
 
+        if (prompt === "") {
+            alert("Please enter a prompt before clicking an image.");
+            return;
+        }
+
+        {## if no images are generated#}
+
         for (let i = 0; i < allImages.length; i++) {
             const otherImage = allImages[i];
             if (otherImage.classList.contains('clicked')) {
@@ -595,6 +609,34 @@
             // API call error
             console.error('Error updating clicked image:', error);
         });
+    });
+
+    function clearDemo() {
+        const progressBarText = document.querySelector('.progress-bar-text');
+        const title = document.getElementById('title');
+        const submitButton = document.getElementById('submit-button');
+        const imageContainerChildren = imageGrid.children;
+
+        progressBarText.innerHTML = "<p></p>"
+        title.innerHTML = '<h1 id="title" style="font-size: large;text-align: center;">Pick a Pic</h1>'
+        submitButton.style.display = 'block';
+        submitButton.style.marginRight = '2%';
+
+        for (let i = 0; i < imageContainerChildren.length; i++) {
+            const imageChildren = imageContainerChildren[i].children;
+            for (let j = 0; j < imageChildren.length; j++) {
+                const image = imageChildren[j];
+                image.style.opacity = 0;
+                image.classList.add('after_clicked');
+                if (image.classList.contains('clicked')) {
+                    image.classList.remove('clicked');
+                }
+            }
+        }
+    }
+
+    document.getElementById("prompt").addEventListener("search", function (event) {
+        clearDemo();
     });
 
 </script>
