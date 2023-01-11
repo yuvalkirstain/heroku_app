@@ -172,7 +172,7 @@ button:hover:not(.top-button) {
 
 
 .after_clicked {
-    pointer-events: none; /* Make element unclickable */
+    /*pointer-events: none; !* Make element unclickable *!*/
 }
 
 .clicked {

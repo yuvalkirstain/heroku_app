@@ -378,7 +378,11 @@
         const imageIds = [];
 
         for (let i = 0; i < allImages.length; i++) {
-            imageIds.push(allImages[i].imageId);
+            const otherImage = allImages[i];
+            if (otherImage.classList.contains('clicked')) {
+                otherImage.classList.remove('clicked');
+            }
+            imageIds.push(otherImage.imageId);
         }
         let imageId;
         if (isImage(image)) {
@@ -388,6 +392,7 @@
             downloadButton.href = image.src;
             image.classList.add('after_clicked');
             image.classList.add('clicked');
+            image.style.filter = 'brightness(100%)';
         } else {
             imageId = 'none';
             console.log('all images suck');
