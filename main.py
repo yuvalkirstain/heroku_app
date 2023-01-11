@@ -3,10 +3,11 @@ import base64
 import collections
 import json
 import os
+import re
 import time
 import uuid
 from io import BytesIO
-from typing import List, Union
+from typing import List, Union, Tuple, Optional
 from urllib.parse import urlparse
 
 import aiohttp
@@ -234,8 +235,18 @@ async def get_verified_backend_url(prompt):
     return backend_url
 
 
+def remove_square_brackets(prompt: str) -> Tuple[str, Optional[str]]:
+    match = re.search(r'\[(.+?)\]', prompt)
+    if match:
+        return prompt.replace(match.group(), ""), match.group(1)
+    return prompt.strip(), None
+
+
 async def create_images(prompt, user_id):
-    negative_prompt = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
+    prompt, negative_prompt = remove_square_brackets(prompt)
+    if negative_prompt is None:
+        negative_prompt = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
+
     num_samples = 4
 
     start = time.time()
