@@ -148,8 +148,28 @@
         <h1 id="title" style="font-size: large;text-align: left;margin-right: 4vw;">Pick a Pic: an <a
                 onclick="activateModelInfo()">open</a> dataset </h1>
         <div class="button-container">
-            <button id="submit-button" style="margin-right: 0" title="Generate images">Generate</button>
-            <button id="download-button" style="display: none" title="Download selected image">Download</button>
+            <button id="submit-button" title="Generate images">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+            </button>
+            <button id="download-button" style="display: none" title="Download selected image">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-download"
+                     viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                </svg>
+            </button>
+            <button id="twitter-button" style="display: none; margin-right: 2vmin" title="Tweet selected image">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-twitter"
+                     viewBox="0 0 16 16">
+                    <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                </svg>
+            </button>
         </div>
     </div>
     <input type="search" id="prompt" placeholder="An image of...">
@@ -197,6 +217,7 @@
     </div>
 </div>
 
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/intro.min.js"></script>
 
 <script>
@@ -204,6 +225,7 @@
     const userId = {{ user_id }};
     const submitButton = document.getElementById('submit-button');
     const downloadButton = document.getElementById('download-button');
+    const twitterButton = document.getElementById('twitter-button');
     const promptInput = document.getElementById('prompt');
     const imageGridContainer = document.getElementById('image-grid-container');
     const imageGrid = document.querySelector('.image-grid');
@@ -262,7 +284,7 @@
             {
                 element: topContainer,
                 title: "You are ready!!",
-                intro: "Now that you have generated and ranked your first images, you can: <ul><li> download the selected image with the download button. </li><li> generate more images with the generate button/enter. </li><li> change the prompt and generate new images.</li></ul> Good luck and enjoy!",
+                intro: "Now that you have generated and ranked your first images, you can: <ul><li> download the selected image with the download button. </li><li> tweet the selected image with the twitter button. </li><li> generate more images with the generate button/enter. </li><li> change the prompt and generate new images.</li></ul> Good luck and enjoy!",
             }
         ]
     });
@@ -396,6 +418,8 @@
             imageId = image.imageId;
             console.log('Clicked image ' + image.idx);
             downloadButton.style.display = 'inline-block';
+            downloadButton.style.marginRight = '2%';
+            twitterButton.style.display = 'inline-block';
             downloadButton.href = image.src;
             image.classList.add('after_clicked');
             image.classList.add('clicked');
@@ -513,7 +537,8 @@
     }
 
     function generate() {
-        document.getElementById('download-button').style.display = 'none';
+        downloadButton.style.display = 'none';
+        twitterButton.style.display = 'none';
         document.querySelector('.progress-bar').style.width = '0%';
         imageGridContainer.style.display = 'block';
         submitButton.style.display = 'none';
@@ -614,6 +639,38 @@
             console.error('Error updating clicked image:', error);
         });
     });
+
+    twitterButton.addEventListener('click', function () {
+        const clickedImage = document.querySelector('.clicked');
+        const prompt = promptInput.value;
+        const imageId = clickedImage.imageId;
+        const imageData = clickedImage.imageData;
+
+        fetch('/tweet/', {
+            method: 'POST',
+            body: JSON.stringify({image_uid: imageId, prompt: prompt, image_data: imageData, user_id: userId}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            // API call success
+            response.json().then(data => {
+                const tweetText = data.tweet_text;
+                const a = document.createElement('a');
+                console.log("tweetText = " + tweetText);
+                a.href = "https://twitter.com/intent/tweet?url=" + tweetText;
+                console.log("a.href = " + a.href);
+                a.target = "_blank";
+                document.body.appendChild(a);
+                a.click();
+            });
+            console.log('Successfully tweeted image');
+        }).catch(error => {
+            // API call error
+            console.error('Error updating clicked image:', error);
+        });
+    });
+
 
     function clearDemo() {
         const progressBarText = document.querySelector('.progress-bar-text');

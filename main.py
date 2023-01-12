@@ -34,6 +34,7 @@ from starlette.templating import Jinja2Templates
 from aiocache import Cache
 from aiocache.serializers import PickleSerializer
 from aiocache.lock import RedLock
+import tweepy
 
 # DUMMY_IMG_URL = f"https://loremflickr.com/512/512"
 app = FastAPI()
@@ -67,6 +68,15 @@ S3_EXTRA_ARGS = {'ACL': 'public-read'}
 REDIS_URL = os.environ.get("REDIS_URL")
 url = urlparse(REDIS_URL)
 
+consumer_key = os.environ['TWITTER_CONSUMER_KEY']
+consumer_secret_key = os.environ['TWITTER_CONSUMER_SECRET_KEY']
+access_token = os.environ['TWITTER_ACCESS_TOKEN']
+access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
+
+twitter_auth = tweepy.OAuthHandler(consumer_key, consumer_secret_key)
+twitter_auth.set_access_token(access_token, access_token_secret)
+twitter_api = tweepy.API(twitter_auth)
+
 app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname, port=url.port,
                   password=url.password, timeout=0)
 job_id2images = {}
@@ -79,6 +89,13 @@ class UpdateImageRequest(BaseModel):
     image_uid: str
     prompt: str
     image_uids: List[str]
+
+
+class TweetRequest(BaseModel):
+    image_uid: str
+    prompt: str
+    image_data: str
+    user_id: str
 
 
 class Job(BaseModel):
@@ -391,6 +408,22 @@ async def get_images(websocket: WebSocket):
                 logger.debug(f"estimated running time {0.5 * elapsed_time + 0.5 * estimated_time:.2f}")
                 finished_job_id2uids[job.job_id] = job.image_uids
     await websocket.close()
+
+
+@app.post("/tweet/")
+async def tweet_images(tweet: TweetRequest):
+    image_uid = tweet.image_uid
+    prompt = tweet.prompt
+    image_data = tweet.image_data
+    user_id = tweet.user_id
+    image = Image.open(BytesIO(base64.b64decode(image_data)))
+    image.save(f"images/{image_uid}.png")
+    tweet_text = f"{prompt} https://pickapic.io/ Join the effort!"
+    status = twitter_api.update_status_with_media(tweet_text, f"images/{image_uid}.png")
+    os.remove(f"images/{image_uid}.png")
+    tweet_text = f"{status.text} %23PickaPic %40PickaPicTweet"
+    tweet_text = f"{tweet_text.replace(' ', '+')}"
+    return {"status": "ok", "tweet_text": tweet_text}
 
 
 @app.post("/update_clicked_image/")
