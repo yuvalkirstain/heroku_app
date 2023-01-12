@@ -422,6 +422,7 @@ async def tweet_images(tweet: TweetRequest, request: Request):
     user_id = tweet.user_id
     logger.debug(f"TWEET - inside tweet images")
     image = Image.open(BytesIO(base64.b64decode(image_data)))
+    os.makedirs(f"images", exist_ok=True)
     image.save(f"images/{image_uid}.png")
     tweet_text = f"{prompt} https://pickapic.io/ Join the effort!"
     logger.debug(f"tweeting {tweet_text=}")
