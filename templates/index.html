@@ -39,7 +39,8 @@
     </div>
     <div class="splash-screen-inner" id="google-sign-in" style="display: none;">
         <h1>Pick a Pic</h1>
-        <p> To ensure that you are a real human we kindly request users to authenticate via Google before generating and participating in the Pick a Pic project.
+        <p> To ensure that you are a real human we kindly request users to authenticate via Google before generating and
+            participating in the Pick a Pic project.
         </p>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="google-back-button" style="margin-right: 0.5vh">Back</button>
@@ -228,6 +229,8 @@
     const title = document.getElementById('title');
 
     const introDriver = introJs();
+    const blockedIds = [641];
+
     introDriver.setOptions({
         dontShowAgain: true,
         steps: [
@@ -302,6 +305,10 @@
         intro.style.display = 'none';
         legalNotice.style.display = 'none';
         googleSignIn.style.display = 'none';
+        if (blockedIds.includes(userId)) {
+            alert("You are blocked from using this service. Please contact us at pickapic.io@gmail.com");
+            displayFailedMessage();
+        }
     }
 
     function activateLegalNotice() {
