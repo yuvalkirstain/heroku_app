@@ -411,7 +411,11 @@ async def get_images(websocket: WebSocket):
 
 
 @app.post("/tweet/")
-async def tweet_images(tweet: TweetRequest):
+async def tweet_images(tweet: TweetRequest, request: Request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return RedirectResponse(url='/')
+
     image_uid = tweet.image_uid
     prompt = tweet.prompt
     image_data = tweet.image_data
