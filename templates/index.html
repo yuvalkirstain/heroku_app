@@ -34,13 +34,12 @@
         </ul>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="back-button" style="margin-right: 0.5vh">Back</button>
-            <button class="splash-screen-button" id="next-button-legal">Next</button>
+            <button class="splash-screen-button" id="next-button-legal">Accept</button>
         </div>
     </div>
     <div class="splash-screen-inner" id="google-sign-in" style="display: none;">
         <h1>Pick a Pic</h1>
-        <p> The last step before participating and using the demo is ensuring that you are a real human, by
-            authenticating via Google.
+        <p> To ensure that you are a real human we kindly request users to authenticate via Google before generating and participating in the Pick a Pic project.
         </p>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="google-back-button" style="margin-right: 0.5vh">Back</button>
@@ -63,9 +62,7 @@
                                                          target="_blank">
             Stable diffusion 2.1</a> and <a href="https://huggingface.co/darkstorm2150/Protogen_x3.4_Official_Release"
                                             target="_blank">
-            ProtogenX3.4</a>. Please reach out if you wish to hear more details about guidance scale and negative
-            prompts, or if you think that there is a better open-sourced model
-            available, or would like to suggest better approaches to employ these models.
+            ProtogenX3.4</a>.
         </li>
         <li>
             <strong>Data</strong>: We will update this <a href="https://huggingface.co/datasets/yuvalkirstain/PickaPic"
@@ -296,7 +293,6 @@
 
     {% if is_authenticated %}
         const is_authenticated = true;
-        introDriver.start();
     {% else %}
         const is_authenticated = false;
     {% endif %}
@@ -345,12 +341,9 @@
 
     nextButtonLegal.addEventListener('click', () => {
         // Toggle the display of the legal notice
-        if (is_authenticated) {
-            splashScreen.style.display = 'none';
-        } else {
-            googleSignIn.style.display = 'block';
-        }
+        splashScreen.style.display = 'none';
         legalNotice.style.display = 'none';
+        introDriver.start();
     });
 
     backButton.addEventListener('click', () => {
@@ -412,20 +405,21 @@
             console.log('all images suck');
         }
 
-
-        fetch('/update_clicked_image/', {
-            method: 'POST',
-            body: JSON.stringify({image_uid: imageId, image_uids: imageIds, prompt: prompt}),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(response => {
-            // API call success
-            console.log('Successfully updated clicked image');
-        }).catch(error => {
-            // API call error
-            console.error('Error updating clicked image:', error);
-        });
+        if (prompt !== "A mature poodle toy.") {
+            fetch('/update_clicked_image/', {
+                method: 'POST',
+                body: JSON.stringify({image_uid: imageId, image_uids: imageIds, prompt: prompt}),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                // API call success
+                console.log('Successfully updated clicked image');
+            }).catch(error => {
+                // API call error
+                console.error('Error updating clicked image:', error);
+            });
+        }
 
         title.innerHTML = '<h1 id="title" style="font-size: large;text-align: center;">Pick a Pic</h1>'
         submitButton.style.display = 'block';
@@ -521,10 +515,20 @@
     function generate() {
         document.getElementById('download-button').style.display = 'none';
         document.querySelector('.progress-bar').style.width = '0%';
-        hasGenerated = true;
         imageGridContainer.style.display = 'block';
         submitButton.style.display = 'none';
         title.innerHTML = '<h1 id="title" style="font-size: large;text-align: left;margin: 0">Pick a Pic: an <a onclick="activateModelInfo()">open</a> dataset </h1>'
+        if (((promptInput.value !== "A mature poodle toy.") || (hasGenerated)) && (!is_authenticated)) {
+            splashScreen.style.display = 'block';
+            googleSignIn.style.display = 'block';
+            return;
+        }
+        if (promptInput.value === "") {
+            console.log("promptInput.value = " + promptInput.value)
+            alert("Please enter a prompt before generating.");
+            return;
+        }
+        hasGenerated = true;
         const hostname = window.location.hostname;
         const port = window.location.port;
         let prefix = "wss"
