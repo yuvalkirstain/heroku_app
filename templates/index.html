@@ -663,8 +663,8 @@
                 a.target = "_blank";
                 document.body.appendChild(a);
                 a.click();
+                console.log('Successfully tweeted image');
             });
-            console.log('Successfully tweeted image');
         }).catch(error => {
             // API call error
             console.error('Error updating clicked image:', error);
