@@ -450,13 +450,16 @@ def clean_jobs():
         if job_id not in finished_job_id2uids or job_id not in job_id2images:
             continue
         uids = finished_job_id2uids[job_id]
+        user_id = job_id2images_data[job_id][0].user_id
         images = job_id2images[job_id]
-        upload_images(images, uids)
+        if user_id is not None:
+            upload_images(images, uids)
         if job_id not in finished_job_id2uids or job_id not in job_id2images:
             continue
         del job_id2images[job_id]
-        for image_data in job_id2images_data[job_id]:
-            add_image(image_data)
+        if user_id is not None:
+            for image_data in job_id2images_data[job_id]:
+                add_image(image_data)
         del job_id2images_data[job_id]
         del finished_job_id2uids[job_id]
         num_cleaned += 1
