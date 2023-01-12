@@ -43,7 +43,6 @@
             participating in the Pick a Pic project.
         </p>
         <div class="splash-screen-buttons">
-            <button class="splash-screen-button" id="google-back-button" style="margin-right: 0.5vh">Back</button>
             <button class="splash-screen-button" id="google-button">Sign in with Google</button>
         </div>
     </div>
@@ -220,7 +219,6 @@
     const intro = document.getElementById('intro');
     const legalNotice = document.getElementById('legal-notice');
     const googleSignIn = document.getElementById('google-sign-in');
-    const googleBackButton = document.getElementById('google-back-button');
     const googleSignInButton = document.getElementById('google-button');
     const modelInfo = document.getElementById('model-info');
     const modelInfoButton = document.getElementById('model-info-button');
@@ -229,7 +227,7 @@
     const title = document.getElementById('title');
 
     const introDriver = introJs();
-    const blockedIds = [641];
+    const blockedIds = [];
 
     introDriver.setOptions({
         dontShowAgain: true,
@@ -366,11 +364,6 @@
         a.click();
     });
 
-    googleBackButton.addEventListener('click', () => {
-        // Toggle the display of the legal notice
-        legalNotice.style.display = 'block';
-        googleSignIn.style.display = 'none';
-    });
 
     let img = document.querySelector('img')
 
