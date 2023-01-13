@@ -49,7 +49,8 @@ def add_download(download: DownloadData):
     prompt = download.prompt.replace("'", "[single_quote]")
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    cursor.execute(f"INSERT INTO downloads (user_id, image_uid, prompt) VALUES ({download.user_id}, '{download.image_uid}', '{prompt}')")
+    cursor.execute("INSERT INTO downloads (user_id, image_uid, prompt) VALUES (%s, %s, %s)",
+                   (download.user_id, download.image_uid, prompt))
     conn.commit()
     cursor.close()
     conn.close()

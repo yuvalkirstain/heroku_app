@@ -56,13 +56,16 @@ def add_image(image_data: ImageData):
     image_uid = image_data.image_uid
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM images WHERE image_uid=%s", (image_uid, ))
+    cursor.execute("SELECT * FROM images WHERE image_uid=%s", (image_uid,))
     image = cursor.fetchone()
     if image is not None:
         pass
     else:
         cursor.execute(
-            f"INSERT INTO images (image_uid, user_id, prompt, negative_prompt, seed, gs, steps, idx, num_generated, scheduler_cls, model_id) VALUES ('{image_uid}', {image_data.user_id}, '{prompt}', '{image_data.negative_prompt}', {image_data.seed}, {image_data.gs}, {image_data.steps}, {image_data.idx}, {image_data.num_generated}, '{image_data.scheduler_cls}', '{image_data.model_id}')")
+            "INSERT INTO images (image_uid, user_id, prompt, negative_prompt, seed, gs, steps, idx, num_generated, scheduler_cls, model_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (image_uid, image_data.user_id, prompt, image_data.negative_prompt, image_data.seed, image_data.gs,
+             image_data.steps, image_data.idx, image_data.num_generated, image_data.scheduler_cls, image_data.model_id))
+
         conn.commit()
         logger.debug(f"Added image with uid {image_uid}")
     cursor.close()
@@ -73,7 +76,7 @@ def add_image(image_data: ImageData):
 def get_all_images() -> pd.DataFrame:
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM images")
+    cursor.execute("SELECT * FROM images")
     images = cursor.fetchall()
     cursor.close()
     conn.close()

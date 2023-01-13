@@ -17,6 +17,7 @@ from PIL import Image
 from pydantic import BaseModel, Field
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from sql_db.user_score import get_user_score, increment_user_score, create_user_score_table
 from sql_db.users import create_user_table, add_user, get_all_users, get_num_users
 from sql_db.downloads import add_download, create_downloads_table, DownloadData, get_all_downloads, get_num_downloads
 from sql_db.rankings import add_ranking, create_rankings_table, get_all_rankings, RankingData, get_num_rankings
@@ -132,13 +133,18 @@ def is_user_logged(request):
 async def homepage(request: Request):
     user = request.session.get('user')
     user_id = "null"
+    user_score = 0
     if user:
         user_id = add_user(user["email"], user["name"])
+        start = time.time()
+        user_score = get_user_score(user_id)
+        print(f"get_num_rankings_for_user took {time.time() - start:.2f} seconds {user_score=}")
         request.session['user_id'] = user_id
     return templates.TemplateResponse("index.html",
                                       {"request": request,
                                        "is_authenticated": is_user_logged(request),
-                                       "user_id": user_id})
+                                       "user_id": user_id,
+                                       "user_score": user_score})
 
 
 @app.get('/login')
@@ -453,6 +459,7 @@ async def update_clicked_image(data: UpdateImageRequest, background_tasks: Backg
         prompt=data.prompt,
     )
     background_tasks.add_task(add_ranking, ranking_data)
+    background_tasks.add_task(increment_user_score, user_id)
     logger.debug(f"Clicked on {data.image_uid} from {image_uids} with prompt {data.prompt}")
     return "success"
 
@@ -523,6 +530,7 @@ async def startapp():
     create_image_table()
     create_rankings_table()
     create_downloads_table()
+    create_user_score_table()
     create_background_tasks()
     await app.cache.set("backend_url_idx", 0)
     await app.cache.set("num_running", 0)

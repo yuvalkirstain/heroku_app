@@ -41,8 +41,7 @@ def add_user(email: str, name: str):
     user = get_user_by_email(email)
     if user is None:
         logger.info(f"Adding user {name} with email {email}")
-        cursor.execute(f"INSERT INTO users (email, name) VALUES ('{email}', '{name}')")
-        conn.commit()
+        cursor.execute("INSERT INTO users (email, name) VALUES (%s, %s)", (email, name))
         user = get_user_by_email(email)
     else:
         logger.info(f"User {name} with email {email} already exists")
