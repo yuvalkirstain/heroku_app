@@ -84,7 +84,7 @@ job_id2images = {}
 job_id2images_data = {}
 finished_job_id2uids = {}
 scheduler = BackgroundScheduler()
-BLOCKED_IDS = [641]
+BLOCKED_IDS = [641, 280]
 
 
 class UpdateImageRequest(BaseModel):
