@@ -43,6 +43,7 @@
             participating in the Pick a Pic project.
         </p>
         <div class="splash-screen-buttons">
+            <button class="splash-screen-button" id="close-button" style="margin-right: 0.5vh">Close</button>
             <button class="splash-screen-button" id="google-button">Sign in with Google</button>
         </div>
     </div>
@@ -238,6 +239,7 @@
     const legalNotice = document.getElementById('legal-notice');
     const googleSignIn = document.getElementById('google-sign-in');
     const googleSignInButton = document.getElementById('google-button');
+    const closeButton = document.getElementById('close-button');
     const modelInfo = document.getElementById('model-info');
     const modelInfoButton = document.getElementById('model-info-button');
     const ackInfo = document.getElementById('ack-info');
@@ -548,6 +550,20 @@
         const errorContainer = document.getElementById('failed-screen');
         errorContainer.style.display = 'block';
     }
+
+    function onPromptInput() {
+        if (((promptInput.value !== "A mature poodle toy.") || (hasGenerated)) && (!is_authenticated)) {
+            splashScreen.style.display = 'block';
+            googleSignIn.style.display = 'block';
+        }
+    }
+
+    closeButton.addEventListener('click', () => {
+        splashScreen.style.display = 'none';
+        googleSignIn.style.display = 'none';
+    });
+
+    promptInput.addEventListener('input', onPromptInput);
 
     function generate() {
         downloadButton.style.display = 'none';
