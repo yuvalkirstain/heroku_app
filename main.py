@@ -384,7 +384,7 @@ async def get_images(websocket: WebSocket):
         is_finished = False
         while not is_finished:
             job = await get_job(job_id)
-            is_finished = job.status == "finished"
+            is_finished = job.status in ["finished", "failed"]
             elapsed_time = time.time() - job.start_time
             estimated_time = await app.cache.get("estimated_running_time")
             progress_text = f"Processing |"
