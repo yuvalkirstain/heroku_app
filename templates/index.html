@@ -66,8 +66,9 @@
             dreamlike-photoreal-2.0</a>.
         </li>
         <li style="font-size: min(3.5vmin, 18px);">
-            <strong>Data</strong>: We will periodically update this <a href="https://huggingface.co/datasets/yuvalkirstain/PickaPic"
-                                                          target="_blank">dataset</a>
+            <strong>Data</strong>: We will periodically update this <a
+                href="https://huggingface.co/datasets/yuvalkirstain/PickaPic"
+                target="_blank">dataset</a>
             with the new collected data.
         </li>
         <li style="font-size: min(3.5vmin, 18px);">
@@ -76,7 +77,8 @@
                 href=":mailto:pickapic.io@gmail.com" target="_blank">mail</a>.
         </li>
         <li style="font-size: min(3.5vmin, 18px);">
-            <strong>Negative Prompts</strong>: Inside square brackets. E.g. "Hello [world]" will result in the prompt: "Hello" and negative prompt "world".
+            <strong>Negative Prompts</strong>: Inside square brackets. E.g. "Hello [world]" will result in the prompt:
+            "Hello" and negative prompt "world".
         </li>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="model-info-button" style="margin-right: 0.5vh">Return to demo
@@ -171,7 +173,10 @@
             </button>
         </div>
     </div>
-    <input type="search" id="prompt" placeholder="An image of...">
+    <div style="display:flex">
+        <input type="text" id="prompt" placeholder="An image of...">
+        <button id="reset" onclick="clearDemo()" style="padding: 10px 10px; margin: 0 0 1vmin 0.5vmin; background-color: transparent; color: white">X</button>
+    </div>
 </div>
 
 
@@ -709,7 +714,7 @@
         const title = document.getElementById('title');
         const submitButton = document.getElementById('submit-button');
         const imageContainerChildren = imageGrid.children;
-
+        promptInput.value = "";
         progressBarText.innerHTML = "<p></p>"
         title.innerHTML = '<h1 id="title" style="font-size: large;text-align: left;margin: 0">Pick a Pic: an <a onclick="activateModelInfo()">open</a> dataset </h1>'
         submitButton.style.display = 'block';
@@ -728,9 +733,6 @@
         }
     }
 
-    document.getElementById("prompt").addEventListener("search", function (event) {
-        clearDemo();
-    });
 
 </script>
 </body>
