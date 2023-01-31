@@ -431,15 +431,17 @@ async def tweet_images(tweet: TweetRequest, request: Request):
     image = Image.open(BytesIO(base64.b64decode(image_data)))
     os.makedirs(f"images", exist_ok=True)
     image.save(f"images/{image_uid}.png")
-    tweet_text = f"{prompt} https://pickapic.io/ Join the effort!"
+    tweet_text = f"""{prompt} 
+https://pickapic.io/
+Join the effort!"""
     logger.debug(f"tweeting {tweet_text=}")
-    logger.debug(f"TWEET - before tweeting")
+    logger.debug(f"TWEET - before tweeting {tweet_text=}")
     status = twitter_api.update_status_with_media(tweet_text, f"images/{image_uid}.png")
     logger.debug(f"TWEET - after tweeting")
     os.remove(f"images/{image_uid}.png")
-    tweet_text = f"{status.text} %23PickaPic %40PickaPicTweet"
-    tweet_text = f"{tweet_text.replace(' ', '+')}"
-    logger.debug(f"TWEET - returning text")
+    tweet_text = f"{status.text}\n %23PickaPic\n %40PickaPicTweet"
+    tweet_text = tweet_text.replace(' ', '+').replace('\n', '%0A')
+    logger.debug(f"TWEET - returning text - {tweet_text=}")
     return {"status": "ok", "tweet_text": tweet_text}
 
 
