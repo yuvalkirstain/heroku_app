@@ -222,7 +222,7 @@ def extract_image_data(response_json, image_uids):
                 prompt=response_json["prompt"][i],
                 negative_prompt=response_json["negative_prompt"][i],
                 seed=response_json["seed"],
-                gs=response_json["gs"],
+                gs=response_json["gs"][i],
                 steps=response_json["steps"],
                 idx=response_json["idx"][i],
                 num_generated=response_json["num_generated"],
