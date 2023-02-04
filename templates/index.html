@@ -257,6 +257,9 @@
 
     const introDriver = introJs();
     const blockedIds = [280, 641, 718, 783, 1187, 1177, 1202, 1203];
+    const nsfwWords = ["seductive", "sexy", "nude", "naked", "nudity", "nakedness", "nakedly", "nakedness",
+    "busty", "boobs", "gay", "shirtless", "nude", "revealing", "naked", "breasts", "amouranth",
+    "nigger", "sussy", "tits", "lingerie", "sex", "bikini", "putin", "nazi", "underwear"];
 
     document.getElementById("user-score").innerHTML = userScore + "&nbsp;";
 
@@ -590,6 +593,17 @@
             alert("Please enter a prompt before generating.");
             return;
         }
+        for (let i = 0; i < nsfwWords.length; i++) {
+            if (promptInput.value.toLowerCase().includes(nsfwWords[i])) {
+                alert("Please enter a prompt that is not NSFW. We will ban misbehaving users.");
+                const a = document.createElement('a');
+                a.href = "/logout"
+                document.body.appendChild(a);
+                a.click();
+                return;
+            }
+        }
+
         hasGenerated = true;
         const hostname = window.location.hostname;
         const port = window.location.port;
