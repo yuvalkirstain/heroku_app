@@ -85,7 +85,7 @@ job_id2images_data = {}
 finished_job_id2uids = {}
 scheduler = BackgroundScheduler()
 BLOCKED_IDS = [280, 641, 718, 783, 1187, 1177, 1202, 1203, 1220, 1230]
-
+BLOCKED_IPS = []
 
 class UpdateImageRequest(BaseModel):
     image_uid: str
@@ -133,6 +133,11 @@ def is_user_logged(request):
 @app.get('/')
 async def homepage(request: Request):
     user = request.session.get('user')
+    ip = request.client.host
+    logger.info(f"IP: {ip} {user=}")
+    if ip in BLOCKED_IPS:
+        logger.info(f"Blocking {ip=} {user=}")
+        user = None
     user_id = "null"
     user_score = 0
     if user:
