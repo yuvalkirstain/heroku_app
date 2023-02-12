@@ -241,7 +241,6 @@ def extract_image_data(response_json, image_uids):
 async def get_backend_url_idx():
     async with RedLock(app.cache, "backend_url_idx", 1000):
         result = await app.cache.get("backend_url_idx")
-        print(f"{result=}")
         await app.cache.set("backend_url_idx", result + 1)
     return result % len(app.backend_urls)
 
@@ -256,7 +255,6 @@ async def get_verified_backend_url(prompt):
             response = requests.get(backend_url.replace("generate", ""), timeout=1.5)
             if response.status_code == 200:
                 verified = True
-            logger.debug(f"{backend_url=} {prompt=} worked")
         except Exception as e:
             app.backend_urls.remove(backend_url)
             logger.debug(f"{backend_url=} {prompt=} failed with exception {e}")
