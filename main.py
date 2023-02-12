@@ -271,22 +271,13 @@ def remove_square_brackets(prompt: str) -> Tuple[str, Optional[str]]:
     return prompt.strip(), None
 
 
-async def create_images(prompt, user_id):
-    prompt, negative_prompt = remove_square_brackets(prompt)
-    if negative_prompt is None:
-        negative_prompt = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
-
-    num_samples = 4
-
-    start = time.time()
-
-    logger.info(f"Starting to create images for prompt {prompt} {os.getpid()=}")
+async def generate_images(prompt, negative_prompt, num_samples, user_id, backend_url):
     async with aiohttp.ClientSession() as session:
         has_generated = False
         num_tries = 0
-        backend_url = await get_verified_backend_url(prompt)
         while not has_generated:
             try:
+                logger.debug(f"calling {backend_url} with prompt {prompt}")
                 async with session.post(backend_url,
                                         json={
                                             "prompt": prompt,
@@ -302,8 +293,46 @@ async def create_images(prompt, user_id):
                 logger.error(f"Error #{num_tries} creating images for prompt {prompt} with exception {e}")
                 if num_tries > 5:
                     return None
+    return response_json
 
-    logger.info(f"Generating images from prompt {prompt} took {time.time() - start:.2f} seconds")
+
+async def create_images(prompt, user_id):
+    prompt, negative_prompt = remove_square_brackets(prompt)
+    if negative_prompt is None:
+        negative_prompt = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
+
+    start = time.time()
+
+    logger.info(f"Starting to create images for prompt {prompt} {os.getpid()=}")
+    num_samples = 4
+    backend_url1 = await get_verified_backend_url(prompt)
+    task1 = asyncio.create_task(generate_images(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        user_id=user_id,
+        num_samples=num_samples / 2,
+        backend_url=backend_url1
+    ))
+    backend_url2 = await get_verified_backend_url(prompt)
+    task2 = asyncio.create_task(generate_images(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        user_id=user_id,
+        num_samples=num_samples / 2,
+        backend_url=backend_url2
+    ))
+    await task1
+    await task2
+    response_json1 = task1.result()
+    response_json2 = task2.result()
+    response_json = {}
+    for key in response_json1:
+        if isinstance(response_json1[key], list):
+            response_json[key] = response_json1[key] + response_json2[key]
+        else:
+            response_json[key] = response_json1[key]
+    logger.debug(f"Finished waiting for tasks to finish {os.getpid()=}")
+    logger.info(f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=}")
     images = response_json.pop("images")
     image_uids = [str(uuid.uuid4()) for _ in range(len(images))]
     image_data = extract_image_data(response_json, image_uids)
@@ -350,9 +379,7 @@ async def consumer():
     job.start_time = time.time()
     await set_job(job_id, job)
     # await get_random_images(job)
-    logger.debug(f"Starting job {job.prompt}")
     await get_stable_images(job)
-    logger.debug(f"Finished job {job.prompt}")
 
     # update num running
     async with RedLock(app.cache, "num_running", 1000):
@@ -379,7 +406,6 @@ async def handle_images_request(prompt: str, user_id: str):
 async def get_images(websocket: WebSocket):
     await websocket.accept()
     json_data = await websocket.receive_json()
-    logger.debug(f"creating job for {json_data=}")
     user_id, prompt = json_data["user_id"], json_data["prompt"]
     job_id = await handle_images_request(prompt, user_id)
     if job_id is None or user_id in BLOCKED_IDS:
