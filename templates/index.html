@@ -494,6 +494,22 @@
     function updateImages(data) {
         const images = data.images;
         const imageIds = data.image_uids;
+
+        // Shuffle images
+        let index = images.length;
+        let rnd, tmp1, tmp2;
+
+        while (index) {
+            rnd = Math.floor(Math.random() * index);
+            index -= 1;
+            tmp1 = images[index];
+            tmp2 = imageIds[index];
+            images[index] = images[rnd];
+            imageIds[index] = imageIds[rnd];
+            images[rnd] = tmp1;
+            imageIds[rnd] = tmp2;
+        }
+
         let clickedImage = document.querySelector('.clicked');
 
         // Clear current images
