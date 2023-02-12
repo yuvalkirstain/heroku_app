@@ -329,8 +329,7 @@ async def create_images(prompt, user_id):
             response_json[key] = response_json1[key] + response_json2[key]
         else:
             response_json[key] = response_json1[key]
-    logger.debug(f"Finished waiting for tasks to finish {os.getpid()=}")
-    logger.info(f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=}")
+    logger.info(f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=} | {os.getpid()=}")
     images = response_json.pop("images")
     image_uids = [str(uuid.uuid4()) for _ in range(len(images))]
     image_data = extract_image_data(response_json, image_uids)
