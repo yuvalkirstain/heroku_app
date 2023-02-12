@@ -303,7 +303,7 @@ async def create_images(prompt, user_id):
 
     start = time.time()
 
-    logger.info(f"Starting to create images for prompt {prompt} {os.getpid()=}")
+    logger.info(f"Starting: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=}")
     num_samples = 4
     backend_url1 = await get_verified_backend_url(prompt)
     task1 = asyncio.create_task(generate_images(
