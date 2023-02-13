@@ -484,8 +484,8 @@ async def update_clicked_image(data: UpdateImageRequest, background_tasks: Backg
         user_id=user_id,
         image_0_uid=image_uids[0],
         image_1_uid=image_uids[1],
-        image_2_uid=image_uids[2],
-        image_3_uid=image_uids[3],
+        image_2_uid=image_uids[2] if len(image_uids) > 2 else None,
+        image_3_uid=image_uids[3] if len(image_uids) > 3 else None,
         best_image_uid=data.image_uid,
         prompt=data.prompt,
     )

@@ -175,27 +175,21 @@
     </div>
     <div style="display:flex">
         <input type="text" id="prompt" placeholder="An image of...">
-        <button id="reset" onclick="clearDemo()" style="padding: 10px 10px; margin: 0 0 1vmin 0.5vmin; background-color: transparent; color: white">X</button>
+        <button id="reset" onclick="clearDemo()"
+                style="padding: 10px 10px; margin: 0 0 1vmin 0.5vmin; background-color: transparent; color: white">X
+        </button>
     </div>
 </div>
 
 
 <div class="progress-container" style="display: block" id="progress-container">
     <div class="progress-bar-background">
-        <div class="progress-bar-text"></div>
         <div class="progress-bar"></div>
+        <div class="progress-bar-text"></div>
     </div>
 </div>
 <div class="container" style="display: block" id="image-grid-container">
     <div class="image-grid">
-        <div class="image-container">
-            <img class="img after_clicked" src="https://loremflickr.com/512/512" id="image-grid-item-0-image"
-                 style="opacity: 0">
-        </div>
-        <div class="image-container">
-            <img class="img after_clicked" src="https://loremflickr.com/512/512" id="image-grid-item-0-image"
-                 style="opacity: 0">
-        </div>
         <div class="image-container">
             <img class="img after_clicked" src="https://loremflickr.com/512/512" id="image-grid-item-0-image"
                  style="opacity: 0">
@@ -254,13 +248,17 @@
     const ackInfoButton = document.getElementById('ack-info-button');
     const title = document.getElementById('title');
     const userKarmaButton = document.getElementById("user-karma-button");
+    const cachedImages = [];
+    const numImagesForDisplay = 2;
+    const progressBar = document.querySelector('.progress-bar');
+    const progressBarText = document.querySelector('.progress-bar-text');
 
     const introDriver = introJs();
     const blockedIds = [280, 331, 437, 641, 718, 729, 783, 984, 1023, 1040, 1149, 1187, 1177, 1202, 1203, 1220, 1230, 1279];
     const nsfwWords = ["seductive", "sexy", "nude", "naked", "nudity", "nakedness", "nakedly", "nakedness",
-    "busty", "boobs", "gay", "shirtless", "nude", "revealing", "naked", "breasts", "amouranth",
-    "nigger", "sussy", "tits", "lingerie", "sex", "bikini", "putin", "nazi", "underwear", "stomach", "Xi Jinping",
-    "thong", "fuck"];
+        "busty", "boobs", "gay", "shirtless", "nude", "revealing", "naked", "breasts", "amouranth",
+        "nigger", "sussy", "tits", "lingerie", "sex", "bikini", "putin", "nazi", "underwear", "stomach", "Xi Jinping",
+        "thong", "fuck"];
 
     document.getElementById("user-score").innerHTML = userScore + "&nbsp;";
 
@@ -291,7 +289,7 @@
             {
                 element: imageGridContainer,
                 title: "Rank!",
-                intro: "Now you should click on your favorite image and we will add your feedback to the open dataset! Afterward, click next.",
+                intro: "Now you should click on your favorite image, or click that no image is significantly better than the other. Afterward, click next.",
                 position: 'top',
             },
             {
@@ -418,6 +416,14 @@
         }, 1000);
     }
 
+    function prepareProgressBarTextForRanking() {
+        progressBarText.innerHTML = "<p>Click on your favorite image or <a id='bad-images' style='color: #ec6565;' href='#' onclick='javascript:onImageClick(event)'> press here</a> if you do not significantly prefer one over the other.<p>";
+    }
+
+    function prepareProgressBarTextForUploadingImages() {
+        progressBarText.innerHTML = "<p><i class='fa fa-circle-o-notch fa-spin'></i>        Uploading Image</p>";
+    }
+
     function onImageClick(event) {
         const image = event.target;
         const prompt = promptInput.value;
@@ -451,6 +457,9 @@
             image.style.filter = 'brightness(100%)';
         } else {
             imageId = 'none';
+            // Make a random image clicked so we do not replace both
+            const randomImage = allImages[Math.floor(Math.random() * allImages.length)];
+            randomImage.classList.add('clicked');
             console.log('all images suck');
         }
 
@@ -489,6 +498,15 @@
 
         document.querySelector('.progress-bar-text').innerHTML = "<p></p>"
         window.scrollTo(0, 0)
+
+        // This allows us to show next image right away.
+        {#if (cachedImages.length > 0 && is_authenticated) {#}
+        {#    prepareProgressBarTextForUploadingImages();#}
+        {#    setTimeout(function () {#}
+        {#        generate();#}
+        {#        prepareProgressBarTextForRanking();#}
+        {#    }, 500);#}
+        {# }#}
     }
 
     function updateImages(data) {
@@ -516,6 +534,12 @@
         while (imageGrid.firstChild) {
             imageGrid.removeChild(imageGrid.firstChild);
         }
+        if (clickedImage !== null && formerPromptInput === promptInput.value) {
+            const imageContainer = document.createElement('div');
+            imageContainer.classList.add('image-container');
+            imageContainer.appendChild(clickedImage);
+            imageGrid.appendChild(imageContainer);
+        }
 
         // Add new images
         for (let i = 0; i < images.length; i++) {
@@ -525,11 +549,6 @@
             const imageContainer = document.createElement('div');
             imageContainer.classList.add('image-container');
             const img = document.createElement('img');
-            // Keep clicked image
-            if (clickedImage && i === clickedImage.idx) {# && promptInput.value === formerPromptInput) TODO new prompt --> all images are new  #} {
-                imageId = clickedImage.imageId;
-                imageData = clickedImage.imageData;
-            }
 
             img.src = 'data:image/png;base64,' + imageData;
             img.imageId = imageId;
@@ -539,31 +558,35 @@
 
             // Add click event listener to image
             img.addEventListener('click', onImageClick);
-
             imageContainer.appendChild(img);
-            imageGrid.appendChild(imageContainer);
+            if (imageGrid.children.length < numImagesForDisplay) {
+                imageGrid.appendChild(imageContainer);
+            } else {
+                cachedImages.push(imageContainer);
+            }
         }
 
         formerPromptInput = promptInput.value
     }
 
+    function showProgress(progress, progress_text) {
+        progressBar.style.width = progress + '%';
+        progressBarText.innerHTML = "<p style='text-align: center; position: absolute; top: 0;'>" + progress_text + "</p>"
+    }
+
     function updateProgressBar(data) {
-        const progressBar = document.querySelector('.progress-bar');
-        const progressBarText = document.querySelector('.progress-bar-text');
         const status = data.status;
         const progress = data.progress;
         const progress_text = data.progress_text;
         if (status === "running") {
             progressBar.style.background = '#9fde95';
-            progressBarText.innerHTML = "<p>" + progress_text + "</p>"
-            progressBar.style.width = progress + '%';
+            showProgress(progress, progress_text);
         } else if (status === "queued") {
             progressBar.style.background = '#eaad67';
-            progressBarText.innerHTML = "<p>" + progress_text + "</p>"
-            progressBar.style.width = progress + '%';
+            showProgress(progress, progress_text);
         } else {
             progressBar.style.width = '0';
-            progressBarText.innerHTML = "<p><i class='fa fa-circle-o-notch fa-spin'></i>        Uploading Images</p>"
+            prepareProgressBarTextForUploadingImages();
         }
     }
 
@@ -594,6 +617,7 @@
     promptInput.addEventListener('input', onPromptInput);
 
     function generate() {
+        console.log("Generating")
         downloadButton.style.display = 'none';
         twitterButton.style.display = 'none';
         document.querySelector('.progress-bar').style.width = '0%';
@@ -622,34 +646,52 @@
         }
 
         hasGenerated = true;
-        const hostname = window.location.hostname;
-        const port = window.location.port;
-        let prefix = "wss"
-        if (hostname === "127.0.0.1") {
-            prefix = "ws"
-        }
-        const websocketAddr = prefix + "://" + hostname + ":" + port + "/ws";
-        let ws = new WebSocket(websocketAddr);
-        ws.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            const status = data.status;
-            updateProgressBar(data);
-            if (status === 'finished' && data.images) {
-                updateImages(data);
-                document.querySelector('.progress-bar-text').innerHTML = "<p>Click on your favorite image. If all are <strong> bad </strong> press <a id='bad-images' href='#' onclick='javascript:onImageClick(event)'> here.</a><p>"
-                document.querySelector('.progress-bar').style.width = "0";
-            } else if (status === 'error') {
-                displayErrorMessage();
-            } else if (status === 'failed') {
-                displayFailedMessage();
-            }
-        };
 
-        ws.onopen = function () {
-            let msg = JSON.stringify({prompt: promptInput.value, user_id: userId});
-            console.log("Sending job with " + msg);
-            ws.send(msg);
-        };
+        if (cachedImages.length > 0 && promptInput.value === formerPromptInput) {
+            console.log("bla bla bla");
+            let clickedImage = document.querySelector('.clicked');
+
+            // Replace the images that was not clicked with a cached image
+            for (let i = 0; i < numImagesForDisplay; i++) {
+                if (imageGrid.children[i].children[0] !== clickedImage) {
+                    imageGrid.replaceChild(cachedImages.pop(), imageGrid.children[i]);
+                }
+            }
+
+        } else {
+            while (cachedImages.length > 0) {
+                cachedImages.pop();
+            }
+            const hostname = window.location.hostname;
+            const port = window.location.port;
+            let prefix = "wss"
+            if (hostname === "127.0.0.1") {
+                prefix = "ws"
+            }
+            const websocketAddr = prefix + "://" + hostname + ":" + port + "/ws";
+            let ws = new WebSocket(websocketAddr);
+            ws.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                const status = data.status;
+                updateProgressBar(data);
+                if (status === 'finished' && data.images) {
+                    updateImages(data);
+                    prepareProgressBarTextForRanking();
+                    progressBar.style.width = "0";
+                } else if (status === 'error') {
+                    displayErrorMessage();
+                } else if (status === 'failed') {
+                    displayFailedMessage();
+                }
+            };
+
+            ws.onopen = function () {
+                let msg = JSON.stringify({prompt: promptInput.value, user_id: userId});
+                console.log("Sending job with " + msg);
+                ws.send(msg);
+            };
+        }
+
     }
 
     submitButton.addEventListener('click', function () {

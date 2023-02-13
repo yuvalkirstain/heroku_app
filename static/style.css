@@ -34,7 +34,7 @@ body {
 .image-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
+    /*grid-template-rows: 1fr 1fr; TODO use if display 4 images */
     grid-gap: 1vmin;
 }
 
@@ -128,13 +128,15 @@ button:hover:not(.top-button) {
     display: flex;
     align-items: center;
     width: 100%;
-    height: max(2.5vmin, 20px);
+    min-height: max(2.5vmin, 20px);
+    overflow: hidden;
     border-radius: 5px;
     position: relative;
 }
 
 .progress-bar-background {
     height: 100%;
+    overflow: hidden;
     border-radius: 5px;
     transition: width 0.5s ease;
 }
@@ -160,9 +162,7 @@ button:hover:not(.top-button) {
     height: 100%;
     font-size: max(2vmin, 12px);
     z-index: 2;
-    position: absolute;
-    top: 0;
-    left: 0;
+    overflow: hidden;
 }
 
 .progress-bar-text p {
