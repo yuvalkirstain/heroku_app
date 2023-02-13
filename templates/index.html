@@ -719,7 +719,18 @@
     );
 
     function submitOnEnter(event) {
-        if (event.key === "Enter" && promptInput.value !== '' && submitButton.style.display !== 'none') {
+        if (event.key === "Enter" && submitButton.style.display === 'none') {
+            progressBarText.style.backgroundColor = "#ec6565";
+            progressBarText.style.boxShadow = "0 0 10px gold";
+            progressBarText.style.color = "black";
+            progressBarText.style.borderRadius = "1vmin";
+            setTimeout(function () {
+                progressBarText.style.backgroundColor = "";
+                progressBarText.style.boxShadow = "";
+                progressBarText.style.color = "";
+                progressBarText.style.borderRadius = "";
+            }, 1000);
+        } else if (event.key === "Enter" && promptInput.value !== '') {
             event.preventDefault();
             submitButton.click();
         }
@@ -804,7 +815,6 @@
     function clearDemo() {
         const progressBarText = document.querySelector('.progress-bar-text');
         const title = document.getElementById('title');
-        const submitButton = document.getElementById('submit-button');
         const imageContainerChildren = imageGrid.children;
         promptInput.value = "";
         progressBarText.innerHTML = "<p></p>"
