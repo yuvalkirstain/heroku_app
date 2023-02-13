@@ -254,6 +254,7 @@
     const progressBar = document.querySelector('.progress-bar');
     const progressBarText = document.querySelector('.progress-bar-text');
     const neitherButton = document.getElementById('same-button');
+    let wasClicked = false;
 
     const introDriver = introJs();
     const blockedIds = [280, 331, 437, 641, 718, 729, 783, 984, 1023, 1040, 1149, 1187, 1177, 1202, 1203, 1220, 1230, 1279];
@@ -428,6 +429,10 @@
     }
 
     function onImageClick(event) {
+        if (wasClicked) {
+            return;
+        }
+
         const image = event.target;
         const prompt = promptInput.value;
         const allImages = document.querySelectorAll('.image-grid img');
@@ -501,7 +506,8 @@
 
         document.querySelector('.progress-bar-text').innerHTML = "<p></p>"
         window.scrollTo(0, 0)
-
+        wasClicked = true;
+        progressBarText.innerHTML = "<p>Great! Press play to generate more!<p>";
         // This allows us to show next image right away.
         {#if (cachedImages.length > 0 && is_authenticated) {#}
         {#    prepareProgressBarTextForUploadingImages();#}
@@ -621,6 +627,7 @@
     promptInput.addEventListener('input', onPromptInput);
 
     function generate() {
+        wasClicked = false;
         console.log("Generating")
         downloadButton.style.display = 'none';
         twitterButton.style.display = 'none';
