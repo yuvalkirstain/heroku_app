@@ -743,7 +743,7 @@
     }
 
     autoMode.addEventListener('change', (event) => {
-        if (event.currentTarget.checked && submitButton.style.display !== 'none') {
+        if (event.currentTarget.checked && submitButton.style.display !== 'none' && promptInput.value !== '') {
             generate();
         }
     })
