@@ -461,7 +461,7 @@ async def tweet_images(tweet: TweetRequest, request: Request):
     image.save(f"images/{image_uid}.png")
     tweet_text = f"""{prompt} 
 https://pickapic.io/
-Join the effort!"""
+Generate cool images for free and contribute to open science!"""
     logger.debug(f"tweeting {tweet_text=}")
     logger.debug(f"TWEET - before tweeting {tweet_text=}")
     status = twitter_api.update_status_with_media(tweet_text, f"images/{image_uid}.png")
