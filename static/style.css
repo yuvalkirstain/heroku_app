@@ -74,7 +74,8 @@ input[type="text"] {
 
 button:not(.top-button) {
     display: inline-block;
-    padding: 5px 20px;
+    height: max(4vmin, 40px);
+    width: max(4vmin, 40px);
     margin-bottom: 0;
     box-sizing: border-box;
     border: none;

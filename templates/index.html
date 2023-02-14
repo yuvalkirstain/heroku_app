@@ -150,6 +150,9 @@
         <h1 id="title" style="font-size: large;text-align: left;margin-right: 4vw;">Pick a Pic: an <a
                 onclick="activateModelInfo()">open</a> dataset </h1>
         <div class="button-container">
+            <button style="margin-right: 2%; display: flex;" title="Automatically show the next image after ranking.">
+                <label for="automode"><input type="checkbox" id="automode" name="automode" value="yes"> Auto</label>
+            </button>
             <button id="submit-button" title="Generate images">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                      class="bi bi-play-fill" viewBox="0 0 16 16">
@@ -262,6 +265,7 @@
     const progressBar = document.querySelector('.progress-bar');
     const progressBarText = document.querySelector('.progress-bar-text');
     const neitherButton = document.getElementById('same-button');
+    const autoMode = document.querySelector('#automode');
     let wasClicked = false;
 
     const introDriver = introJs();
@@ -306,7 +310,7 @@
             {
                 element: topContainer,
                 title: "You are ready!!",
-                intro: "Now that you have generated and ranked your first images, you can: <ul><li> download the selected image with the download button. </li><li> tweet the selected image with the twitter button. </li><li> generate more images with the generate button/enter. </li><li> change the prompt and generate new images.</li></ul> Good luck and enjoy!",
+                intro: "Now that you have generated and ranked your first images, you can: <ul><li> download the selected image with the download button. </li><li> tweet the selected image with the twitter button. </li><li> generate more images with the generate button/enter. </li><li> change the prompt and generate new images.</li><li> check the automode button to automatically see the next image.</li></ul> Good luck and enjoy!",
             }
         ]
     });
@@ -516,14 +520,16 @@
         window.scrollTo(0, 0)
         wasClicked = true;
         progressBarText.innerHTML = "<p>Great! Press play to generate more!<p>";
-        // This allows us to show next image right away.
-        {#if (cachedImages.length > 0 && is_authenticated) {#}
-        {#    prepareProgressBarTextForUploadingImages();#}
-        {#    setTimeout(function () {#}
-        {#        generate();#}
-        {#        prepareProgressBarTextForRanking();#}
-        {#    }, 500);#}
-        {# }#}
+        // This allows us to show next image right away. cachedImages.length > 0 &&
+        if (is_authenticated && autoMode.checked) {
+            generate();
+            prepareProgressBarTextForRanking();
+            {#prepareProgressBarTextForUploadingImages();#}
+            {#setTimeout(function () {#}
+            {#    generate();#}
+            {#    prepareProgressBarTextForRanking();#}
+            {# }, 500);#}
+        }
     }
 
     function updateImages(data) {
@@ -735,6 +741,12 @@
             submitButton.click();
         }
     }
+
+    autoMode.addEventListener('change', (event) => {
+        if (event.currentTarget.checked && submitButton.style.display !== 'none') {
+            generate();
+        }
+    })
 
     document.addEventListener("keydown", function (event) {
         submitOnEnter(event);
