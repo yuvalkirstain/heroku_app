@@ -210,10 +210,10 @@
     </div>
 </div>
 <div style="display: flex; margin-top: 1vmin; height: 20vmin;">
-<button style="height: 100%; width: 49.5%; display: inline-block; color: #ec6565; font-size: 3vmin; margin-left: 0;"
+<button style="height: 100%; width: 49.5%; display: none; color: #ec6565; font-size: 3vmin; margin-left: 0;"
         id="same-bad-button" href='#' onclick='javascript:onImageClick(event)'> Both images are not good enough
 </button>
-<button style="height: 100%; width: 49.5%; display: inline-block; color: #a0f194; font-size: 3vmin; margin-left: 1%;"
+<button style="height: 100%; width: 49.5%; display: none; color: #a0f194; font-size: 3vmin; margin-left: 1%;"
         id="same-good-button" href='#' onclick='javascript:onImageClick(event)'> Both images are great
 </button>
 </div>
@@ -439,7 +439,7 @@
 
     function prepareProgressBarTextForRanking() {
         progressBarText.innerHTML = "<p>Click on the better image or button below.<p>";
-        bothBadButton.style.display = 'block';
+        bothBadButton.style.display = 'inline-block';
         bothGoodButton.style.display = 'inline-block';
     }
 
