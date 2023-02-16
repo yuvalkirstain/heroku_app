@@ -209,14 +209,14 @@
         </div>
     </div>
 </div>
-<div style="display: flex; margin-top: 1vmin; height: 20vmin;">
-<button style="height: 100%; width: 49.5%; display: none; color: #ec6565; font-size: 3vmin; margin-left: 0;"
+{#<div style="display: flex; margin-top: 1vmin; height: 20vmin;">#}
+<button style="height: 10vmin; width: 100%; display: none; color: #ec6565; font-size: 4vmin; margin-top: 1vmin;"
         id="same-bad-button" href='#' onclick='javascript:onImageClick(event)'> Both images are not good enough
 </button>
-<button style="height: 100%; width: 49.5%; display: none; color: #a0f194; font-size: 3vmin; margin-left: 1%;"
+<button style="height: 10vmin; width: 100%; display: none; color: #a0f194; font-size: 4vmin; margin-top: 1vmin;"
         id="same-good-button" href='#' onclick='javascript:onImageClick(event)'> Both images are great
 </button>
-</div>
+{#</div>#}
 
 <div class="splash-screen" id="error-screen" style="display: none">
     <div class="splash-screen-inner" id="error">
@@ -310,7 +310,7 @@
             {
                 element: imageGridContainer,
                 title: "Rank!",
-                intro: "Now you should click on your favorite image, or click that no image is significantly better than the other. Afterward, click next.",
+                intro: "Now you should click on your favorite image, or click that both images are great, or not good enough. Afterward, click next.",
                 position: 'top',
             },
             {
@@ -438,9 +438,9 @@
     }
 
     function prepareProgressBarTextForRanking() {
-        progressBarText.innerHTML = "<p>Click on the better image or button below.<p>";
-        bothBadButton.style.display = 'inline-block';
-        bothGoodButton.style.display = 'inline-block';
+        progressBarText.innerHTML = "<p>Click on the better image or a button below.<p>";
+        bothBadButton.style.display = 'block';
+        bothGoodButton.style.display = 'block';
     }
 
     function prepareProgressBarTextForUploadingImages() {
