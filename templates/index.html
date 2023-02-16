@@ -151,7 +151,7 @@
                 onclick="activateModelInfo()">open</a> dataset </h1>
         <div class="button-container">
             <button style="margin-right: 2%; display: flex;" title="Automatically show the next image after ranking.">
-                <label for="automode"><input type="checkbox" id="automode" name="automode" value="yes"> Auto</label>
+                <label for="automode"><input type="checkbox" id="automode" name="automode" value="yes">Auto</label>
             </button>
             <button id="submit-button" title="Generate images">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -209,10 +209,14 @@
         </div>
     </div>
 </div>
-<button style="width: 100%; display: none; margin-top: 2vmin; height: 20vmin; color: #ec6565; font-size: 3vmin"
-        id="same-button" href='#' onclick='javascript:onImageClick(event)'> No image is significantly better than the
-    other
+<div style="display: flex; margin-top: 1vmin; height: 20vmin;">
+<button style="height: 100%; width: 49.5%; display: inline-block; color: #ec6565; font-size: 3vmin; margin-left: 0;"
+        id="same-bad-button" href='#' onclick='javascript:onImageClick(event)'> Both images are not good enough
 </button>
+<button style="height: 100%; width: 49.5%; display: inline-block; color: #a0f194; font-size: 3vmin; margin-left: 1%;"
+        id="same-good-button" href='#' onclick='javascript:onImageClick(event)'> Both images are great
+</button>
+</div>
 
 <div class="splash-screen" id="error-screen" style="display: none">
     <div class="splash-screen-inner" id="error">
@@ -265,7 +269,8 @@
     const numImagesForDisplay = 2;
     const progressBar = document.querySelector('.progress-bar');
     const progressBarText = document.querySelector('.progress-bar-text');
-    const neitherButton = document.getElementById('same-button');
+    const bothBadButton = document.getElementById('same-bad-button');
+    const bothGoodButton = document.getElementById('same-good-button');
     const autoMode = document.querySelector('#automode');
     let wasClicked = false;
 
@@ -434,7 +439,8 @@
 
     function prepareProgressBarTextForRanking() {
         progressBarText.innerHTML = "<p>Click on the better image or button below.<p>";
-        neitherButton.style.display = 'block';
+        bothBadButton.style.display = 'block';
+        bothGoodButton.style.display = 'inline-block';
     }
 
     function prepareProgressBarTextForUploadingImages() {
@@ -472,11 +478,17 @@
             image.classList.add('clicked');
             image.style.filter = 'brightness(100%)';
         } else {
-            imageId = 'none';
+            if (event.target === bothBadButton) {
+                console.log('Both images are not good enough');
+                imageId = 'none-bad';
+            } else if (event.target === bothGoodButton) {
+                console.log('Both images are great');
+                imageId = 'none-good';
+            }
+
             // Make a random image clicked so we do not replace both
             const randomImage = allImages[Math.floor(Math.random() * allImages.length)];
             randomImage.classList.add('clicked');
-            console.log('all images suck');
         }
 
         if (prompt !== "A mature poodle toy.") {
@@ -589,7 +601,8 @@
     }
 
     function showProgress(progress, progress_text) {
-        neitherButton.style.display = 'none';
+        bothBadButton.style.display = 'none';
+        bothGoodButton.style.display = 'none';
         progressBar.style.width = progress + '%';
         progressBarText.innerHTML = "<p style='text-align: center; position: absolute; top: 0;'>" + progress_text + "</p>"
     }
@@ -826,7 +839,8 @@
         const imageContainerChildren = imageGrid.children;
         promptInput.value = "";
         progressBarText.innerHTML = "<p></p>"
-        neitherButton.style.display = 'none';
+        bothBadButton.style.display = 'none';
+        bothGoodButton.style.display = 'none';
         title.innerHTML = '<h1 id="title" style="font-size: large;text-align: left;margin: 0">Pick a Pic: an <a onclick="activateModelInfo()">open</a> dataset </h1>'
         submitButton.style.display = 'block';
         submitButton.style.marginRight = '2%';
