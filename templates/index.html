@@ -37,14 +37,15 @@
             <button class="splash-screen-button" id="next-button-legal">Accept</button>
         </div>
     </div>
-    <div class="splash-screen-inner" id="google-sign-in" style="display: none;">
+    <div class="splash-screen-inner" id="sign-in" style="display: none;">
         <h1>Pick a Pic</h1>
-        <p> To ensure that you are a real human we kindly request users to authenticate via Google before generating and
-            participating in the Pick a Pic project.
+        <p> To ensure that you are a real human we kindly request users to authenticate via Google or Discord before
+            generating and participating in the Pick a Pic project.
         </p>
         <div class="splash-screen-buttons">
             <button class="splash-screen-button" id="close-button" style="margin-right: 0.5vh">Close</button>
-            <button class="splash-screen-button" id="google-button">Sign in with Google</button>
+            <button class="splash-screen-button" id="google-button" style="margin-right: 0.5vh">Google Sign in</button>
+            <button class="splash-screen-button" id="discord-button" style="margin-right: 0">Discord Sign in</button>
         </div>
     </div>
     <div class="splash-screen-inner" id="model-info" style="display: none;">
@@ -98,14 +99,12 @@
 </div>
 
 <div class="top-buttons">
-    <a href="/logout">
-        <button class="top-button" id="logout-button" title="Log out">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                 class="bi bi-door-closed-fill" viewBox="0 0 16 16">
-                <path d="M12 1a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2a1 1 0 0 1 1-1h8zm-2 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
-            </svg>
-        </button>
-    </a>
+    <button class="top-button" id="logout-button" title="Log out">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+             class="bi bi-door-closed-fill" viewBox="0 0 16 16">
+            <path d="M12 1a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2a1 1 0 0 1 1-1h8zm-2 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+        </svg>
+    </button>
     <a href="https://discord.gg/qKEVkF85DT" title="Join our discord">
         <button class="top-button">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-discord"
@@ -252,8 +251,10 @@
     const backButton = document.getElementById('back-button');
     const intro = document.getElementById('intro');
     const legalNotice = document.getElementById('legal-notice');
-    const googleSignIn = document.getElementById('google-sign-in');
+    const SignIn = document.getElementById('sign-in');
     const googleSignInButton = document.getElementById('google-button');
+    const discordSignInButton = document.getElementById('discord-button');
+    const logoutButton = document.getElementById('logout-button');
     const closeButton = document.getElementById('close-button');
     const modelInfo = document.getElementById('model-info');
     const modelInfoButton = document.getElementById('model-info-button');
@@ -349,11 +350,29 @@
         const is_authenticated = false;
     {% endif %}
 
+    if (!is_authenticated) {
+        logoutButton.title = "Log in";
+    }
+
+    logoutButton.addEventListener('click', () => {
+
+        if (is_authenticated) {
+            const a = document.createElement('a');
+            a.href = "/logout";
+            document.body.appendChild(a);
+            a.click();
+        } else {
+            splashScreen.style.display = 'block';
+            SignIn.style.display = 'block';
+        }
+    });
+
+
     if (is_authenticated) {
         splashScreen.style.display = 'none';
         intro.style.display = 'none';
         legalNotice.style.display = 'none';
-        googleSignIn.style.display = 'none';
+        SignIn.style.display = 'none';
         if (blockedIds.includes(userId)) {
             alert("You are temporarily blocked from this service due to unusual activity. Please contact us at pickapic.io@gmail.com to clarify the issue.");
             displayFailedMessage();
@@ -411,6 +430,13 @@
     googleSignInButton.addEventListener('click', () => {
         const a = document.createElement('a');
         a.href = "/login";
+        document.body.appendChild(a);
+        a.click();
+    });
+
+    discordSignInButton.addEventListener('click', () => {
+        const a = document.createElement('a');
+        a.href = "/discord_login";
         document.body.appendChild(a);
         a.click();
     });
@@ -626,13 +652,13 @@
     function onPromptInput() {
         if (((promptInput.value !== "A mature poodle toy.") || (hasGenerated)) && (!is_authenticated)) {
             splashScreen.style.display = 'block';
-            googleSignIn.style.display = 'block';
+            SignIn.style.display = 'block';
         }
     }
 
     closeButton.addEventListener('click', () => {
         splashScreen.style.display = 'none';
-        googleSignIn.style.display = 'none';
+        SignIn.style.display = 'none';
     });
 
     promptInput.addEventListener('input', onPromptInput);
@@ -648,7 +674,7 @@
         title.innerHTML = '<h1 id="title" style="font-size: large;text-align: left;margin: 0">Pick a Pic: an <a onclick="activateModelInfo()">open</a> dataset </h1>'
         if (((promptInput.value !== "A mature poodle toy.") || (hasGenerated)) && (!is_authenticated)) {
             splashScreen.style.display = 'block';
-            googleSignIn.style.display = 'block';
+            SignIn.style.display = 'block';
             return;
         }
         if (promptInput.value === "") {

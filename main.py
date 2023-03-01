@@ -36,6 +36,7 @@ from aiocache import Cache
 from aiocache.serializers import PickleSerializer
 from aiocache.lock import RedLock
 import tweepy
+from starlette_discord import DiscordOAuthClient
 
 # DUMMY_IMG_URL = f"https://loremflickr.com/512/512"
 app = FastAPI()
@@ -77,6 +78,12 @@ access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
 twitter_auth = tweepy.OAuthHandler(consumer_key, consumer_secret_key)
 twitter_auth.set_access_token(access_token, access_token_secret)
 twitter_api = tweepy.API(twitter_auth)
+
+discord_client_id = os.environ['DISCORD_CLIENT_ID']
+discord_client_secret = os.environ['DISCORD_CLIENT_SECRET']
+redirect_uri = "https://pickapic.io/discord_auth"
+
+discord_client = DiscordOAuthClient(discord_client_id, discord_client_secret, redirect_uri)
 
 app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname, port=url.port,
                   password=url.password, timeout=0)
@@ -159,6 +166,14 @@ async def login(request: Request):
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
+@app.get('/discord_login')
+async def login(request: Request):
+    redirect_uri = request.url_for('discord_auth')
+    print(f"Discord {redirect_uri=}")
+    discord_client.redirect_uri = redirect_uri
+    return discord_client.redirect()
+
+
 @app.get('/auth')
 async def auth(request: Request):
     try:
@@ -169,6 +184,20 @@ async def auth(request: Request):
     if user:
         request.session['user'] = dict(user)
         add_user(user["email"], user["name"])
+    return RedirectResponse(url='/')
+
+
+@app.get('/discord_auth')
+async def discord_auth(code: str, request: Request):
+    try:
+        user = await discord_client.login(code)
+    except OAuthError as error:
+        return HTMLResponse(f'<h1>{error.error}</h1>')
+    print(f"Discord {user=}")
+    email = str(user.email if user.email else user.id)
+    if user:
+        request.session['user'] = {"email": email, "name": user.username}
+        add_user(email, user.username)
     return RedirectResponse(url='/')
 
 
