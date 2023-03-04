@@ -67,7 +67,7 @@ AWS_SECRET_KEY = os.environ["AWS_SECRET_KEY"]
 BUCKET_NAME = "text-to-image-human-preferences"
 S3_EXTRA_ARGS = {'ACL': 'public-read'}
 
-REDIS_URL = os.environ.get("REDIS_URL")
+REDIS_URL = os.environ.get("REDIS_TLS_URL")
 url = urlparse(REDIS_URL)
 
 consumer_key = os.environ['TWITTER_CONSUMER_KEY']
