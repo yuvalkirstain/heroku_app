@@ -460,14 +460,14 @@ async def get_images(websocket: WebSocket):
                 logger.info(f"Job {job_id} failed - {job_id} in job_id2images = {job_id in job_id2images}")
                 await websocket.send_json({"status": "failed"})
             else:
-                print(job)
+                # print(job)
                 await websocket.send_json(message)
                 message["images"] = job_id2images[job_id]
                 message["image_uids"] = job.image_uids
                 await websocket.send_json(message)
                 await set_job(job_id, job)
                 await app.cache.set("estimated_running_time", 0.5 * elapsed_time + 0.5 * estimated_time)
-                logger.debug(f"estimated running time {0.5 * elapsed_time + 0.5 * estimated_time:.2f}")
+                # logger.debug(f"estimated running time {0.5 * elapsed_time + 0.5 * estimated_time:.2f}")
                 finished_job_id2uids[job.job_id] = job.image_uids
     await websocket.close()
 

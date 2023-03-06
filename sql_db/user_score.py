@@ -43,7 +43,7 @@ def increment_user_score(user_id: int):
     else:
         cursor.execute("UPDATE user_score SET score = score + 1 WHERE user_id = %s", (user_id,))
         conn.commit()
-        logger.info(f"User {user_id} score incremented.")
+        # logger.info(f"User {user_id} score incremented.")
     cursor.close()
     conn.close()
 
