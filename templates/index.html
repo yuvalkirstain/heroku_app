@@ -276,7 +276,7 @@
         "busty", "boobs", "gay", "shirtless", "nude", "revealing", "naked", "breasts", "amouranth",
         "nigger", "sussy", "tits", "lingerie", "sex", "bikini", "putin", "nazi", "underwear", "stomach", "Xi Jinping",
         "thong", "fuck", "lola myluv", "elsa jean", "porn", "courtesan", "b00bs", "undressed", "anal", "blowjo", "p0rn",
-        "sxy", "blowjo", "cumshot", "vagina", "horny", "anal", " ass", "pussy", "onlyfans", "((", '))'
+        "sxy", "blowjo", "cumshot", "vagina", "horny", "anal", " ass", "pussy", "onlyfans", "(", ")"
     ];
 
     document.getElementById("user-score").innerHTML = userScore + "&nbsp;";
@@ -684,7 +684,7 @@
         }
         for (let i = 0; i < nsfwWords.length; i++) {
             if (promptInput.value.toLowerCase().includes(nsfwWords[i])) {
-                alert("We detected an NSFW word or an illegal token (e.g. '(('). Please enter a valid prompt.");
+                alert("We detected an NSFW word or an illegal token (e.g. '('). Please enter a valid prompt.");
                 {#const a = document.createElement('a');#}
                 {#a.href = "/logout"#}
                 {#document.body.appendChild(a);#}
