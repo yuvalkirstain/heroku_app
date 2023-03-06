@@ -5,6 +5,7 @@ import json
 import os
 import re
 import time
+import traceback
 import uuid
 from io import BytesIO
 from typing import List, Union, Tuple, Optional
@@ -457,23 +458,30 @@ async def get_images(websocket: WebSocket):
             progress_text += f" {round(elapsed_time, 1)}/{round(reported_estimated_time, 1)}s"
             job.progress = int(elapsed_time * 100 / reported_estimated_time) % 101
             message = {"status": job.status, "progress": job.progress, "progress_text": progress_text}
-            if job.status in ["running", "queued"]:
-                await websocket.send_json(message)
-                await asyncio.sleep(0.5)
-            elif job.status == "failed" or job_id not in job_id2images:
-                logger.error(f"Job {job} {job_id} failed - {job_id} in job_id2images = {job_id in job_id2images}")
-                await websocket.send_json({"status": "failed"})
+            try:
+                if job.status in ["running", "queued"]:
+                    await websocket.send_json(message)
+                    await asyncio.sleep(0.5)
+                elif job.status == "failed" or job_id not in job_id2images:
+                    logger.error(f"Job {job} {job_id} failed - {job_id} in job_id2images = {job_id in job_id2images}")
+                    await websocket.send_json({"status": "failed"})
+                    finished_job_id2uids[job.job_id] = job.image_uids
+                else:
+                    # print(job)
+                    await websocket.send_json(message)
+                    message["images"] = job_id2images[job_id]
+                    message["image_uids"] = job.image_uids
+                    await websocket.send_json(message)
+                    await set_job(job_id, job)
+                    await app.cache.set("estimated_running_time", 0.5 * elapsed_time + 0.5 * estimated_time)
+                    # logger.debug(f"estimated running time {0.5 * elapsed_time + 0.5 * estimated_time:.2f}")
+                    finished_job_id2uids[job.job_id] = job.image_uids
+            except:
+                logger.error(f"Failed to send message {message}")
+                logger.error(traceback.format_exc())
                 finished_job_id2uids[job.job_id] = job.image_uids
-            else:
-                # print(job)
-                await websocket.send_json(message)
-                message["images"] = job_id2images[job_id]
-                message["image_uids"] = job.image_uids
-                await websocket.send_json(message)
-                await set_job(job_id, job)
-                await app.cache.set("estimated_running_time", 0.5 * elapsed_time + 0.5 * estimated_time)
-                # logger.debug(f"estimated running time {0.5 * elapsed_time + 0.5 * estimated_time:.2f}")
-                finished_job_id2uids[job.job_id] = job.image_uids
+                break
+
     await websocket.close()
 
 
