@@ -91,7 +91,7 @@ job_id2images = {}
 job_id2images_data = {}
 finished_job_id2uids = {}
 scheduler = BackgroundScheduler()
-BLOCKED_IDS = [280, 331, 437, 641, 718, 729, 783, 984, 1023, 1040, 1149, 1187, 1177, 1202, 1203, 1220, 1230, 1227, 1279]
+BLOCKED_IDS = [280, 331, 437, 641, 718, 729, 783, 984, 1023, 1040, 1149, 1187, 1177, 1202, 1203, 1220, 1230, 1227, 1279, 1473]
 BLOCKED_IPS = []
 
 class UpdateImageRequest(BaseModel):
@@ -445,6 +445,9 @@ async def get_images(websocket: WebSocket):
             progress_text = f"Generating |"
             if job.status == "queued":
                 queue = await app.cache.get("queue")
+                if job_id not in queue:
+                    logger.warning(f"job {job} job_id {job_id} not in queue {queue}")
+                    continue
                 queue_idx = queue.index(job_id)
                 queue_real_position = (queue_idx // MAX_SIZE_CONCURRENT) + 1
                 estimated_time = estimated_time * queue_real_position
