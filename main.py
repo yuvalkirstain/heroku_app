@@ -419,9 +419,9 @@ async def handle_images_request(prompt: str, user_id: str):
             return None
         job = Job(prompt=prompt, user_id=user_id)
         await set_job(job.job_id, job)
-        await app.cache.set("qsize", qsize + 1)
         queue = await app.cache.get("queue")
         queue.append(job.job_id)
+        await app.cache.set("qsize", len(queue))
         await app.cache.set("queue", queue)
     return job.job_id
 
@@ -459,6 +459,7 @@ async def get_images(websocket: WebSocket):
             elif job.status == "failed" or job_id not in job_id2images:
                 logger.error(f"Job {job} {job_id} failed - {job_id} in job_id2images = {job_id in job_id2images}")
                 await websocket.send_json({"status": "failed"})
+                finished_job_id2uids[job.job_id] = job.image_uids
             else:
                 # print(job)
                 await websocket.send_json(message)
