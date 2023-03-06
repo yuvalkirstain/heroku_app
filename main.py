@@ -571,7 +571,7 @@ def update_urls():
 
 def clean_jobs():
     num_cleaned = 0
-    job_ids = list(finished_job_id2uids.keys())
+    job_ids = [job_id for job_id in finished_job_id2uids.keys() if job_id in job_id2images]
     time.sleep(5)
     for job_id in job_ids:
         if job_id not in finished_job_id2uids or job_id not in job_id2images:
