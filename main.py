@@ -447,6 +447,7 @@ async def get_images(websocket: WebSocket):
                 queue = await app.cache.get("queue")
                 if job_id not in queue:
                     logger.warning(f"job {job} job_id {job_id} not in queue {queue}")
+                    await asyncio.sleep(1)
                     continue
                 queue_idx = queue.index(job_id)
                 queue_real_position = (queue_idx // MAX_SIZE_CONCURRENT) + 1
