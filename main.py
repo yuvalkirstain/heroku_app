@@ -304,7 +304,7 @@ async def generate_images(prompt, negative_prompt, num_samples, user_id, backend
         num_tries = 0
         while not has_generated:
             try:
-                logger.debug(f"calling {backend_url} with prompt {prompt}")
+                # logger.debug(f"calling {backend_url} with prompt {prompt}")
                 async with session.post(backend_url,
                                         json={
                                             "prompt": prompt,
@@ -389,14 +389,14 @@ async def consumer():
                 await app.cache.set("num_running", num_running)
                 can_go_in = True
             await asyncio.sleep(0.5)
-    logger.debug(f"{num_running=}/{MAX_SIZE_CONCURRENT=}")
+    logger.debug(f"num_running {num_running}/{MAX_SIZE_CONCURRENT}")
     # reduce the size of the queue
     async with RedLock(app.cache, "qsize", 1000):
         queue = await app.cache.get("queue")
         job_id = queue.popleft()
         await app.cache.set("qsize", len(queue))
         await app.cache.set("queue", queue)
-        logger.debug(f"{queue=} {len(queue)=}/{MAX_SIZE_IN_QUEUE=}")
+        logger.debug(f"queue {len(queue)}/{MAX_SIZE_IN_QUEUE}")
 
     # run the job
     job = await get_job(job_id)
@@ -457,7 +457,7 @@ async def get_images(websocket: WebSocket):
                 await websocket.send_json(message)
                 await asyncio.sleep(0.5)
             elif job.status == "failed" or job_id not in job_id2images:
-                logger.info(f"Job {job_id} failed - {job_id} not in job_id2images = {job_id in job_id2images}")
+                logger.info(f"Job {job_id} failed - {job_id} in job_id2images = {job_id in job_id2images}")
                 await websocket.send_json({"status": "failed"})
             else:
                 print(job)
@@ -518,7 +518,7 @@ async def update_clicked_image(data: UpdateImageRequest, background_tasks: Backg
     )
     background_tasks.add_task(add_ranking, ranking_data)
     background_tasks.add_task(increment_user_score, user_id)
-    logger.debug(f"Clicked on {data.image_uid} from {image_uids} with prompt {data.prompt}")
+    # logger.debug(f"Clicked on {data.image_uid} from {image_uids} with prompt {data.prompt}")
     return "success"
 
 
