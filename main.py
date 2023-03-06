@@ -572,8 +572,8 @@ def clean_jobs():
         del job_id2images_data[job_id]
         del finished_job_id2uids[job_id]
         num_cleaned += 1
-    if len(job_ids) > 0:
-        logger.debug(f"Cleaned {num_cleaned}/{len(job_ids)} jobs")
+    if 0 < len(job_ids) != num_cleaned:
+        logger.warning(f"Cleaned {num_cleaned}/{len(job_ids)} jobs")
 
 
 def create_background_tasks():
