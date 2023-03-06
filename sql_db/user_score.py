@@ -46,6 +46,9 @@ def increment_user_score(user_id: int):
         # logger.info(f"User {user_id} score incremented.")
     cursor.close()
     conn.close()
+    user_score = get_user_score(user_id)
+    if user_score > 5000:
+        logger.warning(f"User {user_id} score incremented - {user_score=}.")
 
 
 def get_user_score(user_id: int) -> int:
