@@ -10,7 +10,7 @@ import uuid
 from io import BytesIO
 from typing import List, Union, Tuple, Optional
 from urllib.parse import urlparse
-
+from fastapi_utils.tasks import repeat_every
 import aiohttp
 import boto3
 import requests
@@ -86,8 +86,6 @@ redirect_uri = "https://pickapic.io/discord_auth"
 
 discord_client = DiscordOAuthClient(discord_client_id, discord_client_secret, redirect_uri)
 
-app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname, port=url.port,
-                  password=url.password, timeout=0)
 job_id2images = {}
 job_id2images_data = {}
 finished_job_id2uids = {}
@@ -410,7 +408,7 @@ async def consumer():
     # update num running
     async with RedLock(app.cache, "num_running", 1000):
         num_running = await app.cache.get("num_running")
-        await app.cache.set("num_running", num_running - 1)
+        await app.cache.set("num_running", max(num_running - 1, 0))
 
 
 async def handle_images_request(prompt: str, user_id: str):
@@ -603,7 +601,12 @@ def create_background_tasks():
 
 
 @app.on_event("startup")
+@repeat_every(seconds=60 * 15)
 async def startapp():
+    print("Starting app")
+    app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname,
+                      port=url.port,
+                      password=url.password, timeout=0)
     create_user_table()
     create_image_table()
     create_rankings_table()
