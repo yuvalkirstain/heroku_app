@@ -142,7 +142,8 @@ def is_user_logged(request):
 async def homepage(request: Request):
     user = request.session.get('user')
     ip = request.client.host
-    logger.info(f"IP: {ip} {user=}")
+    # logger.info(f"IP: {ip} {user=}")
+
     if ip in BLOCKED_IPS:
         logger.info(f"Blocking {ip=} {user=}")
         user = None
@@ -152,7 +153,7 @@ async def homepage(request: Request):
         user_id = add_user(user["email"], user["name"])
         start = time.time()
         user_score = get_user_score(user_id)
-        print(f"get_num_rankings_for_user took {time.time() - start:.2f} seconds {user_score=}")
+        print(f"user {user_id} logged in")
         request.session['user_id'] = user_id
     return templates.TemplateResponse("index.html",
                                       {"request": request,
@@ -609,6 +610,10 @@ async def startapp():
     create_downloads_table()
     create_user_score_table()
     create_background_tasks()
+    global job_id2images, job_id2images_data, finished_job_id2uids
+    job_id2images = {}
+    job_id2images_data = {}
+    finished_job_id2uids = {}
     await app.cache.set("backend_url_idx", 0)
     await app.cache.set("num_running", 0)
     await app.cache.set("qsize", 0)
