@@ -438,6 +438,7 @@ async def get_images(websocket: WebSocket):
     else:
         asyncio.create_task(consumer())
         is_finished = False
+        num_queued = 0
         while not is_finished:
             job = await get_job(job_id)
             is_finished = job.status in ["finished", "failed"]
@@ -449,6 +450,10 @@ async def get_images(websocket: WebSocket):
                 if job_id not in queue:
                     logger.warning(f"job {job} job_id {job_id} not in queue {queue}")
                     await asyncio.sleep(1)
+                    num_queued += 1
+                    if num_queued > 5:
+                        job.status = "failed"
+                        await set_job(job_id, job)
                     continue
                 queue_idx = queue.index(job_id)
                 queue_real_position = (queue_idx // MAX_SIZE_CONCURRENT) + 1
