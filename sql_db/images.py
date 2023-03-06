@@ -67,7 +67,7 @@ def add_image(image_data: ImageData):
              image_data.steps, image_data.idx, image_data.num_generated, image_data.scheduler_cls, image_data.model_id))
 
         conn.commit()
-        logger.debug(f"Added image with uid {image_uid}")
+        # logger.debug(f"Added image with uid {image_uid}")
     cursor.close()
     conn.close()
     return
