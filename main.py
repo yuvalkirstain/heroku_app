@@ -392,13 +392,11 @@ async def consumer():
     logger.debug(f"{num_running=}/{MAX_SIZE_CONCURRENT=}")
     # reduce the size of the queue
     async with RedLock(app.cache, "qsize", 1000):
-        qsize = await app.cache.get("qsize")
-        qsize -= 1
-        await app.cache.set("qsize", qsize)
         queue = await app.cache.get("queue")
         job_id = queue.popleft()
+        await app.cache.set("qsize", len(queue))
         await app.cache.set("queue", queue)
-        logger.debug(f"{queue=} {qsize=}/{MAX_SIZE_IN_QUEUE=}")
+        logger.debug(f"{queue=} {len(queue)=}/{MAX_SIZE_IN_QUEUE=}")
 
     # run the job
     job = await get_job(job_id)
