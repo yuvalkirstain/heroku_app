@@ -375,7 +375,7 @@ async def get_stable_images(job):
     else:
         job_id2images[job.job_id], job.image_uids, job_id2images_data[job.job_id] = result
         finished_job_id2uids[job.job_id] = job.image_uids
-        logger.debug(f"Finished: {job.prompt=} | {job.user_id=} | {job.job_id=} | {job.job_id in job_id2images}")
+        logger.debug(f"Finished: {job.prompt=} | {job.user_id=} | {job.job_id=} | {job.job_id in job_id2images} | {os.getpid()=}")
         job.status = "finished"
         await set_job(job.job_id, job)
 
@@ -469,7 +469,7 @@ async def get_images(websocket: WebSocket):
                     await websocket.send_json(message)
                     await asyncio.sleep(0.5)
                 elif job.status == "failed" or job_id not in job_id2images:
-                    logger.error(f"Job {job} {job_id} failed - {job_id} in job_id2images = {job_id in job_id2images}")
+                    logger.error(f"Job {job} {job_id} failed - {job_id} in job_id2images = {job_id in job_id2images} | {os.getpid()=}")
                     await websocket.send_json({"status": "failed"})
                 else:
                     # print(job)
