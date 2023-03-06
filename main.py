@@ -374,6 +374,7 @@ async def get_stable_images(job):
         await set_job(job.job_id, job)
     else:
         job_id2images[job.job_id], job.image_uids, job_id2images_data[job.job_id] = result
+        logger.debug(f"Finished: {job.prompt=} | {job.user_id=} | {job.job_id=} | {job.job_id in job_id2images}")
         job.status = "finished"
         await set_job(job.job_id, job)
 
