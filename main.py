@@ -457,7 +457,7 @@ async def get_images(websocket: WebSocket):
                 await websocket.send_json(message)
                 await asyncio.sleep(0.5)
             elif job.status == "failed" or job_id not in job_id2images:
-                logger.info(f"Job {job_id} failed - {job_id} in job_id2images = {job_id in job_id2images}")
+                logger.error(f"Job {job} {job_id} failed - {job_id} in job_id2images = {job_id in job_id2images}")
                 await websocket.send_json({"status": "failed"})
             else:
                 # print(job)
