@@ -374,6 +374,7 @@ async def get_stable_images(job):
         await set_job(job.job_id, job)
     else:
         job_id2images[job.job_id], job.image_uids, job_id2images_data[job.job_id] = result
+        finished_job_id2uids[job.job_id] = job.image_uids
         logger.debug(f"Finished: {job.prompt=} | {job.user_id=} | {job.job_id=} | {job.job_id in job_id2images}")
         job.status = "finished"
         await set_job(job.job_id, job)
@@ -470,7 +471,6 @@ async def get_images(websocket: WebSocket):
                 elif job.status == "failed" or job_id not in job_id2images:
                     logger.error(f"Job {job} {job_id} failed - {job_id} in job_id2images = {job_id in job_id2images}")
                     await websocket.send_json({"status": "failed"})
-                    finished_job_id2uids[job.job_id] = job.image_uids
                 else:
                     # print(job)
                     await websocket.send_json(message)
@@ -480,11 +480,9 @@ async def get_images(websocket: WebSocket):
                     await set_job(job_id, job)
                     await app.cache.set("estimated_running_time", 0.5 * elapsed_time + 0.5 * estimated_time)
                     # logger.debug(f"estimated running time {0.5 * elapsed_time + 0.5 * estimated_time:.2f}")
-                    finished_job_id2uids[job.job_id] = job.image_uids
             except:
                 logger.error(f"Failed to send message {message}")
                 logger.error(traceback.format_exc())
-                finished_job_id2uids[job.job_id] = job.image_uids
                 break
 
     await websocket.close()
@@ -572,7 +570,7 @@ def update_urls():
 def clean_jobs():
     num_cleaned = 0
     job_ids = [job_id for job_id in finished_job_id2uids.keys() if job_id in job_id2images]
-    time.sleep(5)
+    time.sleep(60)
     for job_id in job_ids:
         if job_id not in finished_job_id2uids or job_id not in job_id2images:
             continue
