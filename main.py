@@ -94,6 +94,7 @@ BLOCKED_IDS = [280, 331, 437, 641, 718, 729, 783, 984, 1023, 1040, 1149, 1187, 1
                1801, 1917, 2071, 2481, 2513, 2515, 1758, 2638]
 BLOCKED_IPS = []
 
+
 class UpdateImageRequest(BaseModel):
     image_uid: str
     prompt: str
@@ -360,7 +361,8 @@ async def create_images(prompt, user_id):
         else:
             response_json[key] = response_json1[key]
     user_score = get_user_score(user_id)
-    logger.info(f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=} | {os.getpid()=} | {user_score=}")
+    logger.info(
+        f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=} | {os.getpid()=} | {user_score=}")
     images = response_json.pop("images")
     image_uids = [str(uuid.uuid4()) for _ in range(len(images))]
     image_data = extract_image_data(response_json, image_uids)
@@ -473,7 +475,8 @@ async def get_images(websocket: WebSocket):
                     await websocket.send_json(message)
                     await asyncio.sleep(0.5)
                 elif job.status == "failed" or job_id not in job_id2images:
-                    logger.error(f"Job {job} {job_id} failed - {job_id} in job_id2images = {job_id in job_id2images} | {os.getpid()=}")
+                    logger.error(
+                        f"Job {job} {job_id} failed - {job_id} in job_id2images = {job_id in job_id2images} | {os.getpid()=}")
                     await websocket.send_json({"status": "failed"})
                 else:
                     # print(job)
@@ -578,13 +581,17 @@ def clean_jobs():
     for job_id in job_ids:
         if job_id not in finished_job_id2uids or job_id not in job_id2images:
             logger.warning(
-                f"Cleaning: in finished_job_id2uids={job_id not in finished_job_id2uids} or in job_id2images={job_id not in job_id2images} for {job_id}")
+                f"Cleaning 1: in finished_job_id2uids={job_id not in finished_job_id2uids} or in job_id2images={job_id not in job_id2images} for {job_id}")
             continue
         uids = finished_job_id2uids[job_id]
         user_id = job_id2images_data[job_id][0].user_id
         images = job_id2images[job_id]
         if user_id is not None:
             upload_images(images, uids)
+        if job_id not in finished_job_id2uids or job_id not in job_id2images:
+            logger.warning(
+                f"Cleaning 2: in finished_job_id2uids={job_id not in finished_job_id2uids} or in job_id2images={job_id not in job_id2images} for {job_id}")
+            continue
         del job_id2images[job_id]
         if user_id is not None:
             for image_data in job_id2images_data[job_id]:
