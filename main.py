@@ -577,15 +577,14 @@ def clean_jobs():
     time.sleep(60)
     for job_id in job_ids:
         if job_id not in finished_job_id2uids or job_id not in job_id2images:
+            logger.warning(
+                f"Cleaning: in finished_job_id2uids={job_id not in finished_job_id2uids} or in job_id2images={job_id not in job_id2images} for {job_id}")
             continue
         uids = finished_job_id2uids[job_id]
         user_id = job_id2images_data[job_id][0].user_id
         images = job_id2images[job_id]
         if user_id is not None:
             upload_images(images, uids)
-        if job_id not in finished_job_id2uids or job_id not in job_id2images:
-            logger.warning(f"Cleaning: in finished_job_id2uids={job_id not in finished_job_id2uids} or in job_id2images={job_id not in job_id2images} for {job_id}")
-            continue
         del job_id2images[job_id]
         if user_id is not None:
             for image_data in job_id2images_data[job_id]:
