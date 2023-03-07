@@ -179,10 +179,10 @@
         <button id="reset" onclick="clearDemo()"
                 style="padding: 0; margin-bottom: 1vmin; margin-right: 1vmin; background-color: transparent; color: white"
                 title="Try a different prompt">Clear
-{#            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill"#}
-{#                 viewBox="0 0 16 16">#}
-{#                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>#}
-{#            </svg>#}
+            {#            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill"#}
+            {#                 viewBox="0 0 16 16">#}
+            {#                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>#}
+            {#            </svg>#}
 
         </button>
         <input type="text" id="prompt" placeholder=" An image of...">
@@ -223,8 +223,9 @@
 <div class="splash-screen" id="user-limit" style="display: none">
     <div class="splash-screen-inner" id="error">
         <h1>Pick a Pic</h1>
-        <p> Between 6-12 of March, we will limit the number of generations per user to 1000. Afterwards, we will remove the limit per user. For any questions, please contact us at <a
-                href=":mailto:pickapic.io@gmail.com" target="_blank">mail</a>.</p>
+        <p> Between 6-12 of March, we will limit the number of generations per user to 1000. Afterwards, we will remove
+            the limit per user. For any questions, please contact us at <a
+                    href=":mailto:pickapic.io@gmail.com" target="_blank">mail</a>.</p>
     </div>
 </div>
 
@@ -284,7 +285,9 @@
         "busty", "boobs", "gay", "shirtless", "nude", "revealing", "naked", "breasts", "amouranth",
         "nigger", "sussy", "tits", "lingerie", "sex", "bikini", "putin", "nazi", "underwear", "stomach", "Xi Jinping",
         "thong", "fuck", "lola myluv", "elsa jean", "porn", "courtesan", "b00bs", "undressed", "anal", "blowjo", "p0rn",
-        "sxy", "blowjo", "cumshot", "vagina", "horny", "anal", " ass", "pussy", "onlyfans", "(", ")", "--", "crotch", "gagg", "nudist", "lecherous", "voluptuous", "buxom", "lustful", "genitals", "nymph", "camgirl", "exposed", "babe"
+        "sxy", "blowjo", "cumshot", "vagina", "horny", "anal", " ass", "pussy", "onlyfans", "(", ")", "--", "crotch",
+        "gagg", "nudist", "lecherous", "voluptuous", "buxom", "lustful", "genitals", "nymph", "camgirl", "exposed",
+        "babe", "{", "}"
     ];
 
     document.getElementById("user-score").innerHTML = userScore + "&nbsp;";
@@ -704,7 +707,7 @@
             splashScreen.style.display = 'block';
             document.getElementById("user-limit").style.display = 'block';
             return;
-         }
+        }
 
         hasGenerated = true;
 
