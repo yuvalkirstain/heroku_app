@@ -376,8 +376,9 @@ async def get_stable_images(job):
     else:
         job_id2images[job.job_id], job.image_uids, job_id2images_data[job.job_id] = result
         finished_job_id2uids[job.job_id] = job.image_uids
+        user_score = get_user_score(job.user_id)
         logger.debug(
-            f"Finished: {job.prompt=} | {job.user_id=} | {job.job_id=} | {job.job_id in job_id2images} | {os.getpid()=}")
+            f"Finished: {job.prompt=} | {job.user_id=} | {job.job_id=} | {job.job_id in job_id2images} | {os.getpid()=} | {user_score=}")
         job.status = "finished"
         await set_job(job.job_id, job)
 
