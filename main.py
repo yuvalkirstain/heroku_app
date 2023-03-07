@@ -584,7 +584,7 @@ def clean_jobs():
         if user_id is not None:
             upload_images(images, uids)
         if job_id not in finished_job_id2uids or job_id not in job_id2images:
-            logger.warning(f"Cleaning: {job_id not in finished_job_id2uids=} or {job_id not in job_id2images=} for {job_id}")
+            logger.warning(f"Cleaning: in finished_job_id2uids={job_id not in finished_job_id2uids} or in job_id2images={job_id not in job_id2images} for {job_id}")
             continue
         del job_id2images[job_id]
         if user_id is not None:
