@@ -399,19 +399,24 @@ async def consumer():
             await asyncio.sleep(0.5)
     logger.debug(f"num_running {num_running}/{MAX_SIZE_CONCURRENT}")
     # reduce the size of the queue
+    should_run = True
     async with RedLock(app.cache, "qsize", 1000):
         queue = await app.cache.get("queue")
-        job_id = queue.popleft()
+        if len(queue) == 0:
+            should_run = False
+        else:
+            job_id = queue.popleft()
         await app.cache.set("qsize", len(queue))
         await app.cache.set("queue", queue)
         logger.debug(f"queue {len(queue)}/{MAX_SIZE_IN_QUEUE}")
 
     # run the job
-    job = await get_job(job_id)
-    job.start_time = time.time()
-    await set_job(job_id, job)
-    # await get_random_images(job)
-    await get_stable_images(job)
+    if should_run:
+        job = await get_job(job_id)
+        job.start_time = time.time()
+        await set_job(job_id, job)
+        # await get_random_images(job)
+        await get_stable_images(job)
 
     # update num running
     async with RedLock(app.cache, "num_running", 1000):
@@ -443,6 +448,7 @@ async def get_images(websocket: WebSocket):
     if job_id is None or user_id in BLOCKED_IDS:
         await websocket.send_json({"status": "error"})
     else:
+        asyncio.create_task(consumer())
         asyncio.create_task(consumer())
         is_finished = False
         num_queued = 0
