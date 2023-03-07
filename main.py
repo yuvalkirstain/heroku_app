@@ -605,11 +605,11 @@ def create_background_tasks():
 @repeat_every(seconds=60 * 15)
 async def startapp():
     print("Starting app")
+    app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname,
+                      port=url.port,
+                      password=url.password, timeout=0)
     async with RedLock(app.cache, "qsize", 1000):
         async with RedLock(app.cache, "num_running", 1000):
-            app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname,
-                              port=url.port,
-                              password=url.password, timeout=0)
             create_user_table()
             create_image_table()
             create_rankings_table()
