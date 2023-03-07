@@ -594,6 +594,8 @@ def clean_jobs():
         num_cleaned += 1
     if 0 < len(job_ids) != num_cleaned:
         logger.warning(f"Cleaned {num_cleaned}/{len(job_ids)} jobs")
+    else:
+        logger.debug(f"Cleaned {num_cleaned}/{len(job_ids)} jobs")
 
 
 def create_background_tasks():
