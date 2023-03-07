@@ -90,7 +90,8 @@ job_id2images = {}
 job_id2images_data = {}
 finished_job_id2uids = {}
 scheduler = BackgroundScheduler()
-BLOCKED_IDS = [280, 331, 437, 641, 718, 729, 783, 984, 1023, 1040, 1149, 1187, 1177, 1202, 1203, 1220, 1230, 1227, 1279, 1801, 1917, 2071]
+BLOCKED_IDS = [280, 331, 437, 641, 718, 729, 783, 984, 1023, 1040, 1149, 1187, 1177, 1202, 1203, 1220, 1230, 1227, 1279,
+               1801, 1917, 2071]
 BLOCKED_IPS = []
 
 class UpdateImageRequest(BaseModel):
@@ -375,7 +376,8 @@ async def get_stable_images(job):
     else:
         job_id2images[job.job_id], job.image_uids, job_id2images_data[job.job_id] = result
         finished_job_id2uids[job.job_id] = job.image_uids
-        logger.debug(f"Finished: {job.prompt=} | {job.user_id=} | {job.job_id=} | {job.job_id in job_id2images} | {os.getpid()=}")
+        logger.debug(
+            f"Finished: {job.prompt=} | {job.user_id=} | {job.job_id=} | {job.job_id in job_id2images} | {os.getpid()=}")
         job.status = "finished"
         await set_job(job.job_id, job)
 
@@ -603,24 +605,26 @@ def create_background_tasks():
 @repeat_every(seconds=60 * 15)
 async def startapp():
     print("Starting app")
-    app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname,
-                      port=url.port,
-                      password=url.password, timeout=0)
-    create_user_table()
-    create_image_table()
-    create_rankings_table()
-    create_downloads_table()
-    create_user_score_table()
-    create_background_tasks()
-    global job_id2images, job_id2images_data, finished_job_id2uids
-    job_id2images = {}
-    job_id2images_data = {}
-    finished_job_id2uids = {}
-    await app.cache.set("backend_url_idx", 0)
-    await app.cache.set("num_running", 0)
-    await app.cache.set("qsize", 0)
-    await app.cache.set("queue", collections.deque())
-    await app.cache.set("estimated_running_time", 30)
+    async with RedLock(app.cache, "qsize", 1000):
+        async with RedLock(app.cache, "num_running", 1000):
+            app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname,
+                              port=url.port,
+                              password=url.password, timeout=0)
+            create_user_table()
+            create_image_table()
+            create_rankings_table()
+            create_downloads_table()
+            create_user_score_table()
+            create_background_tasks()
+            global job_id2images, job_id2images_data, finished_job_id2uids
+            job_id2images = {}
+            job_id2images_data = {}
+            finished_job_id2uids = {}
+            await app.cache.set("backend_url_idx", 0)
+            await app.cache.set("num_running", 0)
+            await app.cache.set("qsize", 0)
+            await app.cache.set("queue", collections.deque())
+            await app.cache.set("estimated_running_time", 30)
 
 
 @app.get('/metrics')
