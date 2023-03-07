@@ -601,7 +601,7 @@ def clean_jobs():
 def create_background_tasks():
     scheduler = BackgroundScheduler({'apscheduler.job_defaults.max_instances': 2})
     scheduler.add_job(func=update_urls, trigger="interval", seconds=180)
-    scheduler.add_job(func=clean_jobs, trigger="interval", seconds=60)
+    scheduler.add_job(func=clean_jobs, trigger="interval", seconds=120)
     scheduler.start()
 
 
