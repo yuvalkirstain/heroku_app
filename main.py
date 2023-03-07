@@ -245,7 +245,8 @@ def upload_images(images, image_uids):
                               BUCKET_NAME,
                               path,
                               ExtraArgs=S3_EXTRA_ARGS)
-        os.remove(path)
+        if os.path.exists(path):
+            os.remove(path)
 
 
 def extract_image_data(response_json, image_uids):
@@ -522,7 +523,9 @@ Generate cool images for free and contribute to open science!"""
     logger.debug(f"TWEET - before tweeting {tweet_text=}")
     status = twitter_api.update_status_with_media(tweet_text, f"images/{image_uid}.png")
     logger.debug(f"TWEET - after tweeting")
-    os.remove(f"images/{image_uid}.png")
+    image_path = f"images/{image_uid}.png"
+    if os.path.exists(image_path):
+        os.remove(image_path)
     tweet_text = f"{status.text}\n %23PickaPic\n %40PickaPicTweet"
     tweet_text = tweet_text.replace(' ', '+').replace('\n', '%0A')
     logger.debug(f"TWEET - returning text - {tweet_text=}")
