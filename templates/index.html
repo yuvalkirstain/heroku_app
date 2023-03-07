@@ -220,13 +220,13 @@
     </div>
 </div>
 
-{#<div class="splash-screen" id="user-limit" style="display: none">#}
-{#    <div class="splash-screen-inner" id="error">#}
-{#        <h1>Pick a Pic</h1>#}
-{#        <p> Between 6-12 of March, we will limit the number of generations per user to 500. Afterwards, we will remove the limit per user. For any questions, please contact us at <a#}
-{#                href=":mailto:pickapic.io@gmail.com" target="_blank">mail</a>.</p>#}
-{#    </div>#}
-{#</div>#}
+<div class="splash-screen" id="user-limit" style="display: none">
+    <div class="splash-screen-inner" id="error">
+        <h1>Pick a Pic</h1>
+        <p> Between 6-12 of March, we will limit the number of generations per user to 1000. Afterwards, we will remove the limit per user. For any questions, please contact us at <a
+                href=":mailto:pickapic.io@gmail.com" target="_blank">mail</a>.</p>
+    </div>
+</div>
 
 <div class="splash-screen" id="failed-screen" style="display: none">
     <div class="splash-screen-inner" id="error">
@@ -700,11 +700,11 @@
                 return;
             }
         }
-        {#if (userScore > 500) {#}
-        {#    splashScreen.style.display = 'block';#}
-        {#    document.getElementById("user-limit").style.display = 'block';#}
-        {#    return;#}
-        {# }#}
+        if (userScore > 1000) {
+            splashScreen.style.display = 'block';
+            document.getElementById("user-limit").style.display = 'block';
+            return;
+         }
 
         hasGenerated = true;
 
