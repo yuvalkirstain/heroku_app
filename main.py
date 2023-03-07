@@ -359,7 +359,8 @@ async def create_images(prompt, user_id):
             response_json[key] = response_json1[key] + response_json2[key]
         else:
             response_json[key] = response_json1[key]
-    logger.info(f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=} | {os.getpid()=}")
+    user_score = get_user_score(user_id)
+    logger.info(f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=} | {os.getpid()=} | {user_score=}")
     images = response_json.pop("images")
     image_uids = [str(uuid.uuid4()) for _ in range(len(images))]
     image_data = extract_image_data(response_json, image_uids)
@@ -376,9 +377,9 @@ async def get_stable_images(job):
     else:
         job_id2images[job.job_id], job.image_uids, job_id2images_data[job.job_id] = result
         finished_job_id2uids[job.job_id] = job.image_uids
-        user_score = get_user_score(job.user_id)
-        logger.debug(
-            f"Finished: {job.prompt=} | {job.user_id=} | {job.job_id=} | {job.job_id in job_id2images} | {os.getpid()=} | {user_score=}")
+        # user_score = get_user_score(job.user_id)
+        # logger.debug(
+        #     f"Finished: {job.prompt=} | {job.user_id=} | {job.job_id=} | {job.job_id in job_id2images} | {os.getpid()=} | {user_score=}")
         job.status = "finished"
         await set_job(job.job_id, job)
 
