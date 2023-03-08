@@ -241,10 +241,14 @@ def upload_images(images, image_uids):
         os.makedirs(image_dir, exist_ok=True)
         path = f"{image_dir}/{image_uid}.png"
         pil_image.save(path)
-        s3_client.upload_file(path,
-                              BUCKET_NAME,
-                              path,
-                              ExtraArgs=S3_EXTRA_ARGS)
+        try:
+            s3_client.upload_file(path,
+                                  BUCKET_NAME,
+                                  path,
+                                  ExtraArgs=S3_EXTRA_ARGS)
+        except Exception as e:
+            logger.error(f"Couldn't upload image {image_uid} - path exists={os.path.exists(path)} - {e}")
+            logger.error(traceback.format_exc())
         if os.path.exists(path):
             os.remove(path)
 
