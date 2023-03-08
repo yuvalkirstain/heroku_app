@@ -261,16 +261,16 @@ def extract_image_data(response_json, image_uids):
         image_data.append(
             ImageData(
                 image_uid=image_uids[i],
-                user_id=response_json["user_id"],
+                user_id=response_json["user_id"][i],
                 prompt=response_json["prompt"][i],
                 negative_prompt=response_json["negative_prompt"][i],
-                seed=response_json["seed"],
+                seed=response_json["seed"][i],
                 gs=response_json["gs"][i],
-                steps=response_json["steps"],
+                steps=response_json["steps"][i],
                 idx=response_json["idx"][i],
-                num_generated=response_json["num_generated"],
-                scheduler_cls=response_json["scheduler_cls"],
-                model_id=response_json["model_id"]
+                num_generated=response_json["num_generated"][i],
+                scheduler_cls=response_json["scheduler_cls"][i],
+                model_id=response_json["model_id"][i]
             )
         )
     return image_data
@@ -346,7 +346,7 @@ async def create_images(prompt, user_id):
         prompt=prompt,
         negative_prompt=negative_prompt,
         user_id=user_id,
-        num_samples=num_samples / 2,
+        num_samples=num_samples // 2,
         backend_url=backend_url1
     ))
     backend_url2 = await get_verified_backend_url(prompt)
@@ -354,19 +354,19 @@ async def create_images(prompt, user_id):
         prompt=prompt,
         negative_prompt=negative_prompt,
         user_id=user_id,
-        num_samples=num_samples / 2,
+        num_samples=num_samples // 2,
         backend_url=backend_url2
     ))
     await task1
     await task2
     response_json1 = task1.result()
     response_json2 = task2.result()
-    response_json = {}
+    response_json = collections.defaultdict(list)
     for key in response_json1:
         if isinstance(response_json1[key], list):
             response_json[key] = response_json1[key] + response_json2[key]
         else:
-            response_json[key] = response_json1[key]
+            response_json[key] = [response_json1[key]] * (num_samples // 2) + [response_json2[key]] * (num_samples // 2)
     user_score = get_user_score(user_id)
     logger.info(
         f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=} | {os.getpid()=} | {user_score=} | {backend_url1=} | {backend_url2=}")
