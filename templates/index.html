@@ -712,7 +712,6 @@
         hasGenerated = true;
 
         if (cachedImages.length > 0 && promptInput.value === formerPromptInput) {
-            console.log("bla bla bla");
             let clickedImage = document.querySelector('.clicked');
 
             // Replace the images that was not clicked with a cached image
@@ -751,7 +750,6 @@
 
             ws.onopen = function () {
                 let msg = JSON.stringify({prompt: promptInput.value, user_id: userId});
-                console.log("Sending job with " + msg);
                 ws.send(msg);
             };
         }
@@ -848,9 +846,7 @@
             response.json().then(data => {
                 const tweetText = data.tweet_text;
                 const a = document.createElement('a');
-                console.log("tweetText = " + tweetText);
                 a.href = "https://twitter.com/intent/tweet?url=" + tweetText;
-                console.log("a.href = " + a.href);
                 a.target = "_blank";
                 document.body.appendChild(a);
                 a.click();
