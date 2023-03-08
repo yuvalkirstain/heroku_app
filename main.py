@@ -242,13 +242,15 @@ def upload_images(images, image_uids):
         path = f"{image_dir}/{image_uid}.png"
         pil_image.save(path)
         try:
-            s3_client.upload_file(path,
-                                  BUCKET_NAME,
-                                  path,
-                                  ExtraArgs=S3_EXTRA_ARGS)
+            if os.path.exists(path):
+                s3_client.upload_file(path,
+                                      BUCKET_NAME,
+                                      path,
+                                      ExtraArgs=S3_EXTRA_ARGS)
+            else:
+                logger.warning(f"Couldn't upload image {image_uid} - path exists={os.path.exists(path)}")
         except Exception as e:
             logger.error(f"Couldn't upload image {image_uid} - path exists={os.path.exists(path)} - {e}")
-            logger.error(traceback.format_exc())
         if os.path.exists(path):
             os.remove(path)
 
@@ -337,7 +339,7 @@ async def create_images(prompt, user_id):
 
     start = time.time()
 
-    logger.info(f"Starting: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=}")
+    # logger.info(f"Starting: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=}")
     num_samples = 4
     backend_url1 = await get_verified_backend_url(prompt)
     task1 = asyncio.create_task(generate_images(
@@ -367,7 +369,7 @@ async def create_images(prompt, user_id):
             response_json[key] = response_json1[key]
     user_score = get_user_score(user_id)
     logger.info(
-        f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=} | {os.getpid()=} | {user_score=}")
+        f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=} | {os.getpid()=} | {user_score=} | {backend_url1=} | {backend_url2=}")
     images = response_json.pop("images")
     image_uids = [str(uuid.uuid4()) for _ in range(len(images))]
     image_data = extract_image_data(response_json, image_uids)
