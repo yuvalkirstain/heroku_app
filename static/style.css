@@ -184,7 +184,7 @@ button:hover:not(.top-button) {
     top: 0;
     width: min(95vmin, 740px);
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.95); /* set an almost solid black background */
+    background-color: rgba(0, 0, 0, 0.9); /* set an almost solid black background */
     z-index: 999; /* set the z-index to ensure the splash screen is on top of other elements */
     display: flex; /* make the splash screen a flex container */
     align-items: center; /* center the splash screen vertically */
