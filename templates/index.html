@@ -282,8 +282,9 @@
     const introDriver = introJs();
     const blockedIds = [
         280, 331, 437, 641, 718, 729, 783, 984, 1023, 1040, 1059, 1149, 1187, 1177, 1202, 1203, 1220,
-        1230, 1227, 1279, 1405, 1460, 1623, 1627, 1758, 1801, 1907, 1917, 1922, 2071, 2215, 2239, 2286, 2322, 2357, 2452, 2459,
-        2481, 2513, 2515, 2520, 2545, 2596, 2603, 2617, 2638, 2709, 2783, 2842, 2266, 2899
+        1230, 1227, 1279, 1405, 1460, 1585, 1623, 1627, 1758, 1801, 1907, 1917, 1922, 1923, 2071, 2215, 2239, 2286,
+        2322, 2357, 2452, 2459, 2481, 2513, 2515, 2520, 2545, 2596, 2603, 2617, 2638, 2667, 2709, 2771, 2783, 2842,
+        2266, 2899, 2905,
     ];
     const nsfwWords = ["seductive", "sexy", "nude", "naked", "nudity", "nakedness", "nakedly", "nakedness",
         "busty", "boobs", "gay", "shirtless", "nude", "revealing", "naked", "breasts", "amouranth",
@@ -296,7 +297,7 @@
         "nudist", "scantily clad", "salacious", "minimal clothes", "see through", "bulge", "onahole",
         "loincloth", "man posing", "jockstrap",  "hot", "bra ", "shower", "femdom", "harvey weinstein",
         "emma watson", "curvaceous", "sensuous", "chest", "no clothes", "scantily", "undies", "bulging", "swimsuit",
-        "belly", "sweatpants"
+        "belly", "sweatpants", "suntanning", "naughty", "jada stevens", "strip", "cleavage"
     ];
 
     document.getElementById("user-score").innerHTML = userScore + "&nbsp;";
@@ -704,7 +705,7 @@
         }
         for (let i = 0; i < nsfwWords.length; i++) {
             if (promptInput.value.toLowerCase().includes(nsfwWords[i])) {
-                alert("We detected an NSFW word or an illegal token (e.g. '(' or '--'). Please enter a valid prompt.");
+                alert("We detected an NSFW word or an illegal token (e.g. '(' or '--'). Please enter a valid prompt. Users that will misuse the system will be banned.");
                 {#const a = document.createElement('a');#}
                 {#a.href = "/logout"#}
                 {#document.body.appendChild(a);#}
