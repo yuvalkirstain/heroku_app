@@ -184,7 +184,7 @@ button:hover:not(.top-button) {
     top: 0;
     width: min(95vmin, 740px);
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); /* set a transparent black background */
+    background-color: rgba(0, 0, 0, 1); /* set a solid black background */
     z-index: 999; /* set the z-index to ensure the splash screen is on top of other elements */
     display: flex; /* make the splash screen a flex container */
     align-items: center; /* center the splash screen vertically */
@@ -194,17 +194,18 @@ button:hover:not(.top-button) {
     letter-spacing: 0.5px;
 }
 
-@media (max-width: 768px) {
+@media (max-height: 768px) {
     .splash-screen {
-        /* Use a smaller font size on smaller screens */
-        font-size: 18px;
+        /* Use a smaller font size and spacing on smaller screens */
+        font-size: 18px;        
+        line-height: 1.2;
     }
 }
 
 .splash-screen-inner {
     border-radius: 10px; /* add rounded corners */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* add a shadow */
-    padding: 4vmin; /* add some padding */
+    padding: 1vmin; /* add some padding */
     margin: 2vmin; /* center the splash screen horizontally and vertically */
 }
 
