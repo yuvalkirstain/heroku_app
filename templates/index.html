@@ -705,7 +705,7 @@
         }
         for (let i = 0; i < nsfwWords.length; i++) {
             if (promptInput.value.toLowerCase().includes(nsfwWords[i])) {
-                alert("We detected an NSFW word or an illegal token (e.g. '(' or '--'). Please enter a valid prompt. Users that will misuse the system will be banned.");
+                alert("We detected an NSFW word or an illegal token (e.g. '(' or '--'). Please enter a valid prompt.");
                 {#const a = document.createElement('a');#}
                 {#a.href = "/logout"#}
                 {#document.body.appendChild(a);#}
