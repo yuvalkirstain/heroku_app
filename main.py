@@ -507,7 +507,8 @@ async def get_images(websocket: WebSocket):
                 logger.error(f"Failed to send message {message}")
                 logger.error(traceback.format_exc())
                 break
-
+    if job_id is not None:
+        await clean_job(job_id)
     await websocket.close()
 
 
