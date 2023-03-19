@@ -3,6 +3,7 @@ import base64
 import collections
 import json
 import os
+import random
 import re
 import time
 import traceback
@@ -75,6 +76,11 @@ consumer_key = os.environ['TWITTER_CONSUMER_KEY']
 consumer_secret_key = os.environ['TWITTER_CONSUMER_SECRET_KEY']
 access_token = os.environ['TWITTER_ACCESS_TOKEN']
 access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
+
+STABILITY_API_KEY = os.environ['STABILITY_API_KEY']
+STABILITY_API_HOST = os.environ['STABILITY_API_HOST']
+STABILITY_ENGINE_ID_1 = "stable-diffusion-xl-v2-2"
+STABILITY_ENGINE_ID_2 = "stable-diffusion-xl-beta-v2-2-2"
 
 twitter_auth = tweepy.OAuthHandler(consumer_key, consumer_secret_key)
 twitter_auth.set_access_token(access_token, access_token_secret)
@@ -311,6 +317,7 @@ def remove_square_brackets(prompt: str) -> Tuple[str, Optional[str]]:
 
 
 async def generate_images(prompt, negative_prompt, num_samples, user_id, backend_url):
+    start_time = time.time()
     async with aiohttp.ClientSession() as session:
         has_generated = False
         num_tries = 0
@@ -332,6 +339,79 @@ async def generate_images(prompt, negative_prompt, num_samples, user_id, backend
                 logger.error(f"Error #{num_tries} creating images for prompt {prompt} with exception {e}")
                 if num_tries > 5:
                     return None
+    logger.info(
+        f"Generated {num_samples} images with {backend_url} for prompt {prompt} in {time.time() - start_time:.2f} seconds")
+    return response_json
+
+
+async def generate_images_via_api(prompt, negative_prompt, num_samples, user_id, engine_id):
+    start_time = time.time()
+    async with aiohttp.ClientSession() as session:
+        has_generated = False
+        num_tries = 0
+        seed = random.randint(0, 2147483647)
+        gs = random.uniform(3, 12)
+        asscore = random.choice([6.0, 6.25, 6.5, 6.75, 7.0])
+        height = 768
+        width = 768
+        n_steps = 25
+        scheduler_cls = "K_DPMPP_2M"
+
+        if "beta" in engine_id:
+            prompt = "$IPCinline:{" + "\"sdxl_ascore\"" + f":[{asscore},2.5]" + "}$ " + prompt
+
+        while not has_generated:
+            try:
+                async with session.post(
+                        f"{STABILITY_API_HOST}/v1beta/generation/{engine_id}/text-to-image",
+                        headers={
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "Authorization": f"Bearer {STABILITY_API_KEY}"
+                        },
+                        json={
+                            "text_prompts": [
+                                {
+                                    "text": prompt,
+                                    "weight": 1.0
+                                },
+                                {
+                                    "text": negative_prompt,
+                                    "weight": -1.0
+                                },
+                            ],
+                            "cfg_scale": gs,
+                            "height": height,
+                            "width": width,
+                            "sampler": scheduler_cls,
+                            "samples": num_samples,
+                            "steps": n_steps,
+                            "seed": seed,
+                        },
+                ) as response:
+                    data = await response.json()
+                    image_bytes = [dp['base64'] for dp in data["artifacts"]]
+                    response_json = {
+                        "user_id": user_id,
+                        "prompt": [prompt] * num_samples,
+                        "negative_prompt": [negative_prompt] * num_samples,
+                        "seed": seed,
+                        "gs": [gs] * num_samples,
+                        "steps": n_steps,
+                        "idx": [i for i in range(num_samples)],
+                        "num_generated": num_samples,
+                        "scheduler_cls": scheduler_cls,
+                        "model_id": engine_id,
+                        "images": image_bytes
+                    }
+                    has_generated = True
+            except Exception as e:
+                await asyncio.sleep(1)
+                num_tries += 1
+                logger.error(f"Error #{num_tries} creating images for prompt {prompt} with exception {e}")
+                if num_tries > 5:
+                    return None
+    logger.info(f"Generated {num_samples} images with {engine_id} for prompt {prompt} in {time.time() - start_time:.2f} seconds")
     return response_json
 
 
@@ -343,40 +423,65 @@ async def create_images(prompt, user_id):
     start = time.time()
 
     # logger.info(f"Starting: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=}")
-    num_samples = 4
+    num_samples_per_call = 2
     backend_url1 = await get_verified_backend_url(prompt)
+    tasks = []
+
     task1 = asyncio.create_task(generate_images(
         prompt=prompt,
         negative_prompt=negative_prompt,
         user_id=user_id,
-        num_samples=num_samples // 2,
+        num_samples=num_samples_per_call,
         backend_url=backend_url1
     ))
-    backend_url2 = await get_verified_backend_url(prompt)
-    task2 = asyncio.create_task(generate_images(
+    tasks.append(task1)
+
+    task2 = asyncio.create_task(generate_images_via_api(
         prompt=prompt,
         negative_prompt=negative_prompt,
         user_id=user_id,
-        num_samples=num_samples // 2,
-        backend_url=backend_url2
+        num_samples=1,
+        engine_id=STABILITY_ENGINE_ID_1
     ))
-    await task1
-    await task2
-    response_json1 = task1.result()
-    response_json2 = task2.result()
-    response_json = collections.defaultdict(list)
-    for key in response_json1:
-        if isinstance(response_json1[key], list):
-            response_json[key] = response_json1[key] + response_json2[key]
-        else:
-            response_json[key] = [response_json1[key]] * (num_samples // 2) + [response_json2[key]] * (num_samples // 2)
+    tasks.append(task2)
+
+    task3 = asyncio.create_task(generate_images_via_api(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        user_id=user_id,
+        num_samples=1,
+        engine_id=STABILITY_ENGINE_ID_2
+    ))
+    tasks.append(task3)
+
+    task4 = asyncio.create_task(generate_images_via_api(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        user_id=user_id,
+        num_samples=1,
+        engine_id=STABILITY_ENGINE_ID_2
+    ))
+    tasks.append(task4)
+
+    for task in tasks:
+        await task
+
+    responses = [task.result() for task in tasks]
+    total_response_json = collections.defaultdict(list)
+    for key in responses[0]:
+        for response in responses:
+            if isinstance(responses[0][key], list):
+                total_response_json[key] += response[key]
+            else:
+                total_response_json[key] += [response[key]] * num_samples_per_call
+
     user_score = get_user_score(user_id)
     logger.info(
-        f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=} | {os.getpid()=} | {user_score=} | {backend_url1=} | {backend_url2=}")
-    images = response_json.pop("images")
+        f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=} | {os.getpid()=} | {user_score=} | {backend_url1=}")
+    images = total_response_json.pop("images")
     image_uids = [str(uuid.uuid4()) for _ in range(len(images))]
-    image_data = extract_image_data(response_json, image_uids)
-    return images[:num_samples], image_uids[:num_samples], image_data[:num_samples]
+    image_data = extract_image_data(total_response_json, image_uids)
+    return images, image_uids, image_data
 
 
 async def get_stable_images(job):
