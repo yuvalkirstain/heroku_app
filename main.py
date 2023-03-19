@@ -353,8 +353,8 @@ async def generate_images_via_api(prompt, negative_prompt, num_samples, user_id,
         seed = random.randint(0, 2147483647)
         gs = random.uniform(3, 12)
         asscore = random.choice([6.0, 6.25, 6.5, 6.75, 7.0])
-        height = 768
-        width = 768
+        height = 512
+        width = 512
         n_steps = 25
         scheduler_cls = "K_DPMPP_2M"
 
