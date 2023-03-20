@@ -676,7 +676,7 @@ async def update_clicked_image(data: UpdateImageRequest, background_tasks: Backg
     )
     background_tasks.add_task(add_ranking, ranking_data)
     background_tasks.add_task(increment_user_score, user_id)
-    # logger.debug(f"Clicked on {data.image_uid} from {image_uids} with prompt {data.prompt}")
+    logger.debug(f"{user_id=} clicked image")
     return "success"
 
 
