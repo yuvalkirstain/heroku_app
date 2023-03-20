@@ -345,7 +345,7 @@ async def generate_images(prompt, negative_prompt, num_samples, user_id, backend
     return response_json
 
 
-async def generate_images_via_api(prompt, negative_prompt, num_samples, user_id, engine_id):
+async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
     start_time = time.time()
     async with aiohttp.ClientSession() as session:
         has_generated = False
@@ -385,25 +385,27 @@ async def generate_images_via_api(prompt, negative_prompt, num_samples, user_id,
                             "height": height,
                             "width": width,
                             "sampler": scheduler_cls,
-                            "samples": num_samples,
+                            "samples": 1,
                             "steps": n_steps,
                             "seed": seed,
                         },
                 ) as response:
                     data = await response.json()
                     image_bytes = [dp['base64'] for dp in data["artifacts"]]
-                    # was_filtered = [dp['was_filtered'] for dp in data["artifacts"]]
+                    was_filtered = any(dp['finishReason'] == "CONTENT_FILTERED" for dp in data["artifacts"])
+                    if was_filtered:
+                        logger.error(f"{user_id=} {prompt=} FILTERED!!!")
                     response_json = {
                         "user_id": user_id,
-                        "prompt": [prompt] * num_samples,
-                        "negative_prompt": [negative_prompt] * num_samples,
+                        "prompt": [prompt],
+                        "negative_prompt": [negative_prompt],
                         "seed": seed,
-                        "gs": [gs] * num_samples,
+                        "gs": [gs],
                         "steps": n_steps,
-                        "idx": [i for i in range(num_samples)],
-                        "num_generated": num_samples,
+                        "idx": [0],
+                        "num_generated": 1,
                         "scheduler_cls": scheduler_cls,
-                        "model_id": engine_id,
+                        "model_id": engine_id if not was_filtered else "CONTENT_FILTERED",
                         "images": image_bytes
                     }
                     has_generated = True
@@ -442,7 +444,6 @@ async def create_images(prompt, user_id):
         prompt=prompt,
         negative_prompt=negative_prompt,
         user_id=user_id,
-        num_samples=1,
         engine_id=STABILITY_ENGINE_ID_1
     ))
     tasks.append(task2)
@@ -451,7 +452,6 @@ async def create_images(prompt, user_id):
         prompt=prompt,
         negative_prompt=negative_prompt,
         user_id=user_id,
-        num_samples=1,
         engine_id=STABILITY_ENGINE_ID_1
     ))
     tasks.append(task3)
@@ -460,7 +460,6 @@ async def create_images(prompt, user_id):
         prompt=prompt,
         negative_prompt=negative_prompt,
         user_id=user_id,
-        num_samples=1,
         engine_id=STABILITY_ENGINE_ID_2
     ))
     tasks.append(task4)
@@ -469,7 +468,6 @@ async def create_images(prompt, user_id):
         prompt=prompt,
         negative_prompt=negative_prompt,
         user_id=user_id,
-        num_samples=1,
         engine_id=STABILITY_ENGINE_ID_2
     ))
     tasks.append(task5)
