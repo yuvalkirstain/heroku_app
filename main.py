@@ -571,7 +571,7 @@ async def get_images(websocket: WebSocket):
     user_id, prompt = json_data["user_id"], json_data["prompt"]
     user_score = get_user_score(user_id)
     job_id = await handle_images_request(prompt, user_id)
-    if job_id is None or user_id in BLOCKED_IDS or user_score > 2500:
+    if job_id is None or user_id in BLOCKED_IDS: # or user_score > 2500:
         await websocket.send_json({"status": "error"})
     else:
         asyncio.create_task(consumer())
