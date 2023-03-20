@@ -338,6 +338,7 @@ async def generate_images(prompt, negative_prompt, num_samples, user_id, backend
                 await asyncio.sleep(1)
                 num_tries += 1
                 logger.error(f"Error #{num_tries} creating images for prompt {prompt} with exception {e}")
+                logger.error(traceback.format_exc())
                 if num_tries > 5:
                     return None
     # logger.info(
