@@ -392,7 +392,7 @@ async def generate_images_via_api(prompt, negative_prompt, num_samples, user_id,
                 ) as response:
                     data = await response.json()
                     image_bytes = [dp['base64'] for dp in data["artifacts"]]
-                    was_filtered = [dp['was_filtered'] for dp in data["artifacts"]]
+                    # was_filtered = [dp['was_filtered'] for dp in data["artifacts"]]
                     response_json = {
                         "user_id": user_id,
                         "prompt": [prompt] * num_samples,
