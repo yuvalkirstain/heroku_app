@@ -99,8 +99,8 @@ scheduler = BackgroundScheduler()
 BLOCKED_IDS = [
     280, 331, 437, 641, 718, 729, 783, 984, 1023, 1040, 1059, 1149, 1187, 1177, 1202, 1203, 1220,
     1230, 1227, 1279, 1405, 1460, 1623, 1627, 1758, 1801, 1907, 1917, 1922, 2071, 2215, 2239, 2286, 2322, 2357, 2452,
-    2459, 2481, 2513, 2515, 2520, 2545, 2596, 2603, 2617, 2638, 2709, 2783, 2842, 2266, 2899, 3084, 3138, 3243, 3264, 3265, 3267, 3251,
-    3292, 3268, 3271, 1961, 3302, 3318, 1689
+    2459, 2481, 2513, 2515, 2520, 2545, 2596, 2603, 2617, 2638, 2709, 2783, 2842, 2266, 2899, 3084, 3138, 3243, 3264,
+    3265, 3267, 3251, 3292, 3268, 3271, 1961, 3302, 3318, 1689
 ]
 BLOCKED_IPS = []
 
@@ -451,7 +451,7 @@ async def create_images(prompt, user_id):
         negative_prompt=negative_prompt,
         user_id=user_id,
         num_samples=1,
-        engine_id=STABILITY_ENGINE_ID_2
+        engine_id=STABILITY_ENGINE_ID_1
     ))
     tasks.append(task3)
 
@@ -463,6 +463,15 @@ async def create_images(prompt, user_id):
         engine_id=STABILITY_ENGINE_ID_2
     ))
     tasks.append(task4)
+
+    task5 = asyncio.create_task(generate_images_via_api(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        user_id=user_id,
+        num_samples=1,
+        engine_id=STABILITY_ENGINE_ID_2
+    ))
+    tasks.append(task5)
 
     for task in tasks:
         await task
