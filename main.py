@@ -419,7 +419,7 @@ async def generate_images_via_api(prompt, negative_prompt, num_samples, user_id,
 async def create_images(prompt, user_id):
     prompt, negative_prompt = remove_square_brackets(prompt)
     if negative_prompt is None:
-        negative_prompt = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
+        negative_prompt = "ugly, deformed, noisy, blurry, distorted, grainy"
 
     start = time.time()
 
