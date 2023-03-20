@@ -100,7 +100,7 @@ BLOCKED_IDS = [
     280, 331, 437, 641, 718, 729, 783, 984, 1023, 1040, 1059, 1149, 1187, 1177, 1202, 1203, 1220,
     1230, 1227, 1279, 1405, 1460, 1623, 1627, 1758, 1801, 1907, 1917, 1922, 2071, 2215, 2239, 2286, 2322, 2357, 2452,
     2459, 2481, 2513, 2515, 2520, 2545, 2596, 2603, 2617, 2638, 2709, 2783, 2842, 2266, 2899, 3084, 3138, 3243, 3264,
-    3265, 3267, 3251, 3292, 3268, 3271, 1961, 3302, 3318, 1689, 3278, 1382
+    3265, 3267, 3251, 3292, 3268, 3271, 1961, 3302, 3318, 1689, 3278, 1382, 3542, 3446
 ]
 BLOCKED_IPS = []
 
@@ -392,6 +392,7 @@ async def generate_images_via_api(prompt, negative_prompt, num_samples, user_id,
                 ) as response:
                     data = await response.json()
                     image_bytes = [dp['base64'] for dp in data["artifacts"]]
+                    was_filtered = [dp['was_filtered'] for dp in data["artifacts"]]
                     response_json = {
                         "user_id": user_id,
                         "prompt": [prompt] * num_samples,
