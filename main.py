@@ -341,8 +341,8 @@ async def generate_images(prompt, negative_prompt, num_samples, user_id, backend
                 logger.error(traceback.format_exc())
                 if num_tries > 5:
                     return None
-    # logger.info(
-    #     f"Generated {num_samples} images with {backend_url} for prompt {prompt} in {time.time() - start_time:.2f} seconds")
+    logger.info(
+        f"Generated {num_samples} images with {backend_url} for prompt {prompt} in {time.time() - start_time:.2f} seconds")
     return response_json
 
 
@@ -416,7 +416,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
                 logger.error(f"Error #{num_tries} creating images for prompt {prompt} with exception {e}")
                 if num_tries > 5:
                     return None
-    # logger.info(f"Generated {num_samples} images with {engine_id} for prompt {prompt} in {time.time() - start_time:.2f} seconds")
+    logger.info(f"Generated 1 images with {engine_id} for prompt {prompt} in {time.time() - start_time:.2f} seconds")
     return response_json
 
 
