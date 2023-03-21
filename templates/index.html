@@ -743,11 +743,11 @@
                 return;
             }
         }
-        {#if (userScore > 2000) {#}
-        {#    splashScreen.style.display = 'block';#}
-        {#    document.getElementById("user-limit").style.display = 'block';#}
-        {#    return;#}
-        {# }#}
+        if (userScore > 3000) {
+            splashScreen.style.display = 'block';
+            document.getElementById("user-limit").style.display = 'block';
+            return;
+         }
 
         hasGenerated = true;
 
