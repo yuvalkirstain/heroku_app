@@ -153,7 +153,6 @@ def is_user_logged(request):
 async def homepage(request: Request):
     user = request.session.get('user')
     ip = request.client.host
-    # logger.info(f"IP: {ip} {user=}")
 
     if ip in BLOCKED_IPS:
         logger.info(f"Blocking {ip=} {user=}")
@@ -162,6 +161,9 @@ async def homepage(request: Request):
     user_score = 0
     if user:
         user_id = add_user(user["email"], user["name"])
+        if user_id in BLOCKED_IDS:
+            logger.info(f"IP of blocked user {user_id}: {ip=} {user=}")
+
         start = time.time()
         user_score = get_user_score(user_id)
         print(f"user {user_id} logged in")
