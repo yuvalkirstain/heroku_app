@@ -666,7 +666,9 @@ async def update_clicked_image(data: UpdateImageRequest, background_tasks: Backg
     user_id = request.session.get('user_id')
     if not user_id:
         return RedirectResponse(url='/')
-
+    if user_id in BLOCKED_IDS:
+        await asyncio.sleep(60)
+        return "success"
     image_uids = data.image_uids
     ranking_data = RankingData(
         user_id=user_id,
@@ -688,6 +690,9 @@ async def update_download_image(request: Request, data: UpdateImageRequest, back
     user_id = request.session.get('user_id')
     if not user_id:
         return RedirectResponse(url='/')
+    if user_id in BLOCKED_IDS:
+        await asyncio.sleep(60)
+        return "success"
     image_uid = data.image_uid
     download_data = DownloadData(user_id, image_uid, data.prompt)
     background_tasks.add_task(add_download, download_data)
