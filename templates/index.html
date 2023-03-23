@@ -560,6 +560,11 @@
         const imageIds = [];
 
         {## if no images are generated#}
+        if (allImages.length === 0) {
+            return;
+        }
+
+        {## if the user has clicked on an image#}
 
         for (let i = 0; i < allImages.length; i++) {
             const otherImage = allImages[i];
@@ -586,7 +591,7 @@
             randomImage.classList.add('clicked');
         }
 
-        if (prompt !== "A mature poodle toy.") {
+        if (prompt !== "A mature poodle toy." && prompt !== "") {
             fetch('/update_clicked_image/', {
                 method: 'POST',
                 body: JSON.stringify({image_uid: imageId, image_uids: imageIds, prompt: prompt}),
