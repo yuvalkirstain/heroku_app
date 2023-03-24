@@ -104,7 +104,7 @@ BLOCKED_IDS = [
     4444, 4870, 4733, 4878, 4928, 4939, 4926, 4942, 5019, 4946, 5006, 4241, 5027, 5015, 5041, 5032, 5047, 5054, 5064,
     5023, 5137, 5281, 4115, 5273, 4347, 3523
 ]
-BLOCKED_IPS = ["159.138.50.118", "42.2.119.97"]
+BLOCKED_IPS = ["159.138.50.118", "42.2.119.97", "5.28.184.13"]
 
 
 class UpdateImageRequest(BaseModel):
@@ -167,7 +167,7 @@ async def homepage(request: Request):
 
         start = time.time()
         user_score = get_user_score(user_id)
-        print(f"user {user_id} logged in")
+        print(f"user {user_id} logged in {ip=}")
         request.session['user_id'] = user_id
     return templates.TemplateResponse("index.html",
                                       {"request": request,
