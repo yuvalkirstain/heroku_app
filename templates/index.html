@@ -282,6 +282,7 @@
     const neitherButton = document.getElementById('same-button');
     const autoMode = document.querySelector('#automode');
     let wasClicked = false;
+    let isGenerating = false;
 
     const introDriver = introJs();
     const blockedIds = [
@@ -554,7 +555,7 @@
     }
 
     function onImageClick(event) {
-        if (wasClicked) {
+        if (wasClicked || isGenerating) {
             return;
         }
 
@@ -753,6 +754,9 @@
     promptInput.addEventListener('input', onPromptInput);
 
     function generate() {
+        if (isGenerating) {
+            return;
+        }
         wasClicked = false;
         console.log("Generating")
         downloadButton.style.display = 'none';
@@ -800,6 +804,7 @@
             }
             prepareProgressBarTextForRanking();
         } else {
+            isGenerating = true;
             while (cachedImages.length > 0) {
                 cachedImages.pop();
             }
@@ -830,6 +835,7 @@
                 let msg = JSON.stringify({prompt: promptInput.value, user_id: userId});
                 ws.send(msg);
             };
+            isGenerating = false;
         }
 
     }
