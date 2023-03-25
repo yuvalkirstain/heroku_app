@@ -555,6 +555,7 @@
     }
 
     function onImageClick(event) {
+        console.log("Generating " + isGenerating);
         if (wasClicked || isGenerating) {
             alert("Please wait for the images to be generated.");
             return;
@@ -755,6 +756,7 @@
     promptInput.addEventListener('input', onPromptInput);
 
     function generate() {
+        console.log("Generating " + isGenerating)
         if (isGenerating) {
             alert("Please wait for the images to be generated.");
             return;
@@ -807,6 +809,7 @@
             prepareProgressBarTextForRanking();
         } else {
             isGenerating = true;
+            console.log("generating " + isGenerating)
             while (cachedImages.length > 0) {
                 cachedImages.pop();
             }
@@ -826,6 +829,7 @@
                     updateImages(data);
                     prepareProgressBarTextForRanking();
                     progressBar.style.width = "0";
+                    isGenerating = false;
                 } else if (status === 'error') {
                     displayErrorMessage();
                 } else if (status === 'failed') {
@@ -837,7 +841,6 @@
                 let msg = JSON.stringify({prompt: promptInput.value, user_id: userId});
                 ws.send(msg);
             };
-            isGenerating = false;
         }
 
     }
