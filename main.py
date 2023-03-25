@@ -158,17 +158,20 @@ async def homepage(request: Request):
     if ip in BLOCKED_IPS:
         logger.info(f"Blocking {ip=} {user=}")
         user = None
+
     user_id = "null"
     user_score = 0
-    if user:
+
+    if user is not None:
         user_id = add_user(user["email"], user["name"])
         if user_id in BLOCKED_IDS:
-            logger.info(f"IP of blocked user {user_id}: {ip=} {user=}")
+            logger.info(f"IP of blocked user {user_id}: {ip=}")
 
         start = time.time()
         user_score = get_user_score(user_id)
         print(f"user {user_id} logged in {ip=}")
         request.session['user_id'] = user_id
+
     return templates.TemplateResponse("index.html",
                                       {"request": request,
                                        "is_authenticated": is_user_logged(request),
