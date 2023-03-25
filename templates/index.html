@@ -556,6 +556,7 @@
 
     function onImageClick(event) {
         if (wasClicked || isGenerating) {
+            alert("Please wait for the images to be generated.");
             return;
         }
 
@@ -755,6 +756,7 @@
 
     function generate() {
         if (isGenerating) {
+            alert("Please wait for the images to be generated.");
             return;
         }
         wasClicked = false;
