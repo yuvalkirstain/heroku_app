@@ -363,8 +363,8 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
         asscore = random.choice([6.0, 6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75])
         height = 512
         width = 512
-        n_steps = 25
-        scheduler_cls = "K_DPMPP_2M"
+        n_steps = 50
+        scheduler_cls = "DDIM"
 
         if "beta" in engine_id:
             prompt = "$IPCinline:{" + "\"sdxl_ascore\"" + f":[{asscore},2.5]" + "}$ " + prompt
