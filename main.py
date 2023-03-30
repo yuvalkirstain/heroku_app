@@ -79,7 +79,7 @@ access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
 
 STABILITY_API_KEY = os.environ['STABILITY_API_KEY']
 STABILITY_API_HOST = os.environ['STABILITY_API_HOST']
-STABILITY_ENGINE_ID_1 = "stable-diffusion-xl-v2-2"
+STABILITY_ENGINE_ID_1 = "stable-diffusion-xl-beta-v2-2-3"
 STABILITY_ENGINE_ID_2 = "stable-diffusion-xl-beta-v2-2-2"
 
 twitter_auth = tweepy.OAuthHandler(consumer_key, consumer_secret_key)
@@ -430,7 +430,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
 async def create_images(prompt, user_id):
     prompt, negative_prompt = remove_square_brackets(prompt)
     if negative_prompt is None:
-        negative_prompt = "ugly, deformed, noisy, blurry, distorted, grainy"
+        negative_prompt = "white border, wall view, ugly, deformed, noisy, blurry, distorted, grainy"
 
     start = time.time()
 
