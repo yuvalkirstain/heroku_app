@@ -693,7 +693,8 @@ async def update_clicked_image(data: UpdateImageRequest, background_tasks: Backg
     )
     background_tasks.add_task(add_ranking, ranking_data)
     background_tasks.add_task(increment_user_score, user_id)
-    logger.debug(f"{user_id=} clicked image")
+    ip = request.client.host
+    logger.debug(f"{user_id=} {ip=} clicked image")
     return "success"
 
 
