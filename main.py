@@ -361,8 +361,8 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
         seed = random.randint(0, 2147483647)
         gs = random.uniform(3, 12)
         asscore = random.choice([6.0, 6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75])
-        height = 512 if "2-3" not in engine_id else 768
-        width = 512 if "2-3" not in engine_id else 768
+        height = 512
+        width = 512
         n_steps = 50
         scheduler_cls = "DDIM"
 
