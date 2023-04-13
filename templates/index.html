@@ -920,7 +920,7 @@
                 const file = new Blob([blob], {type: 'image/png'});
                 const fileUrl = URL.createObjectURL(file);
                 const a = document.createElement('a');
-                a.download = formerPromptInput.value.replace(/\s/g, '_') + '.png';
+                a.download = formerPromptInput.replace(/\s/g, '_') + '.png';
                 a.href = fileUrl;
                 document.body.appendChild(a);
                 a.click();
