@@ -363,13 +363,13 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
         seed = random.randint(0, 2147483647)
         gs = random.uniform(3, 12)
         asscore = random.choice([6.0, 6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75])
-        api_host = STABILITY_API_HOST
+        api_host = f"{STABILITY_API_HOST}/v1beta/generation/{engine_id}/text-to-image"
         if engine_id == STABILITY_ENGINE_ID_2:
             res = 512
         elif engine_id == STABILITY_ENGINE_ID_1:
             res = 768
         else:
-            api_host = STABILITY_API_HOST2
+            api_host = f"{STABILITY_API_HOST2}/v1/generation/{engine_id}/text-to-image"
             res = 1024
         height = res
         width = res
@@ -382,7 +382,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
         while not has_generated:
             try:
                 async with session.post(
-                        f"{api_host}/v1beta/generation/{engine_id}/text-to-image",
+                        api_host,
                         headers={
                             "Content-Type": "application/json",
                             "Accept": "application/json",
