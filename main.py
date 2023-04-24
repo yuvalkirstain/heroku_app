@@ -79,8 +79,10 @@ access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
 
 STABILITY_API_KEY = os.environ['STABILITY_API_KEY']
 STABILITY_API_HOST = os.environ['STABILITY_API_HOST']
+STABILITY_API_HOST2 = os.environ['STABILITY_API_HOST2']
 STABILITY_ENGINE_ID_1 = "stable-diffusion-xl-beta-v2-2-3"
 STABILITY_ENGINE_ID_2 = "stable-diffusion-xl-beta-v2-2-2"
+STABILITY_ENGINE_ID_3 = "stable-diffusion-xl-beta-v2-2-3-5"
 
 twitter_auth = tweepy.OAuthHandler(consumer_key, consumer_secret_key)
 twitter_auth.set_access_token(access_token, access_token_secret)
@@ -361,8 +363,16 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
         seed = random.randint(0, 2147483647)
         gs = random.uniform(3, 12)
         asscore = random.choice([6.0, 6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75])
-        height = 512 # if "2-3" not in engine_id else 768
-        width = 512 # if "2-3" not in engine_id else 768
+        api_host = STABILITY_API_HOST
+        if engine_id == STABILITY_ENGINE_ID_2:
+            res = 512
+        elif engine_id == STABILITY_ENGINE_ID_1:
+            res = 768
+        else:
+            api_host = STABILITY_API_HOST2
+            res = 1024
+        height = res
+        width = res
         n_steps = 50
         scheduler_cls = "DDIM"
 
@@ -372,7 +382,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
         while not has_generated:
             try:
                 async with session.post(
-                        f"{STABILITY_API_HOST}/v1beta/generation/{engine_id}/text-to-image",
+                        f"{api_host}/v1beta/generation/{engine_id}/text-to-image",
                         headers={
                             "Content-Type": "application/json",
                             "Accept": "application/json",
@@ -479,6 +489,22 @@ async def create_images(prompt, user_id):
         engine_id=STABILITY_ENGINE_ID_2
     ))
     tasks.append(task5)
+
+    task6 = asyncio.create_task(generate_images_via_api(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        user_id=user_id,
+        engine_id=STABILITY_ENGINE_ID_3
+    ))
+    tasks.append(task6)
+
+    task7 = asyncio.create_task(generate_images_via_api(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        user_id=user_id,
+        engine_id=STABILITY_ENGINE_ID_3
+    ))
+    tasks.append(task7)
 
     for task in tasks:
         await task
