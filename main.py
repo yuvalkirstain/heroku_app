@@ -383,7 +383,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
             try:
                 async with session.post(
                         api_host,
-                        timeout=15,
+                        timeout=20,
                         headers={
                             "Content-Type": "application/json",
                             "Accept": "application/json",
