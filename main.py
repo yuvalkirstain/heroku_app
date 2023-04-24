@@ -490,21 +490,21 @@ async def create_images(prompt, user_id):
     ))
     tasks.append(task5)
 
-    task6 = asyncio.create_task(generate_images_via_api(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        user_id=user_id,
-        engine_id=STABILITY_ENGINE_ID_3
-    ))
-    tasks.append(task6)
-
-    task7 = asyncio.create_task(generate_images_via_api(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        user_id=user_id,
-        engine_id=STABILITY_ENGINE_ID_3
-    ))
-    tasks.append(task7)
+    # task6 = asyncio.create_task(generate_images_via_api(
+    #     prompt=prompt,
+    #     negative_prompt=negative_prompt,
+    #     user_id=user_id,
+    #     engine_id=STABILITY_ENGINE_ID_3
+    # ))
+    # tasks.append(task6)
+    #
+    # task7 = asyncio.create_task(generate_images_via_api(
+    #     prompt=prompt,
+    #     negative_prompt=negative_prompt,
+    #     user_id=user_id,
+    #     engine_id=STABILITY_ENGINE_ID_3
+    # ))
+    # tasks.append(task7)
 
     for task in tasks:
         await task
