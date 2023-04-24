@@ -408,7 +408,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
                             "seed": seed,
                         },
                 ) as response:
-                    data = await response.json()
+                    data = await response.json(content_type=None)
                     image_bytes = [dp['base64'] for dp in data["artifacts"]]
                     was_filtered = any(dp['finishReason'] == "CONTENT_FILTERED" for dp in data["artifacts"])
                     if was_filtered:
