@@ -370,7 +370,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
             res = 768
         else:
             api_host = f"{STABILITY_API_HOST2}/v1/generation/{engine_id}/text-to-image"
-            res = 768
+            res = 1024
         height = res
         width = res
         n_steps = 50
