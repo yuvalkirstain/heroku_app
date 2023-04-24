@@ -370,7 +370,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
             res = 768
         else:
             api_host = f"{STABILITY_API_HOST2}/v1/generation/{engine_id}/text-to-image"
-            res = 1024
+            res = 768
         height = res
         width = res
         n_steps = 50
@@ -431,8 +431,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
                 await asyncio.sleep(1)
                 num_tries += 1
                 logger.error(f"Error #{num_tries} creating images for prompt {prompt} with exception {e}")
-                if num_tries > 5:
-                    return None
+                return None
     logger.info(f"Generated 1 images with {engine_id} for prompt {prompt} in {time.time() - start_time:.2f} seconds")
     return response_json
 
@@ -510,6 +509,7 @@ async def create_images(prompt, user_id):
         await task
 
     responses = [task.result() for task in tasks]
+    responses = [response for response in responses if response is not None]
     total_response_json = collections.defaultdict(list)
     for key in responses[0]:
         for i, response in enumerate(responses):
