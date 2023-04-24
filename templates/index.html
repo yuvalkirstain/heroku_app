@@ -389,7 +389,9 @@
         "round birb, dark hedges, bokeh",
         "Primrose in a yellow dress, watercolor",
         "a square green owl made of fimo",
-        "ice cream cats [people]"
+        "ice cream cats [people]",
+        "black ink swirling and splashing like the sea in a bronze bowl",
+        "a chicken reading a Tangut manuscript"
     ]
     promptInput.value = possiblePrompts[Math.floor(Math.random() * possiblePrompts.length)];
 
@@ -816,7 +818,7 @@
                 return;
             }
         }
-        if (userScore > 5000) {
+        if (userScore > 6000) {
             splashScreen.style.display = 'block';
             document.getElementById("user-limit").style.display = 'block';
             return;
