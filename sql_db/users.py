@@ -40,6 +40,7 @@ def add_user(email: str, name: str):
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
     user = get_user_by_email(email)
+    name = hashlib.md5(name.encode('utf-8')).hexdigest()
     if user is None:
         logger.info(f"Adding user {name} with email {email}")
         mail_hash = hashlib.md5(email.encode('utf-8')).hexdigest()
@@ -67,6 +68,7 @@ def get_user_by_email(email: str):
 
 
 def get_users_by_name(name: str):
+    name = hashlib.md5(name.encode('utf-8')).hexdigest()
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM users_anon WHERE name=%s", (name,))
