@@ -1,3 +1,4 @@
+import hashlib
 from dataclasses import dataclass
 import pandas as pd
 import psycopg2
@@ -10,7 +11,7 @@ def create_user_table():
     # Create table if it doesn't already exist
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    cursor.execute("select exists(select * from information_schema.tables where table_name=%s)", ('users',))
+    cursor.execute("select exists(select * from information_schema.tables where table_name=%s)", ('users_anon',))
     if cursor.fetchone()[0]:
         pass
     else:
@@ -41,9 +42,10 @@ def add_user(email: str, name: str):
     user = get_user_by_email(email)
     if user is None:
         logger.info(f"Adding user {name} with email {email}")
-        cursor.execute("INSERT INTO users (email, name) VALUES (%s, %s)", (email, name))
+        mail_hash = hashlib.md5(email.encode('utf-8')).hexdigest()
+        cursor.execute("INSERT INTO users_anon (email, name) VALUES (%s, %s)", (mail_hash, name))
         conn.commit()
-        user = get_user_by_email(email)
+        user = get_user_by_email(mail_hash)
     else:
         logger.info(f"User {name} with email {email} already exists")
     cursor.close()
@@ -54,7 +56,8 @@ def add_user(email: str, name: str):
 def get_user_by_email(email: str):
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM users WHERE email=%s", (email,))
+    mail_hash = hashlib.md5(email.encode('utf-8')).hexdigest()
+    cursor.execute(f"SELECT * FROM users_anon WHERE email=%s", (mail_hash,))
     user = cursor.fetchone()
     if user is None:
         return None
@@ -66,7 +69,7 @@ def get_user_by_email(email: str):
 def get_users_by_name(name: str):
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM users WHERE name=%s", (name,))
+    cursor.execute(f"SELECT * FROM users_anon WHERE name=%s", (name,))
     users = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -76,7 +79,7 @@ def get_users_by_name(name: str):
 def get_all_users() -> pd.DataFrame:
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM users")
+    cursor.execute(f"SELECT * FROM users_anon")
     users = cursor.fetchall()
     cursor.close()
     conn.close()
