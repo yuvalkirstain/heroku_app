@@ -433,9 +433,9 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
             except Exception as e:
                 await asyncio.sleep(1)
                 num_tries += 1
-                if 'artifacts' not in data and num_tries < 5:
-                    logger.info(f"No artifacts in response {engine_id=} {prompt=}")
-                    continue
+                # if 'artifacts' not in data and num_tries < 5:
+                #     logger.info(f"No artifacts in response {engine_id=} {prompt=}")
+                #     continue
                 logger.error(f"Error #{num_tries} creating images for prompt {prompt} with exception {e}")
                 if 'artifacts' in data:
                     logger.error(traceback.format_exc())
