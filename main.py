@@ -410,8 +410,6 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
                         },
                 ) as response:
                     data = await response.json(content_type=None)
-                    if "artifacts" not in data:
-                        logger.info(f"No artifacts in response {engine_id=} {prompt=}")
                     image_bytes = [dp['base64'] for dp in data["artifacts"]]
                     was_filtered = any(dp['finishReason'] == "CONTENT_FILTERED" for dp in data["artifacts"])
                     if was_filtered:
@@ -433,6 +431,9 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
             except Exception as e:
                 await asyncio.sleep(1)
                 num_tries += 1
+                if 'artifacts' not in data and num_tries < 5:
+                    logger.info(f"No artifacts in response {engine_id=} {prompt=}")
+                    continue
                 logger.error(f"Error #{num_tries} creating images for prompt {prompt} with exception {e}")
                 logger.error(traceback.format_exc())
                 return None
