@@ -380,7 +380,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
 
         if "beta" in engine_id:
             prompt = "$IPCinline:{" + "\"sdxl_ascore\"" + f":[{asscore},2.5]" + "}$ " + prompt
-
+        data = {}
         while not has_generated:
             try:
                 async with session.post(
