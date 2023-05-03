@@ -366,8 +366,10 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
         api_host = f"{STABILITY_API_HOST}/v1beta/generation/{engine_id}/text-to-image"
         if engine_id == STABILITY_ENGINE_ID_2:
             res = 512
+            api_host = f"{STABILITY_API_HOST2}/v1/generation/{engine_id}/text-to-image"
         elif engine_id == STABILITY_ENGINE_ID_1:
             res = 768
+            api_host = f"{STABILITY_API_HOST2}/v1/generation/{engine_id}/text-to-image"
         else:
             api_host = f"{STABILITY_API_HOST2}/v1/generation/{engine_id}/text-to-image"
             res = 1024
