@@ -434,6 +434,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
                 await asyncio.sleep(1)
                 num_tries += 1
                 logger.error(f"Error #{num_tries} creating images for prompt {prompt} with exception {e}")
+                logger.error(traceback.format_exc())
                 return None
     logger.info(f"Generated 1 images with {engine_id} for prompt {prompt} in {time.time() - start_time:.2f} seconds")
     return response_json
