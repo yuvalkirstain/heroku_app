@@ -80,9 +80,12 @@ access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
 STABILITY_API_KEY = os.environ['STABILITY_API_KEY']
 STABILITY_API_HOST = os.environ['STABILITY_API_HOST']
 STABILITY_API_HOST2 = os.environ['STABILITY_API_HOST2']
-STABILITY_ENGINE_ID_1 = "stable-diffusion-xl-beta-v2-2-3"
-STABILITY_ENGINE_ID_2 = "stable-diffusion-xl-beta-v2-2-2"
-STABILITY_ENGINE_ID_3 = "stable-diffusion-xl-beta-v2-2-3-5"
+STABILITY_ENGINE_ID_1 = "stable-diffusion-xl-beta-v2-2-2"
+STABILITY_ENGINE_ID_2 = "stable-diffusion-xl-beta-v2-2-5-a"
+STABILITY_ENGINE_ID_3 = "stable-diffusion-xl-beta-v2-2-5-b"
+STABILITY_ENGINE_ID_4 = "stable-diffusion-xl-beta-v2-2-5-c"
+STABILITY_ENGINE_ID_5 = "stable-diffusion-xl-beta-v2-2-5-d"
+STABILITY_ENGINE_ID_6 = "stable-diffusion-xl-beta-v2-2-5-e"
 
 twitter_auth = tweepy.OAuthHandler(consumer_key, consumer_secret_key)
 twitter_auth.set_access_token(access_token, access_token_secret)
@@ -363,15 +366,10 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
         seed = random.randint(0, 2147483647)
         gs = random.uniform(3, 12)
         asscore = random.choice([6.0, 6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75])
-        api_host = f"{STABILITY_API_HOST}/v1beta/generation/{engine_id}/text-to-image"
-        if engine_id == STABILITY_ENGINE_ID_2:
+        api_host = f"{STABILITY_API_HOST2}/v1/generation/{engine_id}/text-to-image"
+        if engine_id == STABILITY_ENGINE_ID_1:
             res = 512
-            api_host = f"{STABILITY_API_HOST2}/v1/generation/{engine_id}/text-to-image"
-        elif engine_id == STABILITY_ENGINE_ID_1:
-            res = 768
-            api_host = f"{STABILITY_API_HOST2}/v1/generation/{engine_id}/text-to-image"
         else:
-            api_host = f"{STABILITY_API_HOST2}/v1/generation/{engine_id}/text-to-image"
             res = 1024
         height = res
         width = res
@@ -493,7 +491,7 @@ async def create_images(prompt, user_id):
         prompt=prompt,
         negative_prompt=negative_prompt,
         user_id=user_id,
-        engine_id=STABILITY_ENGINE_ID_2
+        engine_id=STABILITY_ENGINE_ID_3
     ))
     tasks.append(task5)
 
@@ -501,7 +499,7 @@ async def create_images(prompt, user_id):
         prompt=prompt,
         negative_prompt=negative_prompt,
         user_id=user_id,
-        engine_id=STABILITY_ENGINE_ID_3
+        engine_id=STABILITY_ENGINE_ID_4
     ))
     tasks.append(task6)
 
@@ -509,9 +507,17 @@ async def create_images(prompt, user_id):
         prompt=prompt,
         negative_prompt=negative_prompt,
         user_id=user_id,
-        engine_id=STABILITY_ENGINE_ID_3
+        engine_id=STABILITY_ENGINE_ID_5
     ))
     tasks.append(task7)
+
+    task8 = asyncio.create_task(generate_images_via_api(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        user_id=user_id,
+        engine_id=STABILITY_ENGINE_ID_6
+    ))
+    tasks.append(task8)
 
     for task in tasks:
         await task
