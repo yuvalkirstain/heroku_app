@@ -365,7 +365,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
         num_tries = 0
         seed = random.randint(0, 2147483647)
         gs = random.uniform(3, 12)
-        asscore = random.choice([6.0, 6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75])
+        asscore = 6.75
         api_host = f"{STABILITY_API_HOST2}/v1/generation/{engine_id}/text-to-image"
         if engine_id == STABILITY_ENGINE_ID_1:
             res = 512
