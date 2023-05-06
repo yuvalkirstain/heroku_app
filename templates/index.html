@@ -63,8 +63,9 @@
                 href="https://github.com/yuvalkirstain/model_app" target="_blank">model inference</a> repository.
         </li>
         <li style="font-size: min(3.0vmin, 18px);">
-            <strong>Model</strong>: Currently, we use <a href="https://huggingface.co/dreamlike-art/dreamlike-photoreal-2.0"
-                                                         target="_blank">
+            <strong>Model</strong>: Currently, we use <a
+                href="https://huggingface.co/dreamlike-art/dreamlike-photoreal-2.0"
+                target="_blank">
             dreamlike-photoreal-2.0</a>, and SDXL variants.
         </li>
         <li style="font-size: min(3.0vmin, 18px);">
@@ -244,6 +245,7 @@
 <script>
     {#const clearButton = document.getElementById('clear-button');#}
     const userId = {{ user_id }};
+    let nsfwWords = {{ nsfw_words|safe }};
     let userScore = {{ user_score }};
     const submitButton = document.getElementById('submit-button');
     const downloadButton = document.getElementById('download-button');
@@ -290,23 +292,6 @@
         3265, 3267, 3251, 3292, 3268, 3271, 1961, 3302, 3318, 1689, 3278, 1382, 3542, 3446, 3633, 1526, 4710, 4748, 4762,
         4444, 4870, 4733, 4878, 4928, 4939, 4926, 4942, 5019, 4946, 5006, 4241, 5027, 5015, 5041, 5032, 5047, 5054, 5064,
         5023, 5137, 4115, 5273, 4347, 3523, 5403, 3589, 5697, 6574, 6573
-    ];
-    const nsfwWords = ["seductive", "sexy", "nude", "naked", "nudity", "nakedness", "nakedly", "nakedness",
-        "busty", "boobs", "shirtless", "nude", "revealing", "naked", "breast", "amouranth",
-        "nigger", "sussy", "tits", "lingerie", "sex", "bikini", "nazi", "underwear", "stomach",
-        "thong", "fuck", "lola myluv", "elsa jean", "porn", "courtesan", "b00bs", "undressed", " anal ", "blowjo", "p0rn",
-        "sxy", "blowjo", "cumshot", "vagina", "horny", " ass", "pussy", "onlyfans", "(", ")", "--", "crotch",
-        "gagg", "nudist", "lecherous", "voluptuous", "buxom", "lustful", "genitals", "nymph", "camgirl", "exposed",
-        "babe", "{", "}", "hitler", "nakey", "suck", "blowjob", "unclothed", "wearing nothing", "breasted",
-        "nsfw", "erotic", "hentai", "topless", "nipple", "without clothes", "playboy", "bøøbs", "booty", "leotard",
-        "nudist", "scantily clad", "salacious", "minimal clothes", "see through", "bulge", "onahole",
-        "loincloth", "man posing", "jockstrap", " bra ", "shower", "femdom", "harvey weinstein",
-        "emma watson", "curvaceous", "sensuous", "chest", "no clothes", "scantily", "undies", "bulging", "swimsuit",
-        "belly", "sweatpants", "suntanning", "naughty", "jada stevens", "cleavage", " panty", " virgin",
-        "pusy", "catgirl", "nue ", " nue", "_", "/", "loli", "shota", "futanari", "hentai", "ecchi",
-        "camboy", "catboy", "without cloth", "::", "unclothes", "no clothing", "bare skin", "bareskinned", "hunk",
-        "pubes", "bukkake", "1girl", "bondaged", "big bust", "under-wear", "intimating", "big boops", "nippies",
-        "nudify", "onanie", "clothesless", "spread legs", "desnuda", "penetration", "BDSM", "manspreading"
     ];
 
     document.getElementById("user-score").innerHTML = userScore + "&nbsp;";
@@ -822,7 +807,7 @@
             splashScreen.style.display = 'block';
             document.getElementById("user-limit").style.display = 'block';
             return;
-         }
+        }
 
         hasGenerated = true;
 

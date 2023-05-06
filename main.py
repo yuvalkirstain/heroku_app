@@ -177,11 +177,15 @@ async def homepage(request: Request):
         print(f"user {user_id} logged in {ip=}")
         request.session['user_id'] = user_id
 
+    nsfw_words = json.load(open("./nsfw_words.json", "r"))
+
     return templates.TemplateResponse("index.html",
                                       {"request": request,
                                        "is_authenticated": is_user_logged(request),
                                        "user_id": user_id,
-                                       "user_score": user_score})
+                                       "user_score": user_score,
+                                       "nsfw_words": nsfw_words
+                                       })
 
 
 @app.get('/login')
