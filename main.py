@@ -622,8 +622,9 @@ async def get_images(websocket: WebSocket):
     user_id, prompt = json_data["user_id"], json_data["prompt"]
     user_score = get_user_score(user_id)
     job_id = await handle_images_request(prompt, user_id)
+    nsfw_words = json.load(open("./nsfw_words.json", "r"))
     if job_id is None or user_id in BLOCKED_IDS or user_score > 6000:
-        if user_id in BLOCKED_IDS:
+        if user_id in BLOCKED_IDS or any(word in prompt for word in nsfw_words):
             await asyncio.sleep(60)
         await websocket.send_json({"status": "error"})
     else:
