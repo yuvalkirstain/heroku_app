@@ -70,10 +70,13 @@ def add_ranking(ranking: RankingData):
     conn.close()
 
 
-def get_all_rankings() -> pd.DataFrame:
+def get_all_rankings(start_date=None) -> pd.DataFrame:
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM rankings")
+    if start_date is not None:
+        cursor.execute(f"SELECT * FROM rankings WHERE created_at >= %s", (start_date,))
+    else:
+        cursor.execute(f"SELECT * FROM rankings")
     rankings = cursor.fetchall()
     cursor.close()
     conn.close()

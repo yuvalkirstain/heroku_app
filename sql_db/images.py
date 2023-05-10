@@ -73,10 +73,13 @@ def add_image(image_data: ImageData):
     return
 
 
-def get_all_images() -> pd.DataFrame:
+def get_all_images(start_date=None) -> pd.DataFrame:
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM images")
+    if start_date is not None:
+        cursor.execute("SELECT * FROM images WHERE created_at >= %s", (start_date,))
+    else:
+        cursor.execute("SELECT * FROM images")
     images = cursor.fetchall()
     cursor.close()
     conn.close()

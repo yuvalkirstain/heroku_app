@@ -274,9 +274,9 @@ def upload_images(images, image_uids):
                                       path,
                                       ExtraArgs=S3_EXTRA_ARGS)
             else:
-                logger.warning(f"Couldn't upload image {image_uid} - path exists={os.path.exists(path)}")
+                logger.warning(f"Couldn't upload image {image_uid} - path does not exists={os.path.exists(path)}")
         except Exception as e:
-            logger.error(f"Couldn't upload image {image_uid} - path exists={os.path.exists(path)} - {e}")
+            logger.error(f"Couldn't upload image {image_uid} - {e}")
         if os.path.exists(path):
             os.remove(path)
 
@@ -810,7 +810,43 @@ def create_background_tasks():
     scheduler = BackgroundScheduler({'apscheduler.job_defaults.max_instances': 2})
     scheduler.add_job(func=update_urls, trigger="interval", seconds=180)
     scheduler.add_job(func=clean_jobs, trigger="interval", seconds=120)
+    scheduler.add_job(func=update_csvs, trigger="interval", seconds=60 * 60 * 6)
     scheduler.start()
+    logger.info("Started background tasks")
+
+
+def upload_csv(name, df):
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=AWS_ACCESS_KEY,
+        aws_secret_access_key=AWS_SECRET_KEY,
+    )
+    csv_dir = "csvs"
+    os.makedirs(csv_dir, exist_ok=True)
+    path = f"{csv_dir}/{name}.csv"
+    df.to_csv(path)
+    try:
+        if os.path.exists(path):
+            s3_client.upload_file(path,
+                                  BUCKET_NAME,
+                                  path,
+                                  ExtraArgs=S3_EXTRA_ARGS)
+            logger.info(f"Uploaded {path}")
+        else:
+            logger.warning(f"Couldn't upload images_df - path does not exist={os.path.exists(path)}")
+    except Exception as e:
+        logger.error(f"Couldn't upload path {path} - {e}")
+
+    if os.path.exists(path):
+        os.remove(path)
+
+
+def update_csvs():
+    logger.info("Updating CSVs")
+    images_df = get_all_images("2023-05-05 00:00:00")
+    upload_csv("images", images_df)
+    ranking_df = get_all_rankings("2023-05-05 00:00:00")
+    upload_csv("rankings", ranking_df)
 
 
 @app.on_event("startup")
