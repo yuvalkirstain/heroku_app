@@ -442,7 +442,7 @@ async def generate_images_via_api(prompt, negative_prompt, user_id, engine_id):
                 if 'artifacts' in data:
                     logger.error(traceback.format_exc())
                 return None
-    logger.info(f"Generated 1 images with {engine_id} for prompt {prompt} in {time.time() - start_time:.2f} seconds")
+    # logger.info(f"Generated 1 images with {engine_id} for prompt {prompt} in {time.time() - start_time:.2f} seconds")
     return response_json
 
 
