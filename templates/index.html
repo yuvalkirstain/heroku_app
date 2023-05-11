@@ -801,13 +801,22 @@
             return;
         }
         for (let i = 0; i < nsfwWords.length; i++) {
-            if (promptInput.value.toLowerCase().includes(nsfwWords[i])) {
-                alert("We detected an NSFW word or an illegal token: " + nsfwWords[i] + ". Please enter a valid prompt.");
-                {#const a = document.createElement('a');#}
-                {#a.href = "/logout"#}
-                {#document.body.appendChild(a);#}
-                {#a.click();#}
-                return;
+            let nsfwPhrase = nsfwWords[i].toLowerCase().trim();
+            const curNsfwWords = nsfwPhrase.split(" ");
+            if (curNsfwWords.length > 1) {
+                if (promptInput.value.toLowerCase().includes(nsfwPhrase)) {
+                    alert("We detected an NSFW word or an illegal token: " + nsfwWords[i] + ". Please enter a valid prompt.");
+                    return;
+                }
+            } else {
+                let curNsfwWord = nsfwWords[i].trim().toLowerCase();
+                const curPromptWords = promptInput.value.trim().toLowerCase().split(" ");
+                for (let j = 0; j < curPromptWords.length; j++) {
+                    if (curPromptWords[j] === curNsfwWord) {
+                        alert("We detected an NSFW word or an illegal token: " + nsfwWords[i] + ". Please enter a valid prompt.");
+                        return;
+                    }
+                }
             }
         }
         if (userScore > 6000) {
