@@ -850,7 +850,7 @@ def update_csvs():
 
 
 @app.on_event("startup")
-@repeat_every(seconds=60 * 15)
+# @repeat_every(seconds=60 * 15)
 async def startapp():
     print("Starting app")
     app.cache = Cache(Cache.REDIS, serializer=PickleSerializer(), namespace="main", endpoint=url.hostname,
