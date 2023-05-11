@@ -576,7 +576,6 @@ async def consumer():
                 await app.cache.set("num_running", num_running)
                 can_go_in = True
             await asyncio.sleep(0.5)
-    logger.debug(f"num_running {num_running}/{MAX_SIZE_CONCURRENT}")
     # reduce the size of the queue
     should_run = True
     async with RedLock(app.cache, "qsize", 1000):
@@ -587,7 +586,6 @@ async def consumer():
             job_id = queue.popleft()
         await app.cache.set("qsize", len(queue))
         await app.cache.set("queue", queue)
-        logger.debug(f"queue {len(queue)}/{MAX_SIZE_IN_QUEUE}")
 
     # run the job
     if should_run:
@@ -606,7 +604,6 @@ async def consumer():
 async def handle_images_request(prompt: str, user_id: str):
     async with RedLock(app.cache, f"qsize", 1000):
         qsize = await app.cache.get("qsize")
-        logger.debug(f"handling request {qsize=}")
         if qsize >= MAX_SIZE_IN_QUEUE:
             return None
         job = Job(prompt=prompt, user_id=user_id)
