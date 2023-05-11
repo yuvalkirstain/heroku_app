@@ -102,3 +102,26 @@ def get_all_images(start_date=None) -> pd.DataFrame:
 def get_num_images() -> int:
     num_rows = get_num_rows("images")
     return num_rows
+
+
+def get_num_images_per_user_last_week(user_id):
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM images WHERE user_id=%s AND created_at >= NOW() - INTERVAL '7 days'", (user_id,))
+    images = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    df = pd.DataFrame(images, columns=['image_id',
+                                       'created_at',
+                                       'image_uid',
+                                       'user_id',
+                                       'prompt',
+                                       'negative_prompt',
+                                       'seed',
+                                       'gs',
+                                       'steps',
+                                       'idx',
+                                       'num_generated',
+                                       'scheduler_cls',
+                                       'model_id'])
+    return len(df)

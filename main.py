@@ -23,7 +23,8 @@ from sql_db.user_score import get_user_score, increment_user_score, create_user_
 from sql_db.users import create_user_table, add_user, get_all_users, get_num_users
 from sql_db.downloads import add_download, create_downloads_table, DownloadData, get_all_downloads, get_num_downloads
 from sql_db.rankings import add_ranking, create_rankings_table, get_all_rankings, RankingData, get_num_rankings
-from sql_db.images import add_image, create_image_table, get_all_images, ImageData, get_num_images
+from sql_db.images import add_image, create_image_table, get_all_images, ImageData, get_num_images, \
+    get_num_images_per_user_last_week
 from utils.logging_utils import logger
 from authlib.integrations.base_client import OAuthError
 from fastapi import FastAPI, BackgroundTasks, Form, HTTPException, WebSocket, Cookie
@@ -110,6 +111,8 @@ BLOCKED_IDS = [
     5023, 5137, 5281, 4115, 5273, 4347, 3523, 5403, 3589, 5697, 6574, 6573, 6822, 7037, 3064
 ]
 BLOCKED_IPS = ["159.138.50.118", "42.2.119.97", "5.28.184.13", "190.167.37.23", "62.102.148.166"]
+
+MAX_IMAGES_PER_USER_PER_WEEK = 1000
 
 
 class UpdateImageRequest(BaseModel):
@@ -620,13 +623,16 @@ async def get_images(websocket: WebSocket):
     await websocket.accept()
     json_data = await websocket.receive_json()
     user_id, prompt = json_data["user_id"], json_data["prompt"]
-    user_score = get_user_score(user_id)
+    user_num_generated = get_num_images_per_user_last_week(user_id)
+    logger.info(f"Request: {prompt=} | {user_id=} | {user_num_generated=}")
     job_id = await handle_images_request(prompt, user_id)
     nsfw_words = json.load(open("./nsfw_words.json", "r"))
-    if job_id is None or user_id in BLOCKED_IDS or user_score > 6000:
+    if job_id is None or user_id in BLOCKED_IDS:
         if user_id in BLOCKED_IDS or any(word in prompt for word in nsfw_words):
             await asyncio.sleep(60)
         await websocket.send_json({"status": "error"})
+    elif user_num_generated >= MAX_IMAGES_PER_USER_PER_WEEK:
+        await websocket.send_json({"status": "limit"})
     else:
         asyncio.create_task(consumer())
         asyncio.create_task(consumer())

@@ -226,7 +226,7 @@
 <div class="splash-screen" id="user-limit" style="display: none">
     <div class="splash-screen-inner" id="error">
         <h1>Pick a Pic</h1>
-        <p> We are currently limiting the number of generations per user to 1500. We might increase it in the future.
+        <p> We are currently limiting the number of generations per user to 1000 generated images per week. We might increase it in the future.
             For any questions, please contact us at <a
                     href=":mailto:pickapic.io@gmail.com" target="_blank">mail</a>.</p>
     </div>
@@ -819,11 +819,6 @@
                 }
             }
         }
-        if (userScore > 6000) {
-            splashScreen.style.display = 'block';
-            document.getElementById("user-limit").style.display = 'block';
-            return;
-        }
 
         hasGenerated = true;
 
@@ -864,6 +859,10 @@
                     displayErrorMessage();
                 } else if (status === 'failed') {
                     displayFailedMessage();
+                }
+                else if (status === 'limit') {
+                    splashScreen.style.display = 'block';
+                    document.getElementById("user-limit").style.display = 'block';
                 }
             };
 
