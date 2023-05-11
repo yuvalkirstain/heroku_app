@@ -864,6 +864,7 @@ async def startapp():
             create_downloads_table()
             create_user_score_table()
             create_background_tasks()
+            update_csvs()
             global job_id2images, job_id2images_data, finished_job_id2uids
             job_id2images = {}
             job_id2images_data = {}
