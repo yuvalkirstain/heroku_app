@@ -84,8 +84,8 @@ STABILITY_API_HOST2 = os.environ['STABILITY_API_HOST2']
 STABILITY_ENGINE_ID_1 = "stable-diffusion-xl-beta-v2-2-2"
 STABILITY_ENGINE_ID_2 = "stable-diffusion-xl-beta-v2-2-5-f"
 STABILITY_ENGINE_ID_3 = "stable-diffusion-xl-beta-v2-2-5-b"
-STABILITY_ENGINE_ID_4 = "stable-diffusion-xl-beta-v2-2-5-c"
-STABILITY_ENGINE_ID_5 = "stable-diffusion-xl-beta-v2-2-5-d"
+STABILITY_ENGINE_ID_4 = "stable-diffusion-xl-beta-v2-2-5-g"
+STABILITY_ENGINE_ID_5 = "stable-diffusion-xl-beta-v2-2-5-h"
 STABILITY_ENGINE_ID_6 = "stable-diffusion-xl-beta-v2-2-5-e"
 
 twitter_auth = tweepy.OAuthHandler(consumer_key, consumer_secret_key)
