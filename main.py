@@ -114,6 +114,11 @@ BLOCKED_IPS = ["159.138.50.118", "42.2.119.97", "5.28.184.13", "190.167.37.23", 
 
 MAX_IMAGES_PER_USER_PER_WEEK = 1000
 
+CONTROL_IMAGE_UID = "767c0473-32cf-4d8b-9d82-25412a5f7f6d"
+CONTROL_URL = f"https://text-to-image-human-preferences.s3.us-east-2.amazonaws.com/images/{CONTROL_IMAGE_UID}.png"
+control_image_bytes = BytesIO()
+Image.open(BytesIO(requests.get(CONTROL_URL).content)).save(control_image_bytes, format="PNG")
+control_image_bytes = base64.b64encode(control_image_bytes.getvalue())
 
 class UpdateImageRequest(BaseModel):
     image_uid: str
@@ -672,6 +677,10 @@ async def get_images(websocket: WebSocket):
                     await websocket.send_json(message)
                     message["images"] = job_id2images[job_id]
                     message["image_uids"] = job.image_uids
+                    print(type(message["images"][0]), message["images"][0][:5])
+                    if random.uniform(0, 1) < 0.1:
+                        message["images"].append(control_image_bytes.decode("utf-8"))
+                        message["image_uids"].append(CONTROL_IMAGE_UID)
                     await websocket.send_json(message)
                     await set_job(job_id, job)
                     await app.cache.set("estimated_running_time", 0.5 * elapsed_time + 0.5 * estimated_time)
