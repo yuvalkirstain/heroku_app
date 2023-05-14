@@ -776,6 +776,10 @@
 
     promptInput.addEventListener('input', onPromptInput);
 
+    function removePunctuationAndWhiteSpaces(str) {
+        return str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s{2,}/g," ");
+    }
+
     function generate() {
         console.log("Generating " + isGenerating)
         if (isGenerating) {
@@ -812,7 +816,7 @@
                 let curNsfwWord = nsfwWords[i].trim().toLowerCase();
                 const curPromptWords = promptInput.value.trim().toLowerCase().split(" ");
                 for (let j = 0; j < curPromptWords.length; j++) {
-                    if (curPromptWords[j] === curNsfwWord) {
+                    if (removePunctuationAndWhiteSpaces(curPromptWords[j]) === removePunctuationAndWhiteSpaces(curNsfwWord)) {
                         alert("We detected an NSFW word or an illegal token: " + nsfwWords[i] + ". Please enter a valid prompt.");
                         return;
                     }
