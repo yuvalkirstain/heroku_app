@@ -777,7 +777,7 @@
     promptInput.addEventListener('input', onPromptInput);
 
     function removePunctuationAndWhiteSpaces(str) {
-        return str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s{2,}/g," ");
+        return str.replace(/["'.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s{2,}/g," ");
     }
 
     function generate() {
