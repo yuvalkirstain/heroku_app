@@ -109,11 +109,11 @@ BLOCKED_IDS = [
     3265, 3267, 3251, 3292, 3268, 3271, 1961, 3302, 3318, 1689, 3278, 1382, 3542, 3446, 3633, 1526, 4710, 4748, 4762,
     4444, 4870, 4733, 4878, 4928, 4939, 4926, 4942, 5019, 4946, 5006, 4241, 5027, 5015, 5041, 5032, 5047, 5054, 5064,
     5023, 5137, 5281, 4115, 5273, 4347, 3523, 5403, 3589, 5697, 6574, 6573, 6822, 7037, 3064, 7277, 8078, 7995, 3604,
-    7947, 7277, 8079, 4565, 7931, 4597
+    7947, 7277, 8079, 4565, 7931, 4597, 8118
 ]
 BLOCKED_IPS = ["159.138.50.118", "42.2.119.97", "5.28.184.13", "190.167.37.23", "62.102.148.166"]
 
-MAX_IMAGES_PER_USER_PER_WEEK = 1000
+MAX_IMAGES_PER_USER_PER_WEEK = 2000
 
 CONTROL_IMAGE_UID = "767c0473-32cf-4d8b-9d82-25412a5f7f6d"
 CONTROL_URL = f"https://text-to-image-human-preferences.s3.us-east-2.amazonaws.com/images/{CONTROL_IMAGE_UID}.png"
@@ -883,7 +883,7 @@ async def startapp():
             create_downloads_table()
             create_user_score_table()
             create_background_tasks()
-            # update_csvs()
+            update_csvs()
             global job_id2images, job_id2images_data, finished_job_id2uids
             job_id2images = {}
             job_id2images_data = {}
