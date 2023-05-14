@@ -120,6 +120,7 @@ control_image_bytes = BytesIO()
 Image.open(BytesIO(requests.get(CONTROL_URL).content)).save(control_image_bytes, format="PNG")
 control_image_bytes = base64.b64encode(control_image_bytes.getvalue())
 
+
 class UpdateImageRequest(BaseModel):
     image_uid: str
     prompt: str
@@ -186,14 +187,19 @@ async def homepage(request: Request):
         request.session['user_id'] = user_id
 
     nsfw_words = json.load(open("./nsfw_words.json", "r"))
+    illegal_tokens = json.load(open("./illegal_tokens.json", "r"))
 
-    return templates.TemplateResponse("index.html",
-                                      {"request": request,
-                                       "is_authenticated": is_user_logged(request),
-                                       "user_id": user_id,
-                                       "user_score": user_score,
-                                       "nsfw_words": nsfw_words
-                                       })
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "is_authenticated": is_user_logged(request),
+            "user_id": user_id,
+            "user_score": user_score,
+            "nsfw_words": nsfw_words,
+            "illegal_tokens": illegal_tokens,
+        }
+    )
 
 
 @app.get('/login')
@@ -876,7 +882,7 @@ async def startapp():
             create_downloads_table()
             create_user_score_table()
             create_background_tasks()
-            update_csvs()
+            # update_csvs()
             global job_id2images, job_id2images_data, finished_job_id2uids
             job_id2images = {}
             job_id2images_data = {}

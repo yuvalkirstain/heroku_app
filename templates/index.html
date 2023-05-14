@@ -246,6 +246,7 @@
     {#const clearButton = document.getElementById('clear-button');#}
     const userId = {{ user_id }};
     let nsfwWords = {{ nsfw_words|safe }};
+    let illegalTokens = {{ illegal_tokens|safe }};
     let userScore = {{ user_score }};
     const submitButton = document.getElementById('submit-button');
     const downloadButton = document.getElementById('download-button');
@@ -804,20 +805,32 @@
             alert("Please enter a prompt before generating.");
             return;
         }
+
+        for (let i = 0; i < illegalTokens.length; i++) {
+            if (promptInput.value.toLowerCase().includes(illegalTokens[i])) {
+                alert("We detected an illegal token: " + illegalTokens[i] + ". Please enter a valid prompt.");
+                return;
+            }
+        }
+
         for (let i = 0; i < nsfwWords.length; i++) {
             let nsfwPhrase = nsfwWords[i].toLowerCase().trim();
             const curNsfwWords = nsfwPhrase.split(" ");
             if (curNsfwWords.length > 1) {
                 if (promptInput.value.toLowerCase().includes(nsfwPhrase)) {
-                    alert("We detected an NSFW word or an illegal token: " + nsfwWords[i] + ". Please enter a valid prompt.");
+                    alert("We detected an NSFW word: " + nsfwWords[i] + ". Please enter a valid prompt.");
                     return;
                 }
             } else {
                 let curNsfwWord = nsfwWords[i].trim().toLowerCase();
                 const curPromptWords = promptInput.value.trim().toLowerCase().split(" ");
                 for (let j = 0; j < curPromptWords.length; j++) {
-                    if (removePunctuationAndWhiteSpaces(curPromptWords[j]) === removePunctuationAndWhiteSpaces(curNsfwWord)) {
-                        alert("We detected an NSFW word or an illegal token: " + nsfwWords[i] + ". Please enter a valid prompt.");
+                    if (removePunctuationAndWhiteSpaces(curPromptWords[j]) === curNsfwWord) {
+                        alert("We detected an NSFW word: " + nsfwWords[i] + ". Please enter a valid prompt.");
+                        return;
+                    }
+                    if (curPromptWords[j] === curNsfwWord) {
+                        alert("We detected an NSFW word: " + nsfwWords[i] + ". Please enter a valid prompt.");
                         return;
                     }
                 }
