@@ -5,6 +5,7 @@ import json
 import os
 import random
 import re
+import string
 import time
 import traceback
 import uuid
@@ -121,6 +122,8 @@ control_image_bytes = BytesIO()
 Image.open(BytesIO(requests.get(CONTROL_URL).content)).save(control_image_bytes, format="PNG")
 control_image_bytes = base64.b64encode(control_image_bytes.getvalue())
 
+nsfw_words = json.load(open("./nsfw_words.json", "r"))
+illegal_tokens = json.load(open("./illegal_tokens.json", "r"))
 
 class UpdateImageRequest(BaseModel):
     image_uid: str
@@ -186,9 +189,6 @@ async def homepage(request: Request):
         user_score = get_user_score(user_id)
         print(f"user {user_id} logged in {ip=}")
         request.session['user_id'] = user_id
-
-    nsfw_words = json.load(open("./nsfw_words.json", "r"))
-    illegal_tokens = json.load(open("./illegal_tokens.json", "r"))
 
     return templates.TemplateResponse(
         "index.html",
@@ -627,6 +627,29 @@ async def handle_images_request(prompt: str, user_id: str):
     return job.job_id
 
 
+def remove_punctuation_and_white_spaces(prompt_word):
+    return prompt_word.translate(str.maketrans('', '', string.punctuation)).strip()
+
+
+def invalid_prompt(prompt):
+    prompt = prompt.lower().strip()
+    if any(illegal_token in prompt for illegal_token in illegal_tokens):
+        return True
+    for nsfw_phrase in nsfw_words:
+        if len(nsfw_phrase.split(" ")) > 1:
+            if nsfw_phrase.lower() in prompt:
+                return True
+        else:
+            nsfw_word = nsfw_phrase.strip().lower()
+            prompt_words = prompt.split(" ")
+            for prompt_word in prompt_words:
+                if remove_punctuation_and_white_spaces(prompt_word) == nsfw_word:
+                    return True
+                if prompt_word == nsfw_word:
+                    return True
+    return False
+
+
 @app.websocket("/ws")
 async def get_images(websocket: WebSocket):
     await websocket.accept()
@@ -635,9 +658,9 @@ async def get_images(websocket: WebSocket):
     user_num_generated = get_num_images_per_user_last_week(user_id)
     logger.info(f"Request: {prompt=} | {user_id=} | {user_num_generated=}")
     job_id = await handle_images_request(prompt, user_id)
-    nsfw_words = json.load(open("./nsfw_words.json", "r"))
-    if job_id is None or user_id in BLOCKED_IDS:
-        if user_id in BLOCKED_IDS or any(word in prompt for word in nsfw_words):
+
+    if job_id is None or user_id in BLOCKED_IDS or invalid_prompt(prompt):
+        if user_id in BLOCKED_IDS:
             await asyncio.sleep(60)
         await websocket.send_json({"status": "error"})
     elif user_num_generated >= MAX_IMAGES_PER_USER_PER_WEEK:
