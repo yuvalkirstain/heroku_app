@@ -83,11 +83,17 @@ STABILITY_API_KEY = os.environ['STABILITY_API_KEY']
 STABILITY_API_HOST = os.environ['STABILITY_API_HOST']
 STABILITY_API_HOST2 = os.environ['STABILITY_API_HOST2']
 STABILITY_ENGINE_ID_1 = "stable-diffusion-xl-beta-v2-2-2"
-STABILITY_ENGINE_ID_2 = "stable-diffusion-xl-beta-v2-2-5-f"
-STABILITY_ENGINE_ID_3 = "stable-diffusion-xl-beta-v2-2-5-b"
-STABILITY_ENGINE_ID_4 = "stable-diffusion-xl-beta-v2-2-5-g"
-STABILITY_ENGINE_ID_5 = "stable-diffusion-xl-beta-v2-2-5-h"
-STABILITY_ENGINE_ID_6 = "stable-diffusion-xl-beta-v2-2-5-e"
+STABILITY_ENGINE_ID_2 = "stable-diffusion-xl-beta-v2-2-5-b"
+
+
+STABILITY_ENGINE_IDS = [
+    STABILITY_ENGINE_ID_1,
+    STABILITY_ENGINE_ID_1,
+    STABILITY_ENGINE_ID_2,
+    STABILITY_ENGINE_ID_2,
+    STABILITY_ENGINE_ID_2,
+    STABILITY_ENGINE_ID_2
+]
 
 twitter_auth = tweepy.OAuthHandler(consumer_key, consumer_secret_key)
 twitter_auth.set_access_token(access_token, access_token_secret)
@@ -125,6 +131,7 @@ control_image_bytes = base64.b64encode(control_image_bytes.getvalue())
 
 nsfw_words = json.load(open("./nsfw_words.json", "r"))
 illegal_tokens = json.load(open("./illegal_tokens.json", "r"))
+
 
 class UpdateImageRequest(BaseModel):
     image_uid: str
@@ -483,61 +490,15 @@ async def create_images(prompt, user_id):
     ))
     tasks.append(task1)
 
-    task2 = asyncio.create_task(generate_images_via_api(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        user_id=user_id,
-        engine_id=STABILITY_ENGINE_ID_1
-    ))
-    tasks.append(task2)
+    for stability_engine_id in STABILITY_ENGINE_IDS:
 
-    task3 = asyncio.create_task(generate_images_via_api(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        user_id=user_id,
-        engine_id=STABILITY_ENGINE_ID_1
-    ))
-    tasks.append(task3)
-
-    task4 = asyncio.create_task(generate_images_via_api(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        user_id=user_id,
-        engine_id=STABILITY_ENGINE_ID_2
-    ))
-    tasks.append(task4)
-
-    task5 = asyncio.create_task(generate_images_via_api(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        user_id=user_id,
-        engine_id=STABILITY_ENGINE_ID_3
-    ))
-    tasks.append(task5)
-
-    task6 = asyncio.create_task(generate_images_via_api(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        user_id=user_id,
-        engine_id=STABILITY_ENGINE_ID_4
-    ))
-    tasks.append(task6)
-
-    task7 = asyncio.create_task(generate_images_via_api(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        user_id=user_id,
-        engine_id=STABILITY_ENGINE_ID_5
-    ))
-    tasks.append(task7)
-
-    task8 = asyncio.create_task(generate_images_via_api(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        user_id=user_id,
-        engine_id=STABILITY_ENGINE_ID_6
-    ))
-    tasks.append(task8)
+        task = asyncio.create_task(generate_images_via_api(
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            user_id=user_id,
+            engine_id=stability_engine_id
+        ))
+        tasks.append(task)
 
     for task in tasks:
         await task
