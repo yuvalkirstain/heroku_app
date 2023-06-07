@@ -515,7 +515,7 @@ async def create_images(prompt, user_id):
 
     user_score = get_user_score(user_id)
     logger.info(
-        f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=} | {os.getpid()=} | {user_score=} | {backend_url1=}")
+        f"Generation: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=} | {os.getpid()=} | {user_score=}")
     images = total_response_json.pop("images")
     image_uids = [str(uuid.uuid4()) for _ in range(len(images))]
     image_data = extract_image_data(total_response_json, image_uids)
