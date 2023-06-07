@@ -476,19 +476,19 @@ async def create_images(prompt, user_id):
 
     start = time.time()
 
-    # logger.info(f"Starting: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=}")
-    num_samples_per_call = 2
-    backend_url1 = await get_verified_backend_url(prompt)
     tasks = []
 
-    task1 = asyncio.create_task(generate_images(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        user_id=user_id,
-        num_samples=num_samples_per_call,
-        backend_url=backend_url1
-    ))
-    tasks.append(task1)
+    # num_samples_per_call = 2
+    # logger.info(f"Starting: {prompt=} | time={time.time() - start:.2f}(sec) | {user_id=}")
+    # backend_url1 = await get_verified_backend_url(prompt)
+    # task1 = asyncio.create_task(generate_images(
+    #     prompt=prompt,
+    #     negative_prompt=negative_prompt,
+    #     user_id=user_id,
+    #     num_samples=num_samples_per_call,
+    #     backend_url=backend_url1
+    # ))
+    # tasks.append(task1)
 
     for stability_engine_id in STABILITY_ENGINE_IDS:
 
