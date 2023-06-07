@@ -511,7 +511,7 @@ async def create_images(prompt, user_id):
             if isinstance(responses[0][key], list):
                 total_response_json[key] += response[key]
             else:
-                total_response_json[key] += [response[key]] * (num_samples_per_call if i == 0 else 1)
+                total_response_json[key] += [response[key]] * len(response["gs"])
 
     user_score = get_user_score(user_id)
     logger.info(
