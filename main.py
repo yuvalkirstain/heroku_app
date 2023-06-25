@@ -85,7 +85,7 @@ STABILITY_API_KEY = os.environ['STABILITY_API_KEY']
 STABILITY_API_HOST = os.environ['STABILITY_API_HOST']
 STABILITY_API_HOST2 = os.environ['STABILITY_API_HOST2']
 STABILITY_ENGINE_ID_1 = "stable-diffusion-xl-beta-v2-2-2"
-STABILITY_ENGINE_ID_2 = "stable-diffusion-xl-beta-v2-2-5-b"
+STABILITY_ENGINE_ID_2 = "stable-diffusion-xl-beta-v2-2-2"
 
 
 STABILITY_ENGINE_IDS = [
