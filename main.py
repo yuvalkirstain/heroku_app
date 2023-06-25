@@ -62,8 +62,10 @@ oauth.register(
 
 BACKEND_URLS = json.loads(os.environ["BACKEND_URLS"])
 app.backend_urls = BACKEND_URLS[:]
-MAX_SIZE_IN_QUEUE = len(app.backend_urls) * 1
-MAX_SIZE_CONCURRENT = len(app.backend_urls) // 2
+num_urls = len(app.backend_urls)
+num_urls = 100
+MAX_SIZE_IN_QUEUE = num_urls * 1
+MAX_SIZE_CONCURRENT = num_urls // 2
 logger.debug(f"{MAX_SIZE_IN_QUEUE=} {MAX_SIZE_CONCURRENT=}")
 
 AWS_ACCESS_KEY = os.environ["AWS_ACCESS_KEY"]
